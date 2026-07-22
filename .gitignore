@@ -1,0 +1,6 @@
+.DS_Store
+*.log
+.env
+config.php
+private_uploads/
+
