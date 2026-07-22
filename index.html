@@ -1,0 +1,296 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0b0710">
+  <meta name="description" content="I Love My Body is building the world's first evidence-mapped non-invasive online hospital, alongside existing medical treatment.">
+  <title>I Love My Body — Happiness now. Illness never.</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Playfair+Display:ital,wght@0,500;1,500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/site.css">
+</head>
+<body>
+  <canvas id="dna-field" aria-hidden="true"></canvas>
+  <div class="ambient" aria-hidden="true"></div>
+
+  <header class="brandbar">
+    <a class="brand" href="#home" data-route="home" aria-label="I Love My Body home">
+      <span class="brand-heart" aria-hidden="true">♥</span>
+      <span><strong>I Love My Body</strong><small>Evidence-mapped non-invasive care</small></span>
+    </a>
+    <div class="beliefs" aria-label="Our philosophy">
+      <span>Everything is <b>connected</b></span>
+      <i></i><span>Everything is <b>energy</b></span>
+      <i></i><span>Everything is <b>mathematics</b></span>
+    </div>
+    <a class="space-link" href="/app/">My Happy Space <span>→</span></a>
+  </header>
+
+  <aside class="rail" aria-label="Website sections">
+    <div class="rail-line" aria-hidden="true"></div>
+    <nav id="primary-nav">
+      <button class="nav-item is-active" data-route="home" aria-label="Home" aria-current="page">
+        <svg viewBox="0 0 24 24"><path d="M3 11.5 12 4l9 7.5v8a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg><span>Home</span>
+      </button>
+      <button class="nav-item" data-route="start" aria-label="Start here">
+        <svg viewBox="0 0 24 24"><path d="M5 4h14v16H5z"/><path d="M8 8h8m-8 4h8m-8 4h5"/></svg><span>Start Here</span>
+      </button>
+      <button class="nav-item" data-route="method" aria-label="Our method">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/><path d="M12 4v5m0 6v5M4 12h5m6 0h5"/></svg><span>Our Method</span>
+      </button>
+      <button class="nav-item" data-route="connect" aria-label="What we connect">
+        <svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="5" r="2"/><circle cx="19" cy="12" r="2"/><circle cx="12" cy="19" r="2"/><path d="m6.5 10.5 4-4m3 0 4 4m0 3-4 4m-3 0-4-4"/></svg><span>What We Connect</span>
+      </button>
+      <button class="nav-item" data-route="journey" aria-label="Treatment plan">
+        <svg viewBox="0 0 24 24"><path d="M4 18h4V8h4v6h4V4h4v16H4z"/><path d="m4 5 4 3 4-4 4 3 4-4"/></svg><span>Treatment Plan</span>
+      </button>
+      <button class="nav-item" data-route="care" aria-label="Non-invasive care">
+        <svg viewBox="0 0 24 24"><path d="M12 20s-8-4.5-8-10a4.5 4.5 0 0 1 8-2.8A4.5 4.5 0 0 1 20 10c0 5.5-8 10-8 10Z"/><path d="M8 12h2l1-3 2 6 1-3h2"/></svg><span>Non-Invasive Care</span>
+      </button>
+      <button class="nav-item" data-route="evidence" aria-label="Evidence">
+        <svg viewBox="0 0 24 24"><path d="M6 3h12v18H6z"/><path d="M9 7h6M9 11h6M9 15h4"/></svg><span>Evidence</span>
+      </button>
+      <button class="nav-item" data-route="people" aria-label="Selected practitioners">
+        <svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2"/><path d="M3 20c0-4 2.5-6 6-6s6 2 6 6m0-5c3 0 5 1.5 5 5"/></svg><span>Selected Practitioners</span>
+      </button>
+      <button class="nav-item" data-route="book" aria-label="Book and insights">
+        <svg viewBox="0 0 24 24"><path d="M4 5c4-1 6 0 8 2v13c-2-2-4-3-8-2zm16 0c-4-1-6 0-8 2v13c2-2 4-3 8-2z"/></svg><span>Book & Insights</span>
+      </button>
+      <button class="nav-item" data-route="about" aria-label="About and contact">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6m0-10v1"/></svg><span>About & Contact</span>
+      </button>
+    </nav>
+  </aside>
+
+  <main id="site-main" tabindex="-1">
+    <section class="view is-active" data-view="home" aria-labelledby="home-title">
+      <div class="home-copy">
+        <p class="eyebrow">Happiness now. Illness never.</p>
+        <h1 id="home-title">Your illness is one part of your story.<br><em>Let’s understand the rest.</em></h1>
+        <p class="lede">We are building the world’s first evidence-mapped non-invasive online hospital—connecting your reports and medicines with the food, feelings, body signals, choices and daily life around them.</p>
+        <div class="actions">
+          <a class="button primary" href="/app/">Begin my private assessment <span>→</span></a>
+          <button class="button quiet" data-route="method">Understand how it works</button>
+        </div>
+        <div class="trust-row">
+          <span><b>Alongside</b> existing medical treatment</span>
+          <span><b>Private</b> personal records</span>
+          <span><b>Sourced</b> explanations</span>
+          <span><b>Measured</b> over time</span>
+        </div>
+      </div>
+      <aside class="invitation-card">
+        <p class="card-kicker">Your first step</p>
+        <h2>Tell us where you are today.</h2>
+        <p>Upload your reports and prescriptions, record your medicines, and complete a gentle seven-day baseline before your treatment journey begins.</p>
+        <ol>
+          <li><span>01</span> Medical baseline</li>
+          <li><span>02</span> Mind, body and life assessment</li>
+          <li><span>03</span> Your connected treatment map</li>
+        </ol>
+        <a href="/app/">Enter My Happy Space <span>→</span></a>
+      </aside>
+      <div class="home-footnote">No diagnosis or medicine change is made by automation. Clinical decisions remain with qualified professionals.</div>
+    </section>
+
+    <section class="view" data-view="start" aria-labelledby="start-title">
+      <header class="view-heading compact">
+        <div><p class="eyebrow">Start here</p><h2 id="start-title">Your private treatment record begins with today.</h2></div>
+        <p>You do not need to understand the system before you begin. My Happy Space guides you through one clear step at a time and keeps your medical care visible throughout.</p>
+      </header>
+      <div class="start-grid">
+        <article><span>01</span><h3>Basic details & consent</h3><p>Your identity stays in the protected backend. Public and practitioner views use an authorised reference.</p></article>
+        <article><span>02</span><h3>Reports & prescriptions</h3><p>Upload existing or fresh reports, prescriptions and medicine photographs. Keep dates and originals.</p></article>
+        <article><span>03</span><h3>Medicines</h3><p>Record what is prescribed, when it is taken and what you experience. Only a qualified clinician changes treatment.</p></article>
+        <article><span>04</span><h3>Seven-day understanding</h3><p>Complete body, mind, emotion, personality, purpose and daily-life assessments at a comfortable pace.</p></article>
+        <article><span>05</span><h3>Daily feed</h3><p>Photograph food, confirm the item and quantity, then add where, when, why, how, with whom and how it felt.</p></article>
+        <article><span>06</span><h3>Body, choice, action, response</h3><p>Record what your body communicated, what you chose, what you did and what happened afterwards.</p></article>
+      </div>
+      <div class="journey-bottom"><p><strong>Designed for real life:</strong> quick choices first, detail only when useful, editable entries and a visible record you can review.</p><a class="button primary" href="/app/">Open My Happy Space <span>→</span></a></div>
+    </section>
+
+    <section class="view" data-view="method" aria-labelledby="method-title">
+      <header class="view-heading">
+        <p class="eyebrow">Our method</p>
+        <h2 id="method-title">One life. One connected system.</h2>
+        <p>Medicine usually sees the report. You live everything that happened before and after it. We connect both.</p>
+      </header>
+      <div class="method-equation" aria-label="Our analysis loop">
+        <div><strong>What enters</strong><span>Food · air · information · medicine · environment</span></div><i>→</i>
+        <div><strong>What you experience</strong><span>Thought · feeling · relationship · body signal</span></div><i>→</i>
+        <div><strong>What you do</strong><span>Choice · action · practice · rest · expression</span></div><i>→</i>
+        <div><strong>What changes</strong><span>Response · measurement · report · quality of life</span></div>
+      </div>
+      <div class="three-beliefs">
+        <article><small>01</small><h3>Everything is connected.</h3><p>We preserve timing and context so an observed sequence is visible without pretending every connection is a cause.</p></article>
+        <article><small>02</small><h3>Everything is energy.</h3><p>Physical metabolism, oxygen use, felt vitality and traditional energy are recorded as different meanings—not collapsed into one number.</p></article>
+        <article><small>03</small><h3>Everything is mathematics.</h3><p>Every result retains its inputs, units, time window, missing information, formula, evidence and uncertainty.</p></article>
+      </div>
+      <p class="method-note">Believe deeply. Test honestly. Never manufacture certainty.</p>
+    </section>
+
+    <section class="view" data-view="connect" aria-labelledby="connect-title">
+      <header class="view-heading compact">
+        <p class="eyebrow">What we connect</p>
+        <h2 id="connect-title">The person your report cannot see.</h2>
+        <p>Select a layer to understand what it contributes to your personal picture.</p>
+      </header>
+      <div class="connect-layout">
+        <div class="orbit" id="connection-orbit" aria-label="Connected human layers">
+          <button style="--a:0deg" data-layer="medical">Medical baseline</button>
+          <button style="--a:45deg" data-layer="physical">Physical systems</button>
+          <button style="--a:90deg" data-layer="food">Food chemistry</button>
+          <button style="--a:135deg" data-layer="mind">Mind & emotion</button>
+          <button style="--a:180deg" data-layer="signals">Body signals</button>
+          <button style="--a:225deg" data-layer="actions">Actions</button>
+          <button style="--a:270deg" data-layer="environment">Environment</button>
+          <button style="--a:315deg" data-layer="response">Biological response</button>
+          <div class="orbit-core"><span>You</span><small>one connected life</small></div>
+        </div>
+        <article class="layer-detail" id="layer-detail" aria-live="polite">
+          <small>Start here</small><h3>Your medical baseline</h3><p>Illnesses, operations, family history, reports, prescriptions, medicines and clinical measurements form the starting point—not the entire person.</p><b>Stored with date, source and review status.</b>
+        </article>
+      </div>
+    </section>
+
+    <section class="view" data-view="journey" aria-labelledby="journey-title">
+      <header class="view-heading compact">
+        <p class="eyebrow">Treatment plan</p>
+        <h2 id="journey-title">Seven weeks. Two days. Seven weeks.</h2>
+        <p>A structured 100-day journey from baseline to comparison—without independently changing the medical treatment you already follow.</p>
+      </header>
+      <div class="journey-track">
+        <article><span>Before day 1</span><h3>Understand today</h3><p>History, reports, prescriptions, medicines, assessments, consent and safety screening.</p><b>Baseline</b></article>
+        <div class="track-arrow">→</div>
+        <article><span>Days 1–49</span><h3>Observe</h3><p>Daily food, feelings, sleep, body signals, choices, actions, practices and responses.</p><b>7 weeks</b></article>
+        <div class="track-arrow">→</div>
+        <article class="pause"><span>Days 50–51</span><h3>Pause</h3><p>Review completeness, safety, patterns, uncertainties and the next agreed direction.</p><b>2 days</b></article>
+        <div class="track-arrow">→</div>
+        <article><span>Days 52–100</span><h3>Apply & compare</h3><p>Continue the reviewed plan, repeat relevant assessments and compare reports.</p><b>7 weeks</b></article>
+      </div>
+      <div class="journey-bottom">
+        <p><strong>The purpose:</strong> discover what repeatedly supports or disturbs your stability, function and happiness—and give you and qualified clinicians better information for review.</p>
+        <a class="button primary" href="/app/">Start with my baseline <span>→</span></a>
+      </div>
+    </section>
+
+    <section class="view" data-view="care" aria-labelledby="care-title">
+      <header class="view-heading compact">
+        <p class="eyebrow">Non-invasive care</p>
+        <h2 id="care-title">Different traditions. One honest standard.</h2>
+        <p>Every approach declares what it is, why it is included, what evidence exists, what remains uncertain and what response will be measured.</p>
+      </header>
+      <div class="care-grid">
+        <article><span>01</span><h3>Food chemistry</h3><p>Ingredients, quantity, preparation, timing, combinations, nutrients, gut response and medicine context.</p></article>
+        <article><span>02</span><h3>Clinical psychology</h3><p>Validated assessments, feelings, beliefs, personality, behaviour, purpose and direction.</p></article>
+        <article><span>03</span><h3>Breath, sleep & movement</h3><p>Nervous-system inputs observed through breathing, rest, activity and measurable response.</p></article>
+        <article><span>04</span><h3>Traditional practices</h3><p>Ayurveda, yoga, acupuncture and acupressure—preserved with their original framework and evidence label.</p></article>
+        <article><span>05</span><h3>Energy-centre practices</h3><p>Traditional attention, breath, sound and reflection practices; experience is recorded without claiming DNA was opened.</p></article>
+        <article><span>06</span><h3>Your medical care</h3><p>Reports, medicines and clinician decisions remain visible throughout the complementary journey.</p></article>
+      </div>
+      <p class="boundary"><b>Our boundary:</b> a traditional explanation is never disguised as biomedical proof, and an app never tells a patient to stop prescribed medicine.</p>
+    </section>
+
+    <section class="view" data-view="evidence" aria-labelledby="evidence-title">
+      <header class="view-heading compact evidence-heading">
+        <div><p class="eyebrow">Evidence you can inspect</p><h2 id="evidence-title">The source is part of the answer.</h2></div>
+        <p>At the last completed backend audit: <strong>52 registered source families</strong> and <strong>275 stored reference records</strong>. Registration does not mean every connector is live.</p>
+      </header>
+      <div class="evidence-layout">
+        <div class="evidence-tabs" role="tablist" aria-label="Evidence categories">
+          <button class="is-active" data-evidence="food" role="tab">Food</button>
+          <button data-evidence="medical" role="tab">Medical</button>
+          <button data-evidence="mind" role="tab">Mind & brain</button>
+          <button data-evidence="pathways" role="tab">Pathways</button>
+          <button data-evidence="traditional" role="tab">Traditional</button>
+          <button data-evidence="personal" role="tab">Personal</button>
+        </div>
+        <article class="evidence-card" id="evidence-card" aria-live="polite">
+          <small>Food chemistry & composition</small><h3>What is in the food?</h3><p>Used for food identity, ingredients, nutrients, chemical composition, quantity, processing and preparation context.</p>
+          <div class="source-list"><span>ICMR–NIN</span><span>Indian Food Composition Tables</span><span>FSSAI</span><span>USDA FoodData Central</span><span>FAO INFOODS</span><span>NIH ODS</span></div>
+          <footer><b>What it supports:</b> composition and identity. <b>What it does not prove:</b> the same personal response in everyone.</footer>
+        </article>
+        <aside class="evidence-rules">
+          <h3>Every public insight must show</h3>
+          <ul><li>Who published it</li><li>Evidence type and status</li><li>What it supports</li><li>What it does not prove</li><li>Limitations and conflicts</li><li>Original source link</li></ul>
+          <button id="source-demo">See a source example</button>
+        </aside>
+      </div>
+      <div class="status-legend"><span><i class="active"></i> Reviewed/active</span><span><i class="manual"></i> Manual review</span><span><i class="pending"></i> Connector pending</span><span><i class="personal"></i> Personal evidence</span></div>
+    </section>
+
+    <section class="view" data-view="people" aria-labelledby="people-title">
+      <header class="view-heading compact">
+        <p class="eyebrow">Selected practitioners</p>
+        <h2 id="people-title">People trusted for their work—not called magicians.</h2>
+        <p>A deliberately limited network of practitioners personally experienced, reviewed or selected by Sapna. Qualifications and scope must remain visible.</p>
+      </header>
+      <div class="people-layout">
+        <article class="people-principle"><span>01</span><h3>Personally selected</h3><p>Listing is not automatic and an application does not guarantee acceptance.</p></article>
+        <article class="people-principle"><span>02</span><h3>Identity verified</h3><p>Qualifications, registrations, method, location and professional boundaries are recorded.</p></article>
+        <article class="people-principle"><span>03</span><h3>Evidence labelled</h3><p>The practitioner’s experience and the evidence for the practice are shown separately.</p></article>
+        <article class="people-principle"><span>04</span><h3>Response measured</h3><p>Sessions connect to before-and-after signals, follow-up and safety observations where consented.</p></article>
+      </div>
+      <div class="people-actions"><button class="button primary">Explore selected practitioners <span>→</span></button><button class="button quiet">Apply to be considered</button></div>
+    </section>
+
+    <section class="view" data-view="book" aria-labelledby="book-title">
+      <div class="story-grid">
+        <article>
+          <p class="eyebrow">The philosophy behind the platform</p>
+          <h2 id="book-title">I Love What I Feed My Body</h2>
+          <p>The book asks us to look beyond food as nutrition alone. We feed the body through food chemistry, air, information, thoughts, feelings, beliefs, relationships, environments and actions.</p>
+          <blockquote>“My body is my responsibility and my choices are my own.”</blockquote>
+          <p>Book content and scientific evidence remain separate in the backend. Every insight is labelled as an exact quotation, reflection, philosophy or evidence-supported statement before it can appear in the product.</p>
+        </article>
+        <article class="book-card">
+          <small>Did you know?</small><h3>Small moments for reflection</h3>
+          <p>Audited book moments can appear gently after relevant actions—never as diagnosis, pressure or manufactured medical certainty.</p>
+          <div><button data-route="evidence">See our source standard</button><button data-route="method">See the method</button></div>
+          <footer>Author-owned content © Sapna Jain Chaturvedi. Display depends on editorial and scientific-scope status.</footer>
+        </article>
+        <article class="book-card"><small>The central question</small><h3>Driven by fear—or driven by love?</h3><p>The app helps a person observe the choice, action and response without shame, guilt or moral judgement.</p></article>
+      </div>
+    </section>
+
+    <section class="view" data-view="about" aria-labelledby="about-title">
+      <div class="story-grid">
+        <article>
+          <p class="eyebrow">About I Love My Body</p>
+          <h2 id="about-title">Discover your magic. Find your happiness.</h2>
+          <p>I Love My Body is building an evidence-mapped non-invasive online hospital: a private place that connects medical records with daily food, feelings, body signals, choices, actions, environments and measured responses.</p>
+          <p>It was created from Sapna Jain Chaturvedi’s lived experience, long inquiry into food and human behaviour, and determination to examine an interconnected philosophy honestly through science and personal longitudinal evidence.</p>
+          <blockquote>Happiness now. Illness never.</blockquote>
+          <p>This is an intention and direction—not a guarantee of cure. The platform complements appropriate medical care and does not replace emergency, diagnostic or prescribing services.</p>
+        </article>
+        <article class="book-card"><small>Vision</small><h3>Every person can understand their own connected life.</h3><p>Make credible knowledge, careful observation and non-invasive support accessible without erasing uncertainty.</p></article>
+        <article class="contact-card"><small>Begin privately</small><h3>Ready to start?</h3><p>Open your personal space or ask Jaadu to explain the journey.</p><a class="button primary" href="/app/">My Happy Space →</a></article>
+      </div>
+    </section>
+
+  </main>
+
+  <button class="jaadu-trigger" id="jaadu-trigger" aria-controls="jaadu-panel" aria-expanded="false"><span>✦</span> Ask Jaadu</button>
+  <aside class="jaadu-panel" id="jaadu-panel" aria-hidden="true">
+    <header><div><small>I LOVE MY BODY ASSISTANT</small><strong>Jaadu</strong></div><button id="jaadu-close" aria-label="Close Jaadu">×</button></header>
+    <div class="jaadu-body">
+      <p class="jaadu-message">Hello. I can help you understand the treatment journey, explore our evidence or begin your private assessment. What would you like to do?</p>
+      <button data-jaadu="journey">Explain the 7 + 2 + 7 plan</button>
+      <button data-jaadu="evidence">Show me the evidence</button>
+      <a href="/app/">Begin my assessment →</a>
+      <p class="jaadu-boundary">Jaadu does not diagnose, prescribe or change medicine.</p>
+    </div>
+  </aside>
+
+  <dialog id="source-dialog">
+    <button class="dialog-close" aria-label="Close">×</button>
+    <p class="eyebrow">Source example</p><h2>Indian Food Composition Tables</h2>
+    <dl><div><dt>Owner</dt><dd>ICMR–National Institute of Nutrition</dd></div><div><dt>Evidence type</dt><dd>Primary food-composition reference</dd></div><div><dt>Used for</dt><dd>Nutrient composition of an identified food and stated basis quantity</dd></div><div><dt>Does not prove</dt><dd>That the food produces the same response in every person</dd></div><div><dt>Connector status</dt><dd>Registered; live integration must be confirmed by the backend</dd></div></dl>
+    <p class="dialog-note">The live product must populate this panel from the exact reference linked to the displayed claim.</p>
+  </dialog>
+
+  <script src="assets/site.js"></script>
+</body>
+</html>
