@@ -12,7 +12,7 @@
   let targetX = 0;
   let targetY = 0;
   const particles = [];
-  const total = innerWidth < 680 ? 120 : 210;
+  const total = innerWidth < 680 ? 150 : 280;
 
   for (let index = 0; index < total; index += 1) {
     const longitude = Math.random() * Math.PI * 2;
@@ -58,15 +58,15 @@
     pointerY += (targetY - pointerY) * .025;
     context.clearRect(0, 0, width, height);
 
-    const scale = Math.min(width, height) * .54;
-    const centreX = width * .5 + pointerX * 42;
-    const centreY = height * .46 + pointerY * 30;
+    const scale = Math.max(width, height) * (width < 680 ? .76 : .82);
+    const centreX = width * .52 + pointerX * 62;
+    const centreY = height * .48 + pointerY * 46;
     const projected = particles.map((particle) => {
       const point = rotate(particle, time + pointerX * .22, Math.sin(time * .72) * .17 + pointerY * .1);
       const depth = 1.55 + point.z * .45;
       return {
-        x: centreX + point.x * scale / depth,
-        y: centreY + point.y * scale / depth,
+        x: centreX + point.x * scale * 1.08 / depth,
+        y: centreY + point.y * scale * .72 / depth,
         z: point.z,
         alpha: .26 + (point.z + 1) * .31,
         size: particle.size * (1.1 + (point.z + 1) * .52),
@@ -81,9 +81,9 @@
         const dx = a.x - b.x;
         const dy = a.y - b.y;
         const distanceSquared = dx * dx + dy * dy;
-        const threshold = width < 680 ? 72 : 92;
+        const threshold = width < 680 ? 84 : 126;
         if (distanceSquared < threshold * threshold) {
-          const opacity = (1 - Math.sqrt(distanceSquared) / threshold) * .22 * Math.min(a.alpha, b.alpha);
+          const opacity = (1 - Math.sqrt(distanceSquared) / threshold) * .18 * Math.min(a.alpha, b.alpha);
           context.beginPath();
           context.moveTo(a.x, a.y);
           context.lineTo(b.x, b.y);
@@ -98,7 +98,7 @@
       .sort((a, b) => a.z - b.z)
       .forEach((point) => {
         const pulse = 1 + Math.sin(milliseconds * .0016 + point.phase) * .18;
-        const radius = point.size * pulse;
+        const radius = point.size * pulse * .82;
         const glow = context.createRadialGradient(point.x, point.y, 0, point.x, point.y, radius * 5.5);
         glow.addColorStop(0, `rgba(255,250,245,${Math.min(1, point.alpha + .28)})`);
         glow.addColorStop(.2, `rgba(250,205,184,${point.alpha})`);
