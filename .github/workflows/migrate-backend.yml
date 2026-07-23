@@ -23,6 +23,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Validate migration files
+        id: validate
         run: |
           set -euo pipefail
           test -s backend/phase_42_pre10_clarity_engine.sql
@@ -34,6 +35,7 @@ jobs:
           sha256sum backend/phase_42*.sql
 
       - name: Prepare dedicated SSH identity
+        id: ssh
         env:
           DEPLOY_BUNDLE: ${{ secrets.HOSTINGER_DEPLOY_BUNDLE }}
         run: |
@@ -50,6 +52,7 @@ jobs:
           ssh-keyscan -p "$(jq -r '.port' /tmp/ilb-deploy.json)" "$(jq -r '.host' /tmp/ilb-deploy.json)" >> "$HOME/.ssh/known_hosts"
 
       - name: Upload migrations
+        id: upload
         run: |
           set -euo pipefail
           tar -czf "/tmp/ilb-backend-${GITHUB_SHA}.tgz" backend/phase_42*.sql
@@ -162,6 +165,9 @@ jobs:
             else
               echo "| migration_status | workflow_stopped_before_remote_verification |"
             fi
+            echo "| source_validation | ${{ steps.validate.outcome }} |"
+            echo "| ssh_preparation | ${{ steps.ssh.outcome }} |"
+            echo "| migration_upload | ${{ steps.upload.outcome }} |"
             echo "| github_step_outcome | ${{ steps.migrate.outcome }} |"
             echo
             echo "No patient-authored data or credentials are included."
