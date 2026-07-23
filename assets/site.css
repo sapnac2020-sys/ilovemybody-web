@@ -57,8 +57,8 @@ body.hospital-entrance{
   display:flex;
   flex-direction:column;
   align-items:center;
-  justify-content:flex-end;
-  padding:28px 28px clamp(34px,6vh,64px);
+  justify-content:center;
+  padding:28px;
   text-align:center;
   text-shadow:0 3px 28px rgba(0,0,0,.72);
 }
@@ -78,7 +78,7 @@ body.hospital-entrance{
 }
 .entrance-content h1{
   margin:0;
-  font:500 clamp(24px,2.35vw,36px)/1.02 var(--serif);
+  font:500 clamp(28px,2.8vw,43px)/1.02 var(--serif);
   letter-spacing:-.02em;
   text-transform:none;
 }
