@@ -8,7 +8,7 @@ START TRANSACTION;
 
 INSERT INTO `ilb_pre10_option`
  (`item_id`,`option_key`,`option_order`,`option_text`,`numeric_value`,`meaning_note`)
-SELECT i.`item_id`,x.`option_key`,x.`option_order`,x.`option_text`,NULL,x.`meaning_note`
+SELECT i.`item_id`,x.`k`,x.`n`,x.`t`,NULL,x.`m`
 FROM `ilb_pre10_item` i
 JOIN (
  SELECT 'current_reality' a,'reason_here' q,'understand_health' k,10 n,'I want to understand my health or body' t,NULL m
@@ -259,4 +259,3 @@ SELECT
  ) THEN 1 ELSE 0 END) AS `choice_items_without_options`
 FROM `ilb_pre10_item` i
 WHERE i.`response_type` IN ('single_choice','multi_choice','yes_no_unsure');
-
