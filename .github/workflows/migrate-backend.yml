@@ -58,17 +58,34 @@ jobs:
             "$DEPLOY_USER@$DEPLOY_HOST:ilb-backend-${GITHUB_SHA}.tgz"
 
       - name: Apply migrations and verify
+        id: migrate
+        continue-on-error: true
         run: |
           set -euo pipefail
           ssh -i "$HOME/.ssh/id_ed25519" -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" \
             "BACKEND_SHA='$GITHUB_SHA' bash -s" > /tmp/backend-verification.tsv <<'REMOTE'
           set -euo pipefail
+          CURRENT_STAGE="remote_initialization"
+          DEFAULTS=""
+          PACKAGE=""
+          report_exit() {
+            code=$?
+            if test -n "$DEFAULTS"; then rm -f "$DEFAULTS"; fi
+            if test -n "$PACKAGE"; then rm -f "$PACKAGE"; fi
+            if test "$code" -ne 0; then
+              printf 'migration_status\tfailed\n'
+              printf 'failed_stage\t%s\n' "$CURRENT_STAGE"
+              printf 'failure_code\t%s\n' "$code"
+            fi
+            exit "$code"
+          }
+          trap report_exit EXIT
           PACKAGE="$HOME/ilb-backend-${BACKEND_SHA}.tgz"
           STAGE="$HOME/deployments/ilovemybody-backend/${BACKEND_SHA}"
           APP_CONFIG="$HOME/domains/ilovemybody.in/public_html/app/config.php"
           DEFAULTS="$(mktemp "$HOME/.ilb-mysql.XXXXXX")"
-          trap 'rm -f "$DEFAULTS" "$PACKAGE"' EXIT
 
+          CURRENT_STAGE="host_prerequisites"
           test -f "$PACKAGE"
           test -f "$APP_CONFIG"
           command -v php >/dev/null
@@ -76,6 +93,7 @@ jobs:
           mkdir -p "$STAGE"
           tar -xzf "$PACKAGE" -C "$STAGE"
 
+          CURRENT_STAGE="private_database_configuration"
           php -r '
             $c = require $argv[1];
             if (!isset($c["db"])) { fwrite(STDERR, "Database configuration missing\n"); exit(2); }
@@ -93,11 +111,19 @@ jobs:
           ' "$APP_CONFIG" > "$DEFAULTS"
           chmod 600 "$DEFAULTS"
 
-          mysql --defaults-extra-file="$DEFAULTS" --execute="SELECT 1" >/dev/null
-          mysql --defaults-extra-file="$DEFAULTS" < "$STAGE/backend/phase_42_pre10_clarity_engine.sql"
-          mysql --defaults-extra-file="$DEFAULTS" < "$STAGE/backend/phase_42b_pre10_choice_library.sql"
-          mysql --defaults-extra-file="$DEFAULTS" < "$STAGE/backend/phase_42c_pre10_calculation_contract.sql"
+          CURRENT_STAGE="database_connection"
+          mysql --defaults-extra-file="$DEFAULTS" --execute="SELECT 1" >/dev/null 2>&1
+          CURRENT_STAGE="phase_42_pre10_engine"
+          mysql --defaults-extra-file="$DEFAULTS" \
+            < "$STAGE/backend/phase_42_pre10_clarity_engine.sql" >/tmp/ilb-phase42.log
+          CURRENT_STAGE="phase_42b_choice_library"
+          mysql --defaults-extra-file="$DEFAULTS" \
+            < "$STAGE/backend/phase_42b_pre10_choice_library.sql" >/tmp/ilb-phase42b.log
+          CURRENT_STAGE="phase_42c_calculation_contract"
+          mysql --defaults-extra-file="$DEFAULTS" \
+            < "$STAGE/backend/phase_42c_pre10_calculation_contract.sql" >/tmp/ilb-phase42c.log
 
+          CURRENT_STAGE="backend_readiness_verification"
           BLOCKED="$(mysql --defaults-extra-file="$DEFAULTS" --batch --skip-column-names \
             --execute="SELECT COUNT(*) FROM v_ilb_backend_readiness WHERE readiness_status='blocked'")"
           test "$BLOCKED" = "0"
@@ -113,21 +139,30 @@ jobs:
             UNION ALL SELECT 'backend_readiness_blockers',CAST(COUNT(*) AS CHAR) FROM v_ilb_backend_readiness WHERE readiness_status='blocked'
             UNION ALL SELECT 'verified_at_utc',UTC_TIMESTAMP();
           "
+          printf 'migration_status\tverified\n'
+          rm -f "$DEFAULTS" "$PACKAGE"
+          trap - EXIT
           REMOTE
 
-          grep -q $'backend_readiness_blockers\t0' /tmp/backend-verification.tsv
+          grep -q $'migration_status\tverified' /tmp/backend-verification.tsv
 
       - name: Record non-sensitive live verification
+        if: always()
         run: |
           set -euo pipefail
           {
             echo "# Live Backend Status"
             echo
-            echo "This file is generated only after the private Hostinger database migration and structural verification succeed."
+            echo "This file records a sanitized Hostinger backend migration outcome."
             echo
             echo "| Check | Live value |"
             echo "|---|---:|"
-            awk -F '\t' '{ gsub(/\|/, "\\|", $1); gsub(/\|/, "\\|", $2); printf("| %s | %s |\\n",$1,$2) }' /tmp/backend-verification.tsv
+            if test -s /tmp/backend-verification.tsv; then
+              awk -F '\t' 'NF>=2 { gsub(/\|/, "\\|", $1); gsub(/\|/, "\\|", $2); printf("| %s | %s |\\n",$1,$2) }' /tmp/backend-verification.tsv
+            else
+              echo "| migration_status | workflow_stopped_before_remote_verification |"
+            fi
+            echo "| github_step_outcome | ${{ steps.migrate.outcome }} |"
             echo
             echo "No patient-authored data or credentials are included."
           } > docs/LIVE_BACKEND_STATUS.md
@@ -139,3 +174,7 @@ jobs:
             git commit -m "Record verified live backend migration [skip ci]"
             git push
           fi
+
+      - name: Enforce successful migration
+        if: steps.migrate.outcome != 'success'
+        run: exit 1
