@@ -16,9 +16,8 @@
 
 <div id="app" class="app-shell" hidden>
  <aside class="side">
-  <div class="brand-mark">♥</div>
+  <button class="brand-mark" data-view="today" data-tip="Dashboard">♥</button>
   <nav aria-label="My Happy Space">
-   <button data-view="today" class="active" data-tip="Today"><i>⌂</i><span>Today</span></button>
    <button data-view="start" data-tip="Starting point"><i>◇</i><span>Starting point</span></button>
    <button data-view="checkin" data-tip="Daily check-in"><i>⌁</i><span>Daily check-in</span></button>
    <button data-view="journal" data-tip="Journal"><i>✎</i><span>Journal</span></button>
@@ -35,8 +34,8 @@
   <header class="workspace-head"><div><p class="eyebrow" id="viewEyebrow">TODAY</p><h1 id="viewTitle">Good morning, <em id="personName">friend.</em></h1></div><div class="date-chip"><b id="todayDate"></b><small>YOUR DAY</small></div></header>
 
   <section class="view active" data-view-panel="today">
-   <div class="welcome-grid"><article class="welcome-copy"><p class="eyebrow">NOTHING IS COMPULSORY</p><h2>How would you like to use <em>your space?</em></h2><p>Share one moment or take your time. More information helps us understand your connected experience; you always choose what to record.</p><div class="action-row"><button class="primary" data-go="checkin">Check in now →</button><button class="quiet" data-go="journal">Write privately</button></div></article><aside class="today-card"><p class="eyebrow">YOUR JOURNEY</p><ol><li class="active"><b>10 days</b><span>Understand your starting point</span></li><li><b>7 weeks</b><span>Observe choices and change</span></li><li><b>2 days</b><span>Reports and reassessment</span></li><li><b>7 weeks</b><span>Continue only if useful</span></li></ol><button data-go="journey">See the full journey →</button></aside></div>
-   <div class="entry-strip"><button data-go="start"><i>01</i><b>Starting point</b><span>Reports, medicines and assessments</span></button><button data-go="checkin"><i>02</i><b>Daily check-in</b><span>Body, feeling, food and action</span></button><button data-go="journal"><i>03</i><b>Journal</b><span>Write what needs expression</span></button><button data-go="records"><i>04</i><b>Records</b><span>Upload or see your documents</span></button></div>
+   <div class="welcome-grid"><article class="welcome-copy"><p class="eyebrow">MY HAPPY SPACE · ONE DASHBOARD</p><h2>Everything about <em>my journey.</em></h2><p>My reports, assessments, daily observations, reflections and progress—connected in one private space.</p><div class="action-row"><button class="primary" data-go="checkin">Check in now →</button><button class="quiet" data-go="journal">Write privately</button></div></article><aside class="today-card"><p class="eyebrow">MY CURRENT PHASE</p><ol><li class="active"><b>10 days</b><span>Understand my starting point</span></li><li><b>7 weeks</b><span>Observe choices and change</span></li><li><b>2 days</b><span>Reports and reassessment</span></li><li><b>7 weeks</b><span>Continue only if useful</span></li></ol><button data-go="journey">Open my timeline →</button></aside></div>
+   <div class="entry-strip"><button data-go="start"><i>01</i><b>Starting point</b><span>Reports, medicines and assessments</span></button><button data-go="checkin"><i>02</i><b>Daily check-in</b><span>Body, feeling, food and action</span></button><button data-go="journal"><i>03</i><b>Journal</b><span>Write what needs expression</span></button><button data-go="journey"><i>04</i><b>Journey</b><span>My phase, progress and review</span></button><button data-go="records"><i>05</i><b>Records</b><span>Upload and see documents</span></button><button data-go="view"><i>06</i><b>Personalise</b><span>Colour, font and text size</span></button></div>
   </section>
 
   <section class="view" data-view-panel="start">
@@ -78,7 +77,7 @@
   <section class="view completion" data-view-panel="done"><i>✓</i><p class="eyebrow">TODAY IS RECORDED</p><h2>Thank you for listening<br><em>to your body.</em></h2><button class="primary" data-go="today">Return home →</button></section>
  </main>
 
- <nav class="bottom-nav" aria-label="Mobile navigation"><button data-view="today">Today</button><button data-view="start">Start</button><button data-view="checkin">Check-in</button><button data-view="journal">Journal</button><button data-view="journey">Journey</button><button data-view="records">Records</button><button data-view="view">My view</button></nav>
+ <nav class="bottom-nav" aria-label="Mobile navigation"><button data-view="start">Start</button><button data-view="checkin">Check-in</button><button data-view="journal">Journal</button><button data-view="journey">Journey</button><button data-view="records">Records</button><button data-view="view">My view</button></nav>
 </div>
 
 <section id="medicineEditor" class="sheet" hidden><div class="sheet-card"><button class="close" aria-label="Close">×</button><p class="eyebrow">MEDICINE RECORD</p><h2 id="editorTitle">Add medicine</h2><input type="hidden" id="editId"><label class="field">Name on label<input id="editName"></label><label class="field">Strength/composition<input id="editStrength"></label><label class="field">Dose taken<input id="editDose"></label><label class="field">How often<input id="editFrequency"></label><label class="field">Usual time<input id="editTime"></label><button class="primary" id="saveMedicine">Save medicine</button><label class="upload mini"><b>Take or upload medicine photo</b><input id="medicinePhoto" type="file" accept="image/*" capture="environment"></label></div></section>
