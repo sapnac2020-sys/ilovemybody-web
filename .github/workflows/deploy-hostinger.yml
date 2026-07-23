@@ -12,6 +12,8 @@ on:
       - mentors.html
       - philosophy.html
       - assets/**
+      - app/index.php
+      - app/assets/**
       - .github/workflows/deploy-hostinger.yml
 
 concurrency:
@@ -38,7 +40,12 @@ jobs:
           test -s assets/hospital-lobby-final.b64
           test -s assets/site.css
           test -s assets/site.js
+          test -s app/index.php
+          test -s app/assets/app.css
+          test -s app/assets/responsive.css
+          test -s app/assets/app.js
           node --check assets/site.js
+          node --check app/assets/app.js
           grep -q '/hospital.html' index.html
           grep -q 'hospital-main-rail' hospital.html
           grep -q 'Health and Happiness Hospital lobby' hospital.html
@@ -62,12 +69,12 @@ jobs:
       - name: Package public website
         run: |
           base64 --decode assets/hospital-lobby-final.b64 > assets/hospital-lobby-final.jpg
-          tar -czf "/tmp/ilovemybody-${GITHUB_SHA}.tgz" index.html hospital.html journey.html therapies.html mentors.html philosophy.html assets
+          tar -czf "/tmp/ilovemybody-${GITHUB_SHA}.tgz" index.html hospital.html journey.html therapies.html mentors.html philosophy.html assets app
 
       - name: Upload release
         run: scp -i "$HOME/.ssh/id_ed25519" -P "$DEPLOY_PORT" "/tmp/ilovemybody-${GITHUB_SHA}.tgz" "$DEPLOY_USER@$DEPLOY_HOST:ilovemybody-${GITHUB_SHA}.tgz"
 
-      - name: Back up and deploy without touching the private app
+      - name: Back up and deploy public site and private-app frontend
         run: |
           ssh -i "$HOME/.ssh/id_ed25519" -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" "SITE_SHA='$GITHUB_SHA' bash -s" <<'REMOTE'
           set -euo pipefail
@@ -78,9 +85,11 @@ jobs:
           STAGE="$HOME/deployments/ilovemybody/$SITE_SHA"
           test -d "$TARGET"
           test -f "$PACKAGE"
-          mkdir -p "$BACKUP" "$STAGE" "$TARGET/assets"
+          mkdir -p "$BACKUP" "$STAGE" "$TARGET/assets" "$TARGET/app/assets"
           if test -f "$TARGET/index.html"; then cp -p "$TARGET/index.html" "$BACKUP/index.html"; fi
           if test -d "$TARGET/assets"; then cp -a "$TARGET/assets" "$BACKUP/assets"; fi
+          if test -f "$TARGET/app/index.php"; then mkdir -p "$BACKUP/app"; cp -p "$TARGET/app/index.php" "$BACKUP/app/index.php"; fi
+          if test -d "$TARGET/app/assets"; then mkdir -p "$BACKUP/app"; cp -a "$TARGET/app/assets" "$BACKUP/app/assets"; fi
           tar -xzf "$PACKAGE" -C "$STAGE"
           test -s "$STAGE/index.html"
           test -s "$STAGE/hospital.html"
@@ -91,6 +100,10 @@ jobs:
           test -s "$STAGE/assets/hospital-lobby-final.jpg"
           test -s "$STAGE/assets/site.css"
           test -s "$STAGE/assets/site.js"
+          test -s "$STAGE/app/index.php"
+          test -s "$STAGE/app/assets/app.css"
+          test -s "$STAGE/app/assets/responsive.css"
+          test -s "$STAGE/app/assets/app.js"
           cp -p "$STAGE/index.html" "$TARGET/index.html"
           cp -p "$STAGE/hospital.html" "$TARGET/hospital.html"
           cp -p "$STAGE/journey.html" "$TARGET/journey.html"
@@ -98,7 +111,13 @@ jobs:
           cp -p "$STAGE/mentors.html" "$TARGET/mentors.html"
           cp -p "$STAGE/philosophy.html" "$TARGET/philosophy.html"
           cp -a "$STAGE/assets/." "$TARGET/assets/"
-          test -d "$TARGET/app"
+          # Only replace the private app's presentation files. API, config and
+          # private uploads remain untouched on the server.
+          cp -p "$STAGE/app/index.php" "$TARGET/app/index.php"
+          cp -p "$STAGE/app/assets/app.css" "$TARGET/app/assets/app.css"
+          cp -p "$STAGE/app/assets/responsive.css" "$TARGET/app/assets/responsive.css"
+          cp -p "$STAGE/app/assets/app.js" "$TARGET/app/assets/app.js"
+          test -s "$TARGET/app/api.php"
           REMOTE
 
       - name: Verify production
@@ -110,4 +129,5 @@ jobs:
           grep -q 'hospital-main-rail' /tmp/hospital.html
           curl --fail --retry 5 --retry-delay 5 --max-time 30 --output /tmp/journey.html https://ilovemybody.in/journey.html
           grep -q 'free self-tests' /tmp/journey.html
-          curl --fail --retry 5 --retry-delay 5 --max-time 30 https://ilovemybody.in/app/ >/dev/null
+          curl --fail --retry 5 --retry-delay 5 --max-time 30 --output /tmp/app.html https://ilovemybody.in/app/
+          grep -q 'MY HAPPY SPACE' /tmp/app.html
