@@ -7,8 +7,99 @@
 .step-tabs{display:flex;gap:6px;background:#ece8eb;border-radius:999px;padding:5px;width:max-content;margin-bottom:20px}.step-tabs button,.option-tabs button{border:0;border-radius:999px;background:transparent;padding:9px 20px;font-size:.72rem;font-weight:700}.step-tabs button.active,.option-tabs button.active{background:#fff;color:var(--neon);box-shadow:0 3px 12px #2b172112}.check-step{display:none}.check-step.active{display:block}.score-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:15px 0}.score-grid label{background:#fff;border:1px solid var(--line);border-radius:14px;padding:18px}.score-grid span{font-size:.7rem;font-weight:700}.score-grid output{float:right;color:var(--neon);font-weight:700}.score-grid input{display:block;width:100%;accent-color:var(--neon);margin-top:24px}.metric-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:15px 0}.metric-grid label{background:#fff;border:1px solid var(--line);border-radius:14px;padding:17px}.metric-grid span,.metric-grid b{display:block;font-size:.65rem}.metric-grid input{font-size:1.8rem;width:100%;border:0;outline:0;padding:7px 0}.metric-grid b{color:var(--muted);font-weight:400}.measurement-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:20px}.measurement-grid label{font-size:.65rem;font-weight:700}.subhead,.records-grid h3,.preference-grid h3{font-size:1.55rem;margin:26px 0 4px}.medicine{background:#fff;border:1px solid var(--line);border-radius:13px;padding:14px;margin:8px 0;display:grid;grid-template-columns:minmax(160px,.7fr) minmax(300px,1.3fr) 110px;align-items:center;gap:12px}.medicine strong,.medicine small{display:block}.medicine small{color:var(--muted);font-size:.65rem}.choices{display:grid;grid-template-columns:repeat(4,1fr)}.choices label{position:relative}.choices input,.tabs input{position:absolute;opacity:0}.choices span{display:block;border:1px solid var(--line);padding:8px 4px;text-align:center;font-size:.62rem}.choices input:checked+span{background:var(--neon);color:#fff}.medicine .time{padding:8px;border:1px solid var(--line);border-radius:8px}.question-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 16px}.question-grid .wide{grid-column:1/-1}.safety{background:#fff;border:1px solid var(--line);border-left:5px solid var(--neon);border-radius:14px;padding:18px;margin:20px 0}.safety>div{display:grid;grid-template-columns:repeat(2,1fr);gap:8px 18px;margin:12px 0}.safety label{font-size:.7rem}.safety p{color:var(--danger);font-weight:700;font-size:.65rem}.savebar{border-top:1px solid var(--line);margin-top:24px;padding-top:16px;display:flex;justify-content:space-between;align-items:center}.savebar span{font-size:.65rem;color:var(--muted)}.gentle-note{color:var(--muted);font-size:.75rem}.food-card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:18px;margin:12px 0}.food-card>header{display:flex;justify-content:space-between;border-bottom:1px solid var(--line);padding-bottom:11px}.food-card header b,.food-card header small{display:block}.food-card header small{font-size:.6rem;color:var(--muted)}.remove-food{border:0;background:none;color:var(--muted)}.food-questions{display:grid;grid-template-columns:1fr 1fr;gap:0 22px}.food-card fieldset{border:0;padding:0;margin:16px 0 0}.food-card fieldset.wide{grid-column:1/-1}.food-card legend{font-size:.58rem;font-weight:700;letter-spacing:.15em;margin-bottom:8px}.tabs{display:flex;gap:6px;flex-wrap:wrap}.tabs label{position:relative}.tabs span{display:block;border:1px solid var(--line);border-radius:999px;padding:7px 11px;font-size:.65rem}.tabs input:checked+span{background:var(--neon);border-color:var(--neon);color:#fff}.quick-text{width:100%;border:1px solid var(--line);border-radius:10px;padding:11px;margin:0 0 9px;outline:0}
 .journal-layout{display:grid;grid-template-columns:.8fr 1.2fr;gap:28px;padding-top:35px}.journal-layout h2{font-size:clamp(3.5rem,6vw,6rem);line-height:.83;margin:30px 0 18px}.journal-layout>div>p:not(.eyebrow){color:var(--muted);line-height:1.6}.prompt-chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:24px}.prompt-chips button{border:1px solid var(--line);background:#fff;border-radius:999px;padding:8px 12px;font-size:.65rem}.journal-paper{background:#fff;border:1px solid var(--line);border-radius:20px;padding:26px;box-shadow:0 20px 60px #3212220b}.journal-paper label{font:500 1.6rem var(--display)}.journal-paper textarea{display:block;width:100%;border:0;border-top:1px solid var(--line);margin-top:20px;padding:20px 0;outline:0;resize:none;line-height:1.8;background:repeating-linear-gradient(#fff,#fff 31px,#f2edf1 32px)}.journal-paper>div{display:flex;justify-content:space-between;align-items:center;gap:12px}.journal-paper small{color:var(--muted);font-size:.62rem}
 .journey-track{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.journey-track article{background:#fff;border:1px solid var(--line);border-radius:17px;padding:24px;min-height:280px;display:flex;flex-direction:column}.journey-track article.active{border-color:var(--neon);box-shadow:0 12px 36px rgba(var(--neon-rgb),.1)}.journey-track i{font-style:normal;color:var(--neon);font-size:.6rem}.journey-track b{font:500 1.45rem var(--display);margin-top:25px}.journey-track strong{font-size:2rem;margin:8px 0 auto}.journey-track span{font-size:.7rem;line-height:1.55;color:var(--muted)}.source-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px}.source-row button{border:1px solid var(--line);background:#fff;border-radius:12px;padding:14px;text-align:left}.source-row b,.source-row span{display:block}.source-row span{color:var(--neon);font-size:.65rem;margin-top:5px}.record-actions{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.upload,.record-actions>button{position:relative;border:1px solid var(--line);border-radius:14px;background:#fff;text-align:left;padding:18px;min-height:96px}.upload:hover,.record-actions>button:hover{border-color:var(--neon)}.upload b,.upload small,.record-actions b,.record-actions small{display:block}.upload small,.record-actions small{color:var(--muted);margin-top:6px;font-size:.65rem}.upload input{position:absolute;opacity:0;width:1px;height:1px}.records-grid{display:grid;grid-template-columns:1fr 1fr;gap:25px}.doc,.med-record{border-bottom:1px solid var(--line);padding:13px 0}.doc b,.doc small,.med-record b,.med-record small{display:block}.doc small,.med-record small{color:var(--muted);font-size:.65rem}.doc button,.med-record button{float:right;border:0;background:none;color:var(--neon)}.preference-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}.preference-grid section{background:#fff;border:1px solid var(--line);border-radius:16px;padding:22px}.theme-choices{display:flex;gap:12px;margin-top:18px}.theme-choices button{width:30px;height:30px;border-radius:50%;border:3px solid #fff;outline:1px solid var(--line);background:var(--swatch)}.theme-choices button.active{outline:2px solid var(--ink)}.option-tabs{display:flex;flex-wrap:wrap;gap:5px;background:#f4f1f3;border-radius:14px;padding:5px;margin-top:14px}.completion{text-align:center;padding-top:12vh}.completion>i{font-style:normal;font-size:4rem;color:var(--neon)}.completion h2{font-size:4rem;line-height:.85}.sheet{position:fixed;inset:0;background:#09070bcc;z-index:100;padding:20px;overflow:auto}.sheet-card{width:min(600px,100%);margin:5vh auto;background:#fff;border-radius:20px;padding:26px;box-shadow:0 30px 90px #0006}.sheet-card h2{font:500 2.5rem var(--display)}.sheet-card>.close{float:right;border:0;background:none;font-size:1.6rem}.sheet-card .primary{width:100%}.mini{margin-top:18px}.source-item{border-top:1px solid var(--line);padding:13px 0}.source-item b,.source-item small{display:block}.source-item small{color:var(--muted)}
-html[data-font="classic"]{--display:"Playfair Display",Georgia,serif}html[data-font="clear"]{--display:"DM Sans",Arial,sans-serif}html[data-size="compact"]{--scale:.9}html[data-size="large"]{--scale:1.12}
+html[data-size="compact"]{--scale:.82}html[data-size="comfortable"]{--scale:1}html[data-size="large"]{--scale:1.2}
 .browse-btn{width:100%;display:flex;justify-content:space-between;border:0;background:transparent;padding:14px 2px 9px;margin-top:8px;font-weight:700}.browse-btn:hover{color:var(--neon)}.browse-note{display:block;color:var(--muted);font-size:.62rem}.preview-signin{border:1px solid var(--neon);background:transparent;color:var(--neon);border-radius:999px;padding:8px 14px;font-size:.68rem;font-weight:700}html[data-preview="true"] [data-upload],html[data-preview="true"] #addMedicine,html[data-preview="true"] #submit,html[data-preview="true"] #journalForm button[type="submit"]{opacity:.55}
 
-/* Private dashboard: black canvas, neon-pink energy and compact information density. */
-.app-shell{background:#08060a;color:#fff;min-height:100vh}.app-shell .topbar{background:rgba(8,6,10,.94);border-color:#2b202a}.app-shell .wordmark small,.app-shell .phase-mini span,.app-shell .date-chip small{color:#a99da7}.app-shell .profile-chip{background:#110d13;border-color:#3b2937;color:#fff}.app-shell .workspace{max-width:none;height:100vh;overflow:hidden}.app-shell .workspace-head{height:64px}.app-shell .view{height:calc(100vh - var(--top) - 100px);overflow:auto;padding-right:4px}.app-shell .welcome-grid{grid-template-columns:1.5fr .5fr;gap:12px}.app-shell .welcome-copy,.app-shell .today-card,.app-shell .entry-strip,.app-shell .entry-strip button,.app-shell .start-grid>article,.app-shell .score-grid label,.app-shell .metric-grid label,.app-shell .food-card,.app-shell .medicine,.app-shell .journal-paper,.app-shell .journey-track article,.app-shell .source-row button,.app-shell .upload,.app-shell .record-actions>button,.app-shell .preference-grid section{background:#110d13;color:#fff;border-color:#352532}.app-shell .welcome-copy{min-height:270px;padding:32px 38px;background:radial-gradient(circle at 85% 25%,rgba(var(--neon-rgb),.20),transparent 32%),linear-gradient(135deg,#110d13,#09070b)}.app-shell .welcome-copy h2{font-size:clamp(2.8rem,4.2vw,4.7rem);margin:16px 0 14px}.app-shell .welcome-copy>p:not(.eyebrow),.app-shell .today-card span,.app-shell .entry-strip span,.app-shell .section-intro>p,.app-shell .start-grid p,.app-shell .gentle-note,.app-shell .journal-layout>div>p:not(.eyebrow),.app-shell .journey-track span{color:#b9aeb7}.app-shell .today-card{padding:18px 20px}.app-shell .today-card ol{margin:8px 0}.app-shell .today-card li{padding:9px 0;border-color:#352532;grid-template-columns:62px 1fr}.app-shell .entry-strip{grid-template-columns:repeat(6,1fr);margin-top:12px}.app-shell .entry-strip button{min-height:100px;padding:16px;border-color:#352532}.app-shell .entry-strip button:hover{background:rgba(var(--neon-rgb),.12)}.app-shell .entry-strip b{font-size:1.05rem;margin:7px 0 3px}.app-shell .entry-strip span{font-size:.6rem}.app-shell .section-intro{padding-top:8px;border-color:#352532}.app-shell .step-tabs,.app-shell .option-tabs{background:#181219}.app-shell .step-tabs button.active,.app-shell .option-tabs button.active{background:var(--neon);color:#fff}.app-shell input,.app-shell textarea,.app-shell .quick-text{background:#0b080c;color:#fff;border-color:#463442}.app-shell .tabs span,.app-shell .choices span{border-color:#463442}.app-shell .boundary{background:#160e16}.app-shell .safety{background:#110d13;border-color:#352532}.app-shell .journal-paper textarea{background:repeating-linear-gradient(#110d13,#110d13 31px,#382634 32px);color:#fff}.app-shell .record-actions small,.app-shell .doc small,.app-shell .med-record small{color:#a99da7}.app-shell .records-grid h3,.app-shell .preference-grid h3{color:#fff}.app-shell .sheet-card{color:var(--ink)}.app-shell .primary{color:#fff}.app-shell .quiet{color:#fff;border-color:#6e5265}.app-shell .brand-mark{border:0;background:transparent;color:var(--neon)}
+/* Private space: the visual bridge between the star entrance and bright lobby. */
+.app-shell{
+  min-height:100vh;
+  color:#251c25;
+  background:
+    radial-gradient(circle at 82% 8%,rgba(var(--neon-rgb),.20),transparent 30rem),
+    radial-gradient(circle at 12% 88%,rgba(var(--neon-rgb),.13),transparent 34rem),
+    linear-gradient(135deg,#fff 0%,rgba(var(--neon-rgb),.075) 52%,#fff 100%);
+}
+.app-shell:before{
+  content:"";
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  opacity:.32;
+  background-image:radial-gradient(rgba(var(--neon-rgb),.22) .7px,transparent .7px);
+  background-size:26px 26px;
+  mask-image:linear-gradient(110deg,transparent 8%,#000 52%,transparent 94%);
+}
+.app-shell .topbar{
+  background:rgba(255,255,255,.82);
+  box-shadow:inset 0 -3px 0 rgba(var(--neon-rgb),.22),0 8px 30px rgba(67,35,54,.045);
+  border-color:rgba(76,48,66,.12);
+}
+.app-shell .wordmark small,.app-shell .phase-mini span,.app-shell .date-chip small{color:#7e6d78}
+.app-shell .profile-chip{background:rgba(255,255,255,.70);border-color:rgba(76,48,66,.14);color:#251c25}
+.app-shell .workspace{max-width:none;height:100vh;overflow:hidden}
+.app-shell .workspace-head{height:64px}
+.app-shell .view{height:calc(100vh - var(--top) - 100px);overflow:auto;padding-right:4px}
+.app-shell .welcome-grid{grid-template-columns:1.5fr .5fr;gap:12px}
+.app-shell .welcome-copy,.app-shell .today-card,.app-shell .entry-strip,.app-shell .entry-strip button,.app-shell .start-grid>article,.app-shell .score-grid label,.app-shell .metric-grid label,.app-shell .food-card,.app-shell .medicine,.app-shell .journal-paper,.app-shell .journey-track article,.app-shell .source-row button,.app-shell .upload,.app-shell .record-actions>button,.app-shell .preference-grid section{
+  background:rgba(255,255,255,.72);
+  color:#251c25;
+  border-color:rgba(76,48,66,.13);
+  box-shadow:0 16px 44px rgba(67,35,54,.055);
+  backdrop-filter:blur(13px);
+}
+.app-shell .welcome-copy{
+  min-height:270px;
+  padding:32px 38px;
+  background:
+    radial-gradient(circle at 85% 25%,rgba(var(--neon-rgb),.22),transparent 36%),
+    linear-gradient(135deg,rgba(255,255,255,.92),rgba(var(--neon-rgb),.09));
+}
+.app-shell .welcome-copy h2{font-size:clamp(2.8rem,4.2vw,4.7rem);margin:16px 0 14px}
+.app-shell .welcome-copy>p:not(.eyebrow),.app-shell .today-card span,.app-shell .entry-strip span,.app-shell .section-intro>p,.app-shell .start-grid p,.app-shell .gentle-note,.app-shell .journal-layout>div>p:not(.eyebrow),.app-shell .journey-track span{color:#756771}
+.app-shell .today-card{padding:18px 20px}
+.app-shell .today-card ol{margin:8px 0}
+.app-shell .today-card li{padding:9px 0;border-color:rgba(76,48,66,.12);grid-template-columns:62px 1fr}
+.app-shell .entry-strip{grid-template-columns:repeat(6,1fr);margin-top:12px}
+.app-shell .entry-strip button{min-height:100px;padding:16px;border-color:rgba(76,48,66,.12);box-shadow:none}
+.app-shell .entry-strip button{border-top:3px solid rgba(var(--neon-rgb),.36)}
+.app-shell .entry-strip button:hover{background:rgba(var(--neon-rgb),.11)}
+.app-shell .entry-strip b{font-size:1.05rem;margin:7px 0 3px}
+.app-shell .entry-strip span{font-size:.6rem}
+.app-shell .section-intro{padding-top:8px;border-color:rgba(76,48,66,.13)}
+.app-shell .step-tabs,.app-shell .option-tabs{background:rgba(78,48,67,.07)}
+.app-shell .step-tabs button.active,.app-shell .option-tabs button.active{background:var(--neon);color:#fff}
+.app-shell input,.app-shell textarea,.app-shell .quick-text{background:rgba(255,255,255,.82);color:#251c25;border-color:rgba(76,48,66,.16)}
+.app-shell .tabs span,.app-shell .choices span{border-color:rgba(76,48,66,.16)}
+.app-shell .boundary{background:#30212d;color:#fff}
+.app-shell .safety{background:rgba(255,255,255,.70);border-color:rgba(76,48,66,.13)}
+.app-shell .journal-paper textarea{background:repeating-linear-gradient(transparent,transparent 31px,rgba(85,54,73,.10) 32px);color:#251c25}
+.app-shell .record-actions small,.app-shell .doc small,.app-shell .med-record small{color:#7e6d78}
+.app-shell .records-grid h3,.app-shell .preference-grid h3{color:#251c25}
+.app-shell .sheet-card{color:var(--ink)}
+.app-shell .primary{color:#fff}
+.app-shell .quiet{color:#251c25;border-color:rgba(76,48,66,.28)}
+.app-shell .brand-mark{border:0;background:transparent;color:var(--neon)}
+
+/* Keep the rail as a slim memory of the star entrance, not a black page. */
+.app-shell .side{
+  background:linear-gradient(180deg,#171018 0%,#241725 100%);
+  box-shadow:10px 0 36px rgba(50,25,42,.12);
+}
+.app-shell .side nav{background:rgba(8,6,10,.18);border-color:rgba(255,255,255,.13)}
+.app-shell .side button{background:rgba(14,10,18,.58);border-color:rgba(255,255,255,.13);color:#d8cdd5}
+
+.background-choices{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:16px}
+.background-choices button{border:1px solid rgba(76,48,66,.14);border-radius:12px;background:rgba(255,255,255,.48);padding:10px 6px;font-size:.62rem;font-weight:700}
+.background-choices i{display:block;width:34px;height:24px;border-radius:8px;margin:0 auto 7px;border:1px solid rgba(76,48,66,.18)}
+.background-choices [data-background="light"] i{background:#fff}
+.background-choices [data-background="tint"] i{background:rgba(var(--neon-rgb),.18)}
+.background-choices [data-background="dark"] i{background:#251c25}
+.background-choices button.active{border-color:var(--neon);box-shadow:0 0 0 2px rgba(var(--neon-rgb),.12)}
+
+html[data-background="light"] .app-shell{background:linear-gradient(135deg,#fff,#f7f3f5)}
+html[data-background="tint"] .app-shell{background:radial-gradient(circle at 82% 8%,rgba(var(--neon-rgb),.20),transparent 30rem),radial-gradient(circle at 12% 88%,rgba(var(--neon-rgb),.13),transparent 34rem),linear-gradient(135deg,#fff 0%,rgba(var(--neon-rgb),.075) 52%,#fff 100%)}
+html[data-background="dark"] .app-shell{color:#fdf8fb;background:radial-gradient(circle at 80% 5%,rgba(var(--neon-rgb),.20),transparent 32rem),linear-gradient(135deg,#1d151d,#2b1d29)}
+html[data-background="dark"] .app-shell .topbar{background:rgba(29,21,29,.88);color:#fff;border-color:rgba(255,255,255,.12)}
+html[data-background="dark"] .app-shell .profile-chip{background:rgba(255,255,255,.08);color:#fff;border-color:rgba(255,255,255,.15)}
+html[data-background="dark"] .app-shell .welcome-copy,html[data-background="dark"] .app-shell .today-card,html[data-background="dark"] .app-shell .entry-strip,html[data-background="dark"] .app-shell .entry-strip button,html[data-background="dark"] .app-shell .start-grid>article,html[data-background="dark"] .app-shell .score-grid label,html[data-background="dark"] .app-shell .metric-grid label,html[data-background="dark"] .app-shell .food-card,html[data-background="dark"] .app-shell .medicine,html[data-background="dark"] .app-shell .journal-paper,html[data-background="dark"] .app-shell .journey-track article,html[data-background="dark"] .app-shell .source-row button,html[data-background="dark"] .app-shell .upload,html[data-background="dark"] .app-shell .record-actions>button,html[data-background="dark"] .app-shell .preference-grid section{background:rgba(255,255,255,.08);color:#fff;border-color:rgba(255,255,255,.14)}
+html[data-background="dark"] .app-shell .records-grid h3,html[data-background="dark"] .app-shell .preference-grid h3{color:#fff}
