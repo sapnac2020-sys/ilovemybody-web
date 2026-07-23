@@ -1,202 +1,28 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#0b0710">
-  <meta name="description" content="I Love My Body is an evidence-mapped, non-invasive online hospital designed to work alongside existing medical treatment.">
-  <title>I Love My Body — Happiness now. Illness never.</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#0a060d">
+  <meta name="description" content="I Love My Body — Health & Happiness Hospital. Everything is connected.">
+  <title>Health & Happiness Hospital — I Love My Body</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Playfair+Display:ital,wght@0,500;1,500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/assets/site.css?v=20260723-7">
+  <link rel="stylesheet" href="/assets/site.css?v=20260723-9">
 </head>
-<body>
+<body class="hospital-entrance">
   <canvas id="scene" aria-hidden="true"></canvas>
-  <div class="veil" aria-hidden="true"></div>
-
-  <header class="site-header">
-    <a class="brand" href="#home" aria-label="I Love My Body home">
-      <span aria-hidden="true">♥</span>
-      <b>I Love My Body<small>Non-invasive online hospital</small></b>
-    </a>
-    <button type="button" class="menu-button" aria-expanded="false" aria-controls="site-nav">Menu</button>
-    <nav id="site-nav" aria-label="Main navigation">
-      <a href="/journey.html">My Journey</a>
-      <a href="/therapies.html">Therapies</a>
-      <a href="/mentors.html">Mentors</a>
-      <a href="/philosophy.html">My Philosophy</a>
-      <a class="nav-cta" href="/app/">My Happy Space <span>→</span></a>
-    </nav>
-  </header>
-
-  <nav class="side-rail" aria-label="Page sections">
-    <a class="active" href="#home" aria-label="Home"><svg viewBox="0 0 24 24"><path d="M3 11.5 12 4l9 7.5M5.5 10v10h13V10M9.5 20v-6h5v6"/></svg><span>Home</span></a>
-    <a href="#begin" aria-label="Starting points"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="m12 4 2.2 5.8L20 12l-5.8 2.2L12 20l-2.2-5.8L4 12l5.8-2.2Z"/></svg><span>Starting points</span><i></i></a>
-    <a href="#how" aria-label="How it works"><svg viewBox="0 0 24 24"><path d="M3.5 12s3.2-5 8.5-5 8.5 5 8.5 5-3.2 5-8.5 5-8.5-5-8.5-5Z"/><circle cx="12" cy="12" r="2.2"/></svg><span>How it works</span></a>
-    <a href="#how" aria-label="Treatment plan"><svg viewBox="0 0 24 24"><path d="M4 15h3l2-7 3 11 2.5-8 1.5 4h4"/><path d="M5 5v3M19 5v3"/></svg><span>Treatment plan</span></a>
-    <a href="#begin" aria-label="Connected dimensions"><svg viewBox="0 0 24 24"><circle cx="7" cy="8" r="2.5"/><circle cx="17" cy="8" r="2.5"/><circle cx="12" cy="17" r="2.5"/><path d="m8.8 9.8 2 5m4.4-5-2 5M9.5 8h5"/></svg><span>Connected dimensions</span></a>
-    <a href="#explore" aria-label="Therapies"><svg viewBox="0 0 24 24"><path d="M4 20C4.5 11 10 5.5 20 4c-.7 8.8-6.4 15.3-16 16Z"/><path d="M8 16c2.4-2.5 5-4.5 8.5-6"/></svg><span>Therapies</span></a>
-    <a href="#evidence" aria-label="Evidence"><svg viewBox="0 0 24 24"><path d="M5 20V8l7-4 7 4v12M3 20h18M8 10h8M8 14h8"/></svg><span>Evidence</span></a>
-    <a href="#explore" aria-label="Practitioners"><svg viewBox="0 0 24 24"><path d="m8 9 3 3 5-5 4 4-9 9-7-7Z"/><path d="m4 13-2-2 4-4 2 2m12 2 2-2-4-4-2 2"/></svg><span>Practitioners</span></a>
-    <a href="#about" aria-label="About"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 10v6m0-9h.01"/></svg><span>About</span></a>
-    <a href="/app/" aria-label="My Happy Space"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.2"/><path d="M3.5 20c0-3.5 2.4-6 5.5-6s5.5 2.5 5.5 6M15 15c3.2 0 5.5 1.8 5.5 5"/></svg><span>My Happy Space</span></a>
-    <a href="#about" aria-label="Contact"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m4 7 8 6 8-6"/></svg><span>Contact</span></a>
-  </nav>
-
-  <main>
-    <section class="hero" id="home">
-      <div class="hero-copy">
-        <p class="eyebrow">I Love My Body</p>
-        <h1>Happiness now.<br><em>Illness never.</em></h1>
-        <p class="manifesto">A Health &amp; Happiness Hospital<br>where everything is connected.</p>
-        <p class="intro">Begin with what brings you here. Understand your present through medical information and ten dimensions of life. Then choose whether you want to continue into a guided seven-week journey—alongside your existing medical treatment.</p>
-        <div class="actions">
-          <a class="button primary" href="/hospital.html">Enter the hospital <span>→</span></a>
-          <a class="text-link" href="/journey.html">Understand the journey</a>
-        </div>
-      </div>
-      <div class="hero-aside">
-        <p>Everything is connected.</p>
-        <span>Begin your private journey.</span>
-        <span>Explore complementary therapies.</span>
-        <span>Meet Sapna’s selected mentors.</span>
-        <span>Read the book and philosophy.</span>
-      </div>
-      <a class="scroll-cue" href="#begin"><span></span>Begin here</a>
-    </section>
-
-    <section class="section begin" id="begin">
-      <header class="section-head">
-        <p class="eyebrow">Four clear starting points</p>
-        <h2>Why are you here?</h2>
-        <p>Choose one or more. These are entrances—not labels.</p>
-      </header>
-      <div class="path-grid four">
-        <a href="/app/?path=illness"><span>01</span><h3>I have an illness.</h3><p>Begin with reports, prescriptions, medicines and your lived experience.</p><b>Begin privately →</b></a>
-        <a href="/app/?path=stress"><span>02</span><h3>I am anxious, tense or stressed.</h3><p>Understand what is creating pressure across your life.</p><b>Begin privately →</b></a>
-        <a href="/app/?path=addiction"><span>03</span><h3>I am struggling with addiction.</h3><p>Explore patterns, needs, confidence, purpose and direction without judgement.</p><b>Begin privately →</b></a>
-        <a href="/app/?path=direction"><span>04</span><h3>I feel lost and seek direction.</h3><p>Discover your values, strengths, desires and a life that feels like your own.</p><b>Begin privately →</b></a>
-      </div>
-      <p class="boundary">No diagnosis or medicine change is made by automation. Medical decisions remain with qualified clinicians.</p>
-    </section>
-
-    <section class="section portal-map" id="how">
-      <header class="section-head">
-        <p class="eyebrow">One connected platform</p>
-        <h2>Four places.<br><em>One clear purpose.</em></h2>
-      </header>
-      <div class="portal-grid">
-        <a href="/journey.html"><small>01 · Personal</small><h3>My Journey</h3><p>Login, complete the free self-tests, organise your information and choose a paid assessment or guided journey.</p><b>Enter My Journey →</b></a>
-        <a href="/therapies.html"><small>02 · Explore</small><h3>Therapies</h3><p>Understand complementary and non-invasive approaches, their sources, boundaries and external links.</p><b>Explore therapies →</b></a>
-        <a href="/mentors.html"><small>03 · People</small><h3>Mentors</h3><p>Meet Sapna’s personally selected doctors, counsellors, therapists, coaches and practitioners.</p><b>Meet the mentors →</b></a>
-        <a href="/philosophy.html"><small>04 · Foundation</small><h3>Book &amp; Philosophy</h3><p>Read the ideas, author-audited excerpts, evidence labels and personal story behind I Love My Body.</p><b>Read the philosophy →</b></a>
-      </div>
-    </section>
-
-    <section class="section connected">
-      <header class="section-head">
-        <p class="eyebrow">One connected life</p>
-        <h2>We ask about the person<br>the report cannot see.</h2>
-      </header>
-      <div class="dimension-wrap">
-        <div class="dimension-copy">
-          <p>Medical and physical</p><p>Thoughts and attention</p><p>Beliefs and meaning</p><p>Feelings and expression</p><p>Personality and values</p>
-        </div>
-        <div class="centre">
-          <small>At the centre</small><strong>Instinct</strong><i></i><b>Love-led action</b>
-        </div>
-        <div class="dimension-copy right">
-          <p>Lifestyle and choices</p><p>Relationships and belonging</p><p>Intimacy and desire</p><p>Work, dreams and direction</p><p>Courage and self-trust</p>
-        </div>
-      </div>
-      <p class="section-note">No dimension defines you. Together, they help you ask clearer questions.</p>
-    </section>
-
-    <section class="section evidence" id="evidence">
-      <header class="section-head">
-        <p class="eyebrow">Evidence you can inspect</p>
-        <h2>The source is part<br>of the answer.</h2>
-        <p>Scientific evidence, traditional frameworks, author philosophy and personal experience are kept separate and clearly labelled.</p>
-      </header>
-      <div class="evidence-panel">
-        <div class="evidence-tabs" role="tablist" aria-label="Evidence categories">
-          <button type="button" class="active" data-evidence="medical">Medical</button>
-          <button type="button" data-evidence="food">Food chemistry</button>
-          <button type="button" data-evidence="mind">Mind &amp; brain</button>
-          <button type="button" data-evidence="traditional">Traditional</button>
-          <button type="button" data-evidence="personal">Personal</button>
-        </div>
-        <article id="evidence-detail" aria-live="polite">
-          <small>Official, regulatory and clinical sources</small>
-          <h3>What does the medical record establish?</h3>
-          <p>Reports, tests, units, medicines and clinical guidance retain their dates, sources, scope and limitations.</p>
-          <div><span>WHO</span><span>LOINC</span><span>UCUM</span><span>IFCC</span><span>CDSCO</span><span>DailyMed</span><span>RxNorm</span></div>
-          <button type="button" id="source-button">How a source is shown →</button>
-        </article>
-      </div>
-    </section>
-
-    <section class="section explore" id="explore">
-      <header class="section-head">
-        <p class="eyebrow">Explore with clarity</p>
-        <h2>Every offering has<br>a clear home.</h2>
-        <p>Explore the approach, the person or the philosophy without mixing one with another.</p>
-      </header>
-      <div class="explore-grid">
-        <article><small>Approaches</small><h3>Complementary therapies</h3><p>Each therapy has a dedicated microsite with an introduction, traditional logic, available evidence, cautions and external links.</p><a href="/therapies.html">Explore therapies →</a></article>
-        <article><small>People</small><h3>Selected mentors</h3><p>Each mentor has a dedicated microsite with credentials, approach, scope, availability and booking calendar.</p><a href="/mentors.html">Meet mentors →</a></article>
-        <article><small>Foundation</small><h3>Book &amp; philosophy</h3><p>The book, Sapna’s story and her philosophy—clearly separated from scientific or clinical evidence.</p><a href="/philosophy.html">Read the philosophy →</a></article>
-      </div>
-    </section>
-
-    <section class="section about" id="about">
-      <div>
-        <p class="eyebrow">Why this exists</p>
-        <h2>Built from one belief:<br><em>your body deserves love, not fear.</em></h2>
-      </div>
-      <div>
-        <p>I Love My Body brings medical information, lived experience and sourced knowledge into one calm, private journey. We ask. We listen. We connect. We never reduce a person to a label.</p>
-        <p class="quote">“My body is my responsibility and my choices are my own.”</p>
-        <a class="button primary" href="/app/">Begin with clarity <span>→</span></a>
-      </div>
-    </section>
+  <div class="entrance-veil" aria-hidden="true"></div>
+  <main class="entrance-content">
+    <span class="entrance-heart" aria-hidden="true">♥</span>
+    <p class="entrance-brand">I Love My Body</p>
+    <h1>Health &amp; Happiness<br>Hospital</h1>
+    <p class="entrance-tagline">Everything is connected.</p>
+    <p class="entrance-purpose">Building the world’s first hospital<br>for non-invasive treatment.</p>
+    <a class="entrance-button" href="/hospital.html">Enter <span>→</span></a>
   </main>
-
-  <footer class="site-footer">
-    <div class="brand"><span aria-hidden="true">♥</span><b>I Love My Body<small>Happiness now. Illness never.</small></b></div>
-    <p>Evidence-mapped non-invasive support alongside medical treatment.</p>
-    <nav aria-label="Footer navigation"><a href="#evidence">Evidence</a><a href="#about">About</a><a href="/app/">Private records</a><a href="/app/">My Happy Space</a></nav>
-    <small>© 2026 I Love My Body. Not emergency care. If you may be in immediate danger, contact local emergency services.</small>
-  </footer>
-
-  <button type="button" class="jaadu-button" id="jaadu-button" aria-expanded="false" aria-controls="jaadu">✦ Ask Jaadu</button>
-  <aside class="jaadu" id="jaadu" aria-label="Jaadu website guide" hidden>
-    <button type="button" class="jaadu-close" aria-label="Close">×</button>
-    <small>Jaadu</small><h2>What would you like to understand?</h2>
-    <div class="jaadu-thread" id="jaadu-thread"><p class="jaadu-message">Ask me where to begin, how the journey works, or where to find a therapy or mentor.</p></div>
-    <form id="jaadu-form">
-      <label class="sr-only" for="jaadu-input">Ask Jaadu</label>
-      <input id="jaadu-input" maxlength="240" placeholder="Type your question…" autocomplete="off">
-      <button type="submit">Send</button>
-    </form>
-    <p><span id="jaadu-count">Three guest questions available.</span> Jaadu guides; it does not diagnose or change medicines.</p>
-  </aside>
-
-  <dialog id="source-dialog">
-    <button type="button" aria-label="Close">×</button>
-    <p class="eyebrow">Source example</p>
-    <h2>Every explanation keeps its provenance.</h2>
-    <dl>
-      <div><dt>Source</dt><dd>Title, author or organisation, year and link</dd></div>
-      <div><dt>Evidence type</dt><dd>Official, validated instrument, study, traditional framework, philosophy, observation or estimate</dd></div>
-      <div><dt>Supports</dt><dd>The precise statement the source can support</dd></div>
-      <div><dt>Does not establish</dt><dd>Limitations, uncertainty and what must not be inferred</dd></div>
-    </dl>
-  </dialog>
-
-  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+  <script src="/assets/three.min.js"></script>
   <script src="/assets/network.js?v=20260723-1"></script>
-  <script src="/assets/site.js?v=20260723-6"></script>
 </body>
 </html>
