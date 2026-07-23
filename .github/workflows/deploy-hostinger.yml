@@ -6,6 +6,7 @@ on:
     branches: [main]
     paths:
       - index.html
+      - hospital.html
       - assets/**
       - .github/workflows/deploy-hostinger.yml
 
@@ -25,10 +26,13 @@ jobs:
         run: |
           set -euo pipefail
           test -s index.html
+          test -s hospital.html
+          test -s assets/hospital-lobby.b64
           test -s assets/site.css
           test -s assets/site.js
           node --check assets/site.js
-          grep -q 'href="/app/"' index.html
+          grep -q '/hospital.html' index.html
+          grep -q 'Why are you here?' hospital.html
 
       - name: Prepare dedicated SSH identity
         env:
@@ -47,7 +51,9 @@ jobs:
           ssh-keyscan -p "$(jq -r '.port' /tmp/ilb-deploy.json)" "$(jq -r '.host' /tmp/ilb-deploy.json)" >> "$HOME/.ssh/known_hosts"
 
       - name: Package public website
-        run: tar -czf "/tmp/ilovemybody-${GITHUB_SHA}.tgz" index.html assets
+        run: |
+          base64 --decode assets/hospital-lobby.b64 > assets/hospital-lobby.jpg
+          tar -czf "/tmp/ilovemybody-${GITHUB_SHA}.tgz" index.html hospital.html assets
 
       - name: Upload release
         run: scp -i "$HOME/.ssh/id_ed25519" -P "$DEPLOY_PORT" "/tmp/ilovemybody-${GITHUB_SHA}.tgz" "$DEPLOY_USER@$DEPLOY_HOST:ilovemybody-${GITHUB_SHA}.tgz"
@@ -68,9 +74,12 @@ jobs:
           if test -d "$TARGET/assets"; then cp -a "$TARGET/assets" "$BACKUP/assets"; fi
           tar -xzf "$PACKAGE" -C "$STAGE"
           test -s "$STAGE/index.html"
+          test -s "$STAGE/hospital.html"
+          test -s "$STAGE/assets/hospital-lobby.jpg"
           test -s "$STAGE/assets/site.css"
           test -s "$STAGE/assets/site.js"
           cp -p "$STAGE/index.html" "$TARGET/index.html"
+          cp -p "$STAGE/hospital.html" "$TARGET/hospital.html"
           cp -a "$STAGE/assets/." "$TARGET/assets/"
           test -d "$TARGET/app"
           REMOTE
@@ -79,5 +88,5 @@ jobs:
         run: |
           set -euo pipefail
           curl --fail --retry 5 --retry-delay 5 --max-time 30 https://ilovemybody.in/ | grep -q 'Happiness now'
+          curl --fail --retry 5 --retry-delay 5 --max-time 30 https://ilovemybody.in/hospital.html | grep -q 'Why are you here?'
           curl --fail --retry 5 --retry-delay 5 --max-time 30 https://ilovemybody.in/app/ >/dev/null
-
