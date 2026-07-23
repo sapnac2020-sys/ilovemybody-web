@@ -40,8 +40,8 @@ jobs:
           test -s assets/site.js
           node --check assets/site.js
           grep -q '/hospital.html' index.html
-          grep -q 'class="entry-strip"' hospital.html
-          grep -q 'Everything is connected.' hospital.html
+          grep -q 'hospital-main-rail' hospital.html
+          grep -q 'Health and Happiness Hospital lobby' hospital.html
 
       - name: Prepare dedicated SSH identity
         env:
@@ -105,9 +105,9 @@ jobs:
         run: |
           set -euo pipefail
           curl --fail --retry 5 --retry-delay 5 --max-time 30 --output /tmp/home.html https://ilovemybody.in/
-          grep -q 'Happiness now' /tmp/home.html
+          grep -q 'hospital-entrance' /tmp/home.html
           curl --fail --retry 5 --retry-delay 5 --max-time 30 --output /tmp/hospital.html https://ilovemybody.in/hospital.html
-          grep -q 'class="entry-strip"' /tmp/hospital.html
+          grep -q 'hospital-main-rail' /tmp/hospital.html
           curl --fail --retry 5 --retry-delay 5 --max-time 30 --output /tmp/journey.html https://ilovemybody.in/journey.html
           grep -q 'free self-tests' /tmp/journey.html
           curl --fail --retry 5 --retry-delay 5 --max-time 30 https://ilovemybody.in/app/ >/dev/null
