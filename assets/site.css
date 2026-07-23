@@ -46,8 +46,8 @@ body.hospital-entrance{
   inset:0;
   z-index:1;
   background:
-    radial-gradient(circle at 50% 46%,rgba(17,9,18,.04) 0,rgba(8,5,10,.12) 38%,rgba(8,5,10,.58) 100%),
-    linear-gradient(180deg,rgba(8,5,10,.26),rgba(8,5,10,.05) 48%,rgba(8,5,10,.38));
+    radial-gradient(circle at 50% 45%,rgba(8,5,10,0) 0,rgba(8,5,10,.04) 48%,rgba(8,5,10,.28) 100%),
+    linear-gradient(180deg,rgba(8,5,10,.05),transparent 50%,rgba(8,5,10,.18));
   pointer-events:none;
 }
 .entrance-content{
@@ -57,52 +57,52 @@ body.hospital-entrance{
   display:flex;
   flex-direction:column;
   align-items:center;
-  justify-content:center;
-  padding:28px;
+  justify-content:flex-end;
+  padding:28px 28px clamp(34px,6vh,64px);
   text-align:center;
   text-shadow:0 3px 28px rgba(0,0,0,.72);
 }
 .entrance-heart{
-  margin-bottom:8px;
+  margin-bottom:5px;
   color:var(--pink);
-  font-size:17px;
+  font-size:12px;
   line-height:1;
 }
 .entrance-brand{
-  margin:0 0 clamp(28px,5vh,48px);
+  margin:0 0 16px;
   color:rgba(252,247,248,.68);
-  font-size:9px;
+  font-size:7px;
   font-weight:600;
   letter-spacing:.28em;
   text-transform:uppercase;
 }
 .entrance-content h1{
   margin:0;
-  font:500 clamp(40px,5vw,72px)/.99 var(--serif);
-  letter-spacing:-.035em;
+  font:500 clamp(24px,2.35vw,36px)/1.02 var(--serif);
+  letter-spacing:-.02em;
   text-transform:none;
 }
 .entrance-tagline{
-  margin:clamp(20px,3.6vh,34px) 0 0;
+  margin:10px 0 0;
   color:var(--peach);
-  font:italic 500 clamp(17px,1.7vw,25px)/1.25 var(--serif);
+  font:italic 500 clamp(12px,1.05vw,16px)/1.25 var(--serif);
 }
 .entrance-purpose{
-  margin:13px 0 0;
+  margin:7px 0 0;
   color:rgba(252,247,248,.72);
-  font-size:clamp(10px,.9vw,13px);
-  line-height:1.65;
+  font-size:clamp(7px,.58vw,9px);
+  line-height:1.45;
   letter-spacing:.025em;
 }
 .entrance-button{
-  min-width:132px;
-  margin-top:clamp(28px,5vh,48px);
-  padding:13px 22px;
+  min-width:104px;
+  margin-top:15px;
+  padding:7px 15px;
   border:1px solid rgba(243,194,167,.6);
   border-radius:999px;
   background:rgba(10,6,13,.48);
   color:var(--ink);
-  font-size:10px;
+  font-size:7px;
   font-weight:600;
   letter-spacing:.18em;
   text-transform:uppercase;
@@ -110,7 +110,7 @@ body.hospital-entrance{
   transition:transform .22s ease,background .22s ease,color .22s ease;
 }
 .entrance-button span{
-  margin-left:18px;
+  margin-left:14px;
 }
 .entrance-button:hover,
 .entrance-button:focus-visible{
@@ -122,8 +122,8 @@ body.hospital-entrance{
 }
 @media(max-width:559px){
   .entrance-content{padding:22px}
-  .entrance-content h1{font-size:clamp(37px,12vw,52px)}
-  .entrance-brand{margin-bottom:30px}
+  .entrance-content h1{font-size:clamp(26px,8vw,34px)}
+  .entrance-brand{margin-bottom:15px}
   .entrance-purpose br{display:none}
   .entrance-purpose{max-width:290px}
 }
