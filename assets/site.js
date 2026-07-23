@@ -43,6 +43,7 @@
   jaadu.querySelectorAll('a').forEach(link => link.addEventListener('click', () => setJaadu(false)));
 
   const canvas = document.getElementById('dna-field');
+  if (!canvas) return;
   const ctx = canvas.getContext('2d');
   let width, height, dpr, points = [];
   function makePoints() {
