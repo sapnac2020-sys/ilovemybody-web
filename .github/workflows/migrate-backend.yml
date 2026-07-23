@@ -8,6 +8,7 @@ on:
       - backend/phase_42_pre10_clarity_engine.sql
       - backend/phase_42b_pre10_choice_library.sql
       - backend/phase_42c_pre10_calculation_contract.sql
+      - backend/phase_43_backend_driven_app_flow.sql
       - .github/workflows/migrate-backend.yml
 
 concurrency:
@@ -29,10 +30,12 @@ jobs:
           test -s backend/phase_42_pre10_clarity_engine.sql
           test -s backend/phase_42b_pre10_choice_library.sql
           test -s backend/phase_42c_pre10_calculation_contract.sql
+          test -s backend/phase_43_backend_driven_app_flow.sql
           grep -q 'CREATE TABLE IF NOT EXISTS `ilb_pre10_dimension`' backend/phase_42_pre10_clarity_engine.sql
           grep -q 'INSERT INTO `ilb_pre10_option`' backend/phase_42b_pre10_choice_library.sql
           grep -q 'CREATE VIEW `v_ilb_backend_readiness`' backend/phase_42c_pre10_calculation_contract.sql
-          sha256sum backend/phase_42*.sql
+          grep -q 'CREATE VIEW `v_ilb_app_flow_contract`' backend/phase_43_backend_driven_app_flow.sql
+          sha256sum backend/phase_42*.sql backend/phase_43_backend_driven_app_flow.sql
 
       - name: Prepare dedicated SSH identity
         id: ssh
@@ -55,7 +58,8 @@ jobs:
         id: upload
         run: |
           set -euo pipefail
-          tar -czf "/tmp/ilb-backend-${GITHUB_SHA}.tgz" backend/phase_42*.sql
+          tar -czf "/tmp/ilb-backend-${GITHUB_SHA}.tgz" \
+            backend/phase_42*.sql backend/phase_43_backend_driven_app_flow.sql
           scp -i "$HOME/.ssh/id_ed25519" -P "$DEPLOY_PORT" \
             "/tmp/ilb-backend-${GITHUB_SHA}.tgz" \
             "$DEPLOY_USER@$DEPLOY_HOST:ilb-backend-${GITHUB_SHA}.tgz"
@@ -125,11 +129,17 @@ jobs:
           CURRENT_STAGE="phase_42c_calculation_contract"
           mysql --defaults-extra-file="$DEFAULTS" \
             < "$STAGE/backend/phase_42c_pre10_calculation_contract.sql" >/tmp/ilb-phase42c.log
+          CURRENT_STAGE="phase_43_backend_driven_flow"
+          mysql --defaults-extra-file="$DEFAULTS" \
+            < "$STAGE/backend/phase_43_backend_driven_app_flow.sql" >/tmp/ilb-phase43.log
 
           CURRENT_STAGE="backend_readiness_verification"
           BLOCKED="$(mysql --defaults-extra-file="$DEFAULTS" --batch --skip-column-names \
             --execute="SELECT COUNT(*) FROM v_ilb_backend_readiness WHERE readiness_status='blocked'")"
           test "$BLOCKED" = "0"
+          APP_BLOCKED="$(mysql --defaults-extra-file="$DEFAULTS" --batch --skip-column-names \
+            --execute="SELECT COUNT(*) FROM v_ilb_app_backend_readiness WHERE readiness_status='blocked'")"
+          test "$APP_BLOCKED" = "0"
 
           mysql --defaults-extra-file="$DEFAULTS" --batch --skip-column-names --execute="
             SELECT 'migration_sha','${BACKEND_SHA}'
@@ -140,6 +150,9 @@ jobs:
             UNION ALL SELECT 'pre10_options',CAST(COUNT(*) AS CHAR) FROM ilb_pre10_option
             UNION ALL SELECT 'pre10_result_definitions',CAST(COUNT(*) AS CHAR) FROM ilb_pre10_result_definition WHERE status='active'
             UNION ALL SELECT 'backend_readiness_blockers',CAST(COUNT(*) AS CHAR) FROM v_ilb_backend_readiness WHERE readiness_status='blocked'
+            UNION ALL SELECT 'app_pathways',CAST(COUNT(*) AS CHAR) FROM ilb_app_pathway WHERE status='active'
+            UNION ALL SELECT 'app_flow_steps',CAST(COUNT(*) AS CHAR) FROM v_ilb_app_flow_contract
+            UNION ALL SELECT 'app_readiness_blockers',CAST(COUNT(*) AS CHAR) FROM v_ilb_app_backend_readiness WHERE readiness_status='blocked'
             UNION ALL SELECT 'verified_at_utc',UTC_TIMESTAMP();
           "
           printf 'migration_status\tverified\n'
