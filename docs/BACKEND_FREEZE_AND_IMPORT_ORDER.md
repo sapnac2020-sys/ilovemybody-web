@@ -8,17 +8,40 @@ The export contains the existing subject, consent, documents, medical history, m
 
 No existing personal records are changed by Phase 42.
 
-## New backend files
+## Live backend status
+
+Imported and verified on Hostinger on 23 July 2026 (UTC verification
+`2026-07-23 06:12:52`).
+
+- active dimensions: 10
+- PRE-10 days: 10
+- active assessments: 18
+- active assessment items: 71
+- response options: 329
+- active result definitions: 8
+- structural readiness blockers: 0
+
+The private repository records the non-sensitive verification at
+`docs/LIVE_BACKEND_STATUS.md`.
+
+## Backend migration files
 
 1. `backend/phase_42_pre10_clarity_engine.sql`
 2. `backend/phase_42b_pre10_choice_library.sql`
+3. `backend/phase_42c_pre10_calculation_contract.sql`
 
-Import in that order into `u756742628_ilovemybody`.
+They have been imported in that order into `u756742628_ilovemybody`.
 
-Both files are rerunnable and were statically parsed as MySQL/MariaDB SQL:
+All three files are rerunnable. Phase 42B includes the corrected derived-table
+aliases used by its choice library.
 
-- Phase 42: 34 statements
-- Phase 42B: 6 statements
+The secure migration workflow is:
+
+`.github/workflows/migrate-backend.yml`
+
+It uses the existing Hostinger SSH secret, reads database credentials only from
+the private server configuration, runs the migrations, verifies structural
+readiness, and records no credentials or patient-authored data.
 
 ## What Phase 42 adds
 
@@ -33,6 +56,36 @@ Both files are rerunnable and were statically parsed as MySQL/MariaDB SQL:
 - day progress
 - optionality and privacy boundaries
 - provenance fields and result-language rules
+
+## What Phase 42C computes
+
+The backend now has a declared calculation contract. It computes:
+
+- assessment information availability;
+- item-level normalization for questions with a declared numeric scale;
+- validated/imported results under the named instrument’s own rules;
+- coverage of the ten connected dimensions;
+- source catalogues for assessments and stored scientific formulas.
+
+It deliberately does **not** calculate one “human”, “health”, “happiness” or
+“energy” score. Different questions, laboratory values and validated
+instruments are not mathematically interchangeable merely because they are
+connected.
+
+Frontend/API read contracts:
+
+- `v_ilb_pre10_latest_response`
+- `v_ilb_pre10_assessment_progress`
+- `v_ilb_pre10_item_result`
+- `v_ilb_pre10_dimension_coverage`
+- `v_ilb_pre10_source_catalog`
+- `v_ilb_formula_source_catalog`
+- `v_ilb_backend_readiness`
+
+Definitions and audit tables:
+
+- `ilb_pre10_result_definition`
+- `ilb_pre10_calculation_audit`
 
 ## Registered validated routes
 
@@ -69,27 +122,22 @@ Sequence:
 3. reassessment
 4. optional second seven weeks when chosen and appropriate
 
-## Verification after import
+## Verification
 
-Expected:
+`v_ilb_backend_readiness` is the canonical structural readiness check. The live
+verified result contains zero blocked rows.
 
-- `pre10_dimensions` = 10
-- `pre10_days` = 10
-- `scales_missing_anchors` = 0
-- `choice_items_without_options` = 0 after Phase 42B
+## What still requires application work before live patient onboarding
 
-The exact assessment and item totals are intentionally returned by the verification queries rather than hard-coded here, so future reviewed additions do not create false failure messages.
-
-## Remaining operational work before live patient onboarding
-
-Schema-complete does not mean clinically live. Before inviting patients:
+The backend contract is live. It cannot create user interfaces or clinical
+operations by itself. Before inviting patients, the separate application must:
 
 - configure the web forms and APIs;
 - exercise consent and withdrawal;
 - test save/resume and document upload;
 - test medicine-photo confirmation;
 - test safety routing with qualified reviewers;
-- freeze the exact IPIP version and scoring key;
+- freeze the exact IPIP version and scoring key before presenting its items;
 - verify official instrument presentation and licences;
 - implement source pop-ups from stored provenance;
 - run access-control and privacy tests;
@@ -97,4 +145,3 @@ Schema-complete does not mean clinically live. Before inviting patients:
 - run a de-identified end-to-end test account.
 
 Do not enter live patient information into development or screenshots.
-
