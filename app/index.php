@@ -5,26 +5,18 @@
  <title>My Happy Space · I Love My Body</title>
  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500;1,600&family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,500;1,500&display=swap" rel="stylesheet">
- <link rel="stylesheet" href="assets/app.css?v=45"><link rel="stylesheet" href="assets/responsive.css?v=45">
+ <link rel="stylesheet" href="assets/app.css?v=48"><link rel="stylesheet" href="assets/responsive.css?v=48">
 </head><body>
 <div id="gate" class="boot-card">Opening your private space…</div>
 
 <main id="loginShell" class="login-shell" hidden>
- <section class="login-brand"><div><p class="eyebrow">I LOVE MY BODY</p><h1>My body is<br><em>my present.</em></h1><p>I care for my body because I am alive now.<br>I love my body and I love my life.</p></div><small>EVERYTHING IS CONNECTED.</small></section>
- <form id="login" class="login-card"><p class="eyebrow">MY HAPPY SPACE</p><h2>Welcome<br><em>back.</em></h2><p class="muted">Your reports, reflections and daily observations are private.</p><label class="field">Mobile number<input id="loginMobile" inputmode="tel" autocomplete="tel" maxlength="15" required></label><label class="field">6-digit PIN<input id="loginPin" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" autocomplete="current-password" required></label><button class="primary" type="submit">Enter my space <span>→</span></button><button class="browse-btn" id="browseApp" type="button">Browse the experience first <span>→</span></button><small class="browse-note">Preview the complete journey. Sign in only when you wish to save.</small><p id="loginError" class="error" role="alert"></p></form>
+ <section class="login-brand"><div><p class="eyebrow">I LOVE MY BODY</p><h1>My Happy<br><em>Space.</em></h1><p>A private place to understand your body, record your journey and notice what helps you feel better.</p></div><small>EVERYTHING IS CONNECTED.</small></section>
+ <form id="login" class="login-card"><p class="eyebrow">WELCOME</p><h2>Enter your<br><em>space.</em></h2><p class="muted">Your reports, reflections and daily observations remain private.</p><label class="field">Mobile number<input id="loginMobile" inputmode="tel" autocomplete="tel" maxlength="15" required></label><label class="field">6-digit PIN<input id="loginPin" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" autocomplete="current-password" required></label><button class="primary" type="submit">Enter my space <span>→</span></button><button class="browse-btn" id="browseApp" type="button">Preview before signing in <span>→</span></button><small class="browse-note">Explore first. Sign in only when you wish to save.</small><p id="loginError" class="error" role="alert"></p></form>
 </main>
 
 <div id="app" class="app-shell" hidden>
  <aside class="side">
   <button class="brand-mark" data-view="today" data-tip="Dashboard">♥</button>
-  <nav aria-label="My Happy Space">
-   <button data-view="start" data-tip="Starting point"><i>◇</i><span>Starting point</span></button>
-   <button data-view="checkin" data-tip="Daily check-in"><i>⌁</i><span>Daily check-in</span></button>
-   <button data-view="journal" data-tip="Journal"><i>✎</i><span>Journal</span></button>
-   <button data-view="journey" data-tip="Journey"><i>↗</i><span>Journey</span></button>
-   <button data-view="records" data-tip="Records"><i>▤</i><span>Records</span></button>
-   <button data-view="view" data-tip="My view"><i>Aa</i><span>My view</span></button>
-  </nav>
   <button id="logoutHint" class="rail-person" data-tip="Private profile"><i>●</i><span id="caseLabel">PRIVATE</span></button>
  </aside>
 
@@ -34,14 +26,23 @@
   <header class="workspace-head"><div><p class="eyebrow" id="viewEyebrow">TODAY</p><h1 id="viewTitle">Good morning, <em id="personName">friend.</em></h1></div><div class="date-chip"><b id="todayDate"></b><small>YOUR DAY</small></div></header>
 
   <section class="view active" data-view-panel="today">
-   <div class="welcome-grid"><article class="welcome-copy"><p class="eyebrow">MY HAPPY SPACE · ONE DASHBOARD</p><h2>Everything about <em>my journey.</em></h2><p>My reports, assessments, daily observations, reflections and progress—connected in one private space.</p><div class="action-row"><button class="primary" data-go="checkin">Check in now →</button><button class="quiet" data-go="journal">Write privately</button></div></article><aside class="today-card"><p class="eyebrow">MY CURRENT PHASE</p><ol><li class="active"><b>10 days</b><span>Understand my starting point</span></li><li><b>7 weeks</b><span>Observe choices and change</span></li><li><b>2 days</b><span>Reports and reassessment</span></li><li><b>7 weeks</b><span>Continue only if useful</span></li></ol><button data-go="journey">Open my timeline →</button></aside></div>
-   <div class="entry-strip"><button data-go="start"><i>01</i><b>Starting point</b><span>Reports, medicines and assessments</span></button><button data-go="checkin"><i>02</i><b>Daily check-in</b><span>Body, feeling, food and action</span></button><button data-go="journal"><i>03</i><b>Journal</b><span>Write what needs expression</span></button><button data-go="journey"><i>04</i><b>Journey</b><span>My phase, progress and review</span></button><button data-go="records"><i>05</i><b>Records</b><span>Upload and see documents</span></button><button data-go="view"><i>06</i><b>Personalise</b><span>Colour, font and text size</span></button></div>
+   <div class="dashboard-intro"><div><p class="eyebrow">YOUR PRIVATE JOURNEY</p><h2>One clear step<br><em>at a time.</em></h2></div><div><h3>What is this?</h3><p>A guided private program that connects your medical starting point with how you feel and live each day.</p><h3>Why do it?</h3><p>To notice patterns, measure change and have clearer conversations with the professionals supporting you.</p></div></div>
+   <div class="journey-steps">
+    <article class="current"><i>NOW</i><div><b>Share your starting point</b><span>Add your latest reports, prescriptions and current medicines.</span></div><button class="primary" data-go="records">Begin here →</button></article>
+    <article><i>02</i><div><b>Understand you</b><span>Ten gentle days of questions about your body, feelings, relationships and daily life.</span></div><small>After your records</small></article>
+    <article><i>03</i><div><b>Your first journey</b><span>Seven weeks of small actions, observation and selected support.</span></div><small>7 weeks</small></article>
+    <article><i>04</i><div><b>Review what changed</b><span>Repeat relevant reports and compare your experience with your starting point.</span></div><small>2 days</small></article>
+    <article><i>05</i><div><b>Decide what is next</b><span>Continue for another seven weeks only if the review shows it may be useful.</span></div><small>Personal decision</small></article>
+   </div>
+   <div class="dashboard-tools"><button data-go="checkin">Daily check-in</button><button data-go="journal">Private journal</button><button data-go="records">My reports</button><button data-go="view">Display settings</button></div>
   </section>
 
   <section class="view" data-view-panel="start">
-   <div class="section-intro"><div><p class="eyebrow">YOUR FIRST 10 DAYS</p><h2>We begin by <em>asking.</em></h2></div><p>No labels and no judgement. We understand your medical starting point and the ten dimensions of your life before the first seven weeks begin.</p></div>
-   <div class="start-grid"><article><i>01</i><h3>Medical picture</h3><p>Latest reports, prescriptions, current medicines, procedures and what you are experiencing.</p><button data-go="records">Add my records →</button></article><article><i>02</i><h3>Ten dimensions</h3><p>Love, instinct and fear—together with physical, sexual, emotional, relational, mental, occupational and money.</p><button data-go="checkin">Begin gently →</button></article><article><i>03</i><h3>Direction</h3><p>Values, confidence, self-worth, strengths, desires, purpose and the life you want to live.</p><div id="directionPlan" class="mini-plan"></div></article></div>
-   <aside class="boundary"><b>This is understanding, not diagnosis.</b><p>Your answers create questions and hypotheses to explore. They do not place you in a personality box.</p></aside>
+   <div class="begin-card">
+    <div class="begin-copy"><p class="eyebrow">LET US BEGIN GENTLY</p><h2>What would you like to share <em>first?</em></h2><p>Start with what you already have. You can stop and return at any time.</p></div>
+    <div class="begin-actions"><button class="primary" data-go="records">I have a report or prescription <span>→</span></button><button class="quiet" data-go="checkin">I want to tell you how I feel <span>→</span></button></div>
+    <div class="next-note"><b>That is all for now.</b><span>After this, we will guide you one small step at a time.</span></div>
+   </div>
   </section>
 
   <form id="checkin">
@@ -77,11 +78,11 @@
   <section class="view completion" data-view-panel="done"><i>✓</i><p class="eyebrow">TODAY IS RECORDED</p><h2>Thank you for listening<br><em>to your body.</em></h2><button class="primary" data-go="today">Return home →</button></section>
  </main>
 
- <nav class="bottom-nav" aria-label="Mobile navigation"><button data-view="start">Start</button><button data-view="checkin">Check-in</button><button data-view="journal">Journal</button><button data-view="journey">Journey</button><button data-view="records">Records</button><button data-view="view">My view</button></nav>
+ <nav class="bottom-nav" aria-label="Mobile navigation"><button data-view="today">Dashboard</button><button data-view="checkin">Check-in</button><button data-view="journal">Journal</button><button data-view="records">Reports</button></nav>
 </div>
 
 <section id="medicineEditor" class="sheet" hidden><div class="sheet-card"><button class="close" aria-label="Close">×</button><p class="eyebrow">MEDICINE RECORD</p><h2 id="editorTitle">Add medicine</h2><input type="hidden" id="editId"><label class="field">Name on label<input id="editName"></label><label class="field">Strength/composition<input id="editStrength"></label><label class="field">Dose taken<input id="editDose"></label><label class="field">How often<input id="editFrequency"></label><label class="field">Usual time<input id="editTime"></label><button class="primary" id="saveMedicine">Save medicine</button><label class="upload mini"><b>Take or upload medicine photo</b><input id="medicinePhoto" type="file" accept="image/*" capture="environment"></label></div></section>
 <section id="sourceSheet" class="sheet" hidden><div class="sheet-card source-card"><button class="close" aria-label="Close">×</button><p class="eyebrow">SOURCE + BOUNDARY</p><div id="sourceContent"></div></div></section>
 
 <template id="foodTemplate"><article class="food-card"><header><div><b>Food or drink</b><small>Only what you wish to record</small></div><button type="button" class="remove-food">Remove</button></header><div class="food-questions"><fieldset><legend>WHEN?</legend><div class="tabs"><label><input data-food="type" type="radio" value="breakfast"><span>Morning</span></label><label><input data-food="type" type="radio" value="lunch"><span>Lunch</span></label><label><input data-food="type" type="radio" value="snack"><span>Evening</span></label><label><input data-food="type" type="radio" value="dinner"><span>Dinner</span></label><label><input data-food="type" type="radio" value="other"><span>Late</span></label></div></fieldset><fieldset><legend>WHERE?</legend><div class="tabs"><label><input data-food="where" type="radio" value="home"><span>Home</span></label><label><input data-food="where" type="radio" value="work"><span>Work</span></label><label><input data-food="where" type="radio" value="restaurant"><span>Out</span></label><label><input data-food="where" type="radio" value="travel"><span>Travel</span></label></div></fieldset><fieldset class="wide"><legend>WHAT?</legend><input class="quick-text" data-food="detail" placeholder="Food or drink name"><div class="tabs"><label><input data-food="what" type="radio" value="home meal"><span>Home meal</span></label><label><input data-food="what" type="radio" value="outside meal"><span>Outside</span></label><label><input data-food="what" type="radio" value="snack"><span>Snack</span></label><label><input data-food="what" type="radio" value="sweet"><span>Sweet</span></label><label><input data-food="what" type="radio" value="drink"><span>Drink</span></label></div></fieldset><fieldset><legend>WHY?</legend><div class="tabs"><label><input data-food="reason" type="radio" value="physical hunger"><span>Hungry</span></label><label><input data-food="reason" type="radio" value="usual meal time"><span>Routine</span></label><label><input data-food="reason" type="radio" value="craving"><span>Craving</span></label><label><input data-food="reason" type="radio" value="stress or emotion"><span>Emotion</span></label><label><input data-food="reason" type="radio" value="social occasion"><span>Social</span></label></div></fieldset><fieldset><legend>WITH WHOM?</legend><div class="tabs"><label><input data-food="with_whom" type="radio" value="alone"><span>Alone</span></label><label><input data-food="with_whom" type="radio" value="family"><span>Family</span></label><label><input data-food="with_whom" type="radio" value="friends"><span>Friends</span></label><label><input data-food="with_whom" type="radio" value="colleagues"><span>Colleagues</span></label></div></fieldset><fieldset class="wide"><legend>HOW DID IT FEEL?</legend><div class="tabs feel-tabs"><label><input data-food="response" type="radio" value="light"><span>Light</span></label><label><input data-food="response" type="radio" value="satisfied"><span>Satisfied</span></label><label><input data-food="response" type="radio" value="energetic"><span>Energetic</span></label><label><input data-food="response" type="radio" value="sleepy"><span>Sleepy</span></label><label><input data-food="response" type="radio" value="heavy"><span>Heavy</span></label><label><input data-food="response" type="radio" value="bloated"><span>Bloated</span></label><label><input data-food="response" type="radio" value="no noticeable change"><span>No change</span></label></div></fieldset></div></article></template>
-<script src="assets/app.js?v=45"></script></body></html>
+<script src="assets/app.js?v=48"></script></body></html>
