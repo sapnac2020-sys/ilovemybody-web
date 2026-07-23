@@ -4,58 +4,35 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0c0810">
-<title>Health & Happiness Hospital — I Love My Body</title>
+<title>I Love My Body Hospital</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;1,9..144,300&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-:root{--ink:#0c0810;--peach:#f7cca6;--rose:#eaa7ba;--green:#77e85b;--white:#fff;--soft:#e7dfe5;--line:rgba(255,255,255,.22);--rail:92px;--serif:"Fraunces",Georgia,serif;--sans:"Inter",Arial,sans-serif}
-*{box-sizing:border-box}html,body{height:100%;margin:0}body{overflow:hidden;background:#101014;color:#fff;font-family:var(--sans);-webkit-font-smoothing:antialiased}
-.lobby{position:fixed;inset:0;background:url("/assets/hospital-lobby-final.jpg") center/cover no-repeat}
-.lobby:after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(6,6,12,.28),transparent 18%,transparent 82%,rgba(6,6,12,.12))}
-.rail{position:fixed;z-index:5;left:18px;top:18px;bottom:18px;width:62px;padding:9px 8px;display:flex;flex-direction:column;align-items:center;justify-content:space-evenly;border:1px solid rgba(139,151,194,.24);border-radius:34px;background:rgba(7,8,20,.84);box-shadow:inset 0 0 22px rgba(0,0,0,.2);backdrop-filter:blur(15px)}
-.rail:before{content:"";position:absolute;top:26px;bottom:26px;left:50%;width:1px;background:rgba(132,141,177,.13);transform:translateX(-50%);z-index:-1}
-.tab{position:relative;width:42px;height:42px;flex:0 0 42px;border-radius:50%;display:grid;place-items:center;border:1px solid rgba(139,151,194,.2);background:#090b1c;color:#80889e;transition:.2s}
-.tab:hover{color:#cbd1e3;border-color:rgba(168,180,224,.38)}.tab.active{color:#173118;background:var(--green);border-color:var(--green);box-shadow:0 0 22px rgba(119,232,91,.18)}.tab svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.35;stroke-linecap:round;stroke-linejoin:round}
-.tab span{position:absolute;left:calc(100% + 13px);white-space:nowrap;padding:7px 12px;border:1px solid rgba(247,204,166,.22);border-radius:99px;background:rgba(16,10,20,.92);color:#fff;font-size:10px;opacity:0;visibility:hidden;transform:translateX(-5px);transition:.18s}
-.tab:hover span{opacity:1;visibility:visible;transform:none}
-.stage{position:relative;z-index:3;height:100dvh;margin-left:var(--rail);pointer-events:none}
-.masthead{display:flex;align-items:center;justify-content:space-between;gap:20px;text-shadow:0 2px 18px rgba(0,0,0,.7)}
-.brand{display:flex;align-items:center;gap:11px}.heart{font-size:23px;color:var(--rose)}.brand b{font:400 clamp(17px,1.6vw,22px) var(--serif)}.brand small{display:block;margin-top:4px;font:500 8px var(--sans);letter-spacing:.23em;text-transform:uppercase;color:#ddd0d8}
-.back{padding:9px 15px;border:1px solid var(--line);border-radius:99px;color:#fff;text-decoration:none;font-size:11px;background:rgba(10,7,13,.3);backdrop-filter:blur(8px)}
-.screen-message{position:absolute;left:31%;top:22%;width:38%;height:23%;padding:clamp(12px,2vw,28px);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;text-shadow:0 2px 18px #000}
-.screen-message small{font-size:clamp(7px,.65vw,10px);font-weight:600;letter-spacing:.29em;text-transform:uppercase;color:var(--peach)}
-.screen-message h1{margin:9px 0 0;font:300 clamp(25px,2.8vw,46px)/1.05 var(--serif)}
-.screen-message p{margin:8px 0 0;color:#d8ccd3;font-size:clamp(8px,.75vw,11px)}
-.entry-strip{position:absolute;z-index:4;left:4%;right:3%;bottom:2.4vh;display:grid;grid-template-columns:repeat(4,1fr);gap:1px;padding:5px;border:1px solid rgba(255,255,255,.16);border-radius:15px;background:rgba(8,7,11,.7);backdrop-filter:blur(14px);box-shadow:0 14px 35px rgba(0,0,0,.32)}
-.path{min-width:0;color:#fff;text-decoration:none;border-radius:10px;padding:10px 12px;display:flex;align-items:center;gap:9px;transition:.22s}
-.path small{font-size:7px;letter-spacing:.16em;color:var(--peach)}.path strong{font:400 clamp(10px,.9vw,13px)/1.18 var(--serif)}.path i{margin-left:auto;font-style:normal}
-.path:hover{transform:translateY(-3px);background:rgba(247,204,166,.94);border-color:var(--peach);color:#2b1720}.path:hover small{color:#2b1720}
-.reception{position:absolute;left:42%;top:59%;width:18%;height:17%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;color:#fff;text-decoration:none;text-shadow:0 2px 14px #000}
-.reception small{font-size:7px;font-weight:600;letter-spacing:.24em;text-transform:uppercase;color:var(--peach)}.reception strong{margin-top:5px;font:400 clamp(15px,1.5vw,22px) var(--serif)}.reception span{margin-top:8px;padding:7px 13px;border-radius:999px;background:var(--peach);color:#2b1720;font-size:9px;font-weight:600;box-shadow:0 7px 18px rgba(0,0,0,.24)}
-.guidance{position:absolute;right:3%;bottom:calc(2.4vh + 58px);padding:5px 10px;border-radius:999px;background:rgba(8,7,11,.55);color:#d5cad1;font-size:7px}
-@media(min-width:1600px){:root{--rail:88px}}
-@media(min-width:768px) and (max-width:1023px){:root{--rail:78px}.rail{left:12px;width:58px}.screen-message{left:28%;width:46%}.reception{left:39%;width:25%}.entry-strip{left:2%;right:2%}}
-@media(min-width:560px) and (max-width:767px){:root{--rail:68px}.rail{left:8px;width:54px}.tab{width:36px;height:36px;flex-basis:36px}.screen-message{left:24%;width:54%}.reception{left:36%;width:32%}.guidance{display:none}.entry-strip{left:2%;right:2%}.path{padding:8px}.path strong{font-size:9px}}
-@media(max-width:559px){:root{--rail:0px}.lobby{background-position:center top}.stage{margin:0;padding:14px 14px 116px}.rail{top:auto;left:0;right:0;bottom:0;width:100%;height:62px;flex-direction:row;justify-content:space-around;padding:5px 8px;border:0;border-radius:0;background:rgba(10,7,13,.94)}.rail:before,.tab span,.rail .mobile-hide{display:none}.tab{width:40px;height:40px;flex-basis:40px}.brand small{display:none}.screen-message{left:8%;top:16%;width:84%;height:22%}.screen-message h1{font-size:30px}.screen-message p{font-size:9px}.reception{left:25%;top:58%;width:50%;height:15%;background:rgba(8,7,11,.55);border-radius:15px;backdrop-filter:blur(8px)}.guidance{display:none}.entry-strip{left:10px;right:10px;bottom:70px;grid-template-columns:1fr 1fr;gap:2px}.path{padding:7px 8px}.path strong{font-size:10px}}
-@media(max-width:379px){.screen-message h1{font-size:26px}.screen-message p{display:none}.reception{top:57%}}
+:root{--pink:#ff8fc7;--cyan:#79deef;--white:#fff;--rail:#0a0c1a}
+*{box-sizing:border-box}html,body{width:100%;height:100%;margin:0}body{overflow:hidden;background:#111;color:#fff;font-family:Inter,Arial,sans-serif}
+.lobby{position:fixed;inset:0;background:url('/assets/hospital-lobby-final.jpg?v=20260723-423') center/cover no-repeat}
+.rail{position:fixed;z-index:5;left:18px;top:18px;bottom:18px;width:62px;padding:9px 8px;display:flex;flex-direction:column;align-items:center;justify-content:space-evenly;border:1px solid rgba(139,151,194,.28);border-radius:34px;background:rgba(7,8,20,.86);box-shadow:inset 0 0 22px rgba(0,0,0,.25);backdrop-filter:blur(15px)}
+.rail:before{content:'';position:absolute;top:26px;bottom:26px;left:50%;width:1px;background:rgba(132,141,177,.14);transform:translateX(-50%);z-index:-1}
+.tab{position:relative;width:42px;height:42px;flex:0 0 42px;border-radius:50%;display:grid;place-items:center;border:1px solid rgba(139,151,194,.25);background:#090b1c;color:#8991a7;transition:.2s}
+.tab:hover{color:#fff;border-color:rgba(255,143,199,.65)}.tab.active{color:#211325;background:var(--pink);border-color:var(--pink);box-shadow:0 0 22px rgba(255,143,199,.25)}.tab svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.35;stroke-linecap:round;stroke-linejoin:round}
+.tab span{position:absolute;left:calc(100% + 13px);white-space:nowrap;padding:7px 12px;border:1px solid rgba(255,143,199,.3);border-radius:99px;background:rgba(12,8,17,.94);color:#fff;font-size:10px;opacity:0;visibility:hidden;transform:translateX(-5px);transition:.18s}.tab:hover span{opacity:1;visibility:visible;transform:none}
+@media(max-width:700px){.lobby{background-position:center top}.rail{left:0;right:0;top:auto;bottom:0;width:100%;height:62px;flex-direction:row;border:0;border-radius:0;padding:5px 8px}.rail:before,.tab span,.tab:nth-child(n+7){display:none}.tab{width:40px;height:40px;flex-basis:40px}}
 </style>
 </head>
 <body>
-<div class="lobby" aria-hidden="true"></div>
+<div class="lobby" aria-label="I Love My Body Hospital reception"></div>
 <nav class="rail hospital-main-rail" aria-label="Hospital sections">
-  <a class="tab active" href="/hospital.html" aria-label="Reception"><svg viewBox="0 0 24 24"><path d="M4 11 12 4l8 7v9H4zM9 20v-6h6v6"/></svg><span>Reception</span></a>
-  <a class="tab" href="/journey.html" aria-label="My Journey"><svg viewBox="0 0 24 24"><path d="M5 18C7 8 12 5 19 5M14 4h6v6"/></svg><span>My Journey</span><i></i></a>
-  <a class="tab" href="/therapies.html" aria-label="Therapies"><svg viewBox="0 0 24 24"><path d="M4 20C4.5 11 10 5.5 20 4c-.7 8.8-6.4 15.3-16 16Z"/><path d="M8 16c2.4-2.5 5-4.5 8.5-6"/></svg><span>Therapies</span></a>
-  <a class="tab" href="/mentors.html" aria-label="Mentors"><svg viewBox="0 0 24 24"><circle cx="8" cy="8" r="3"/><circle cx="17" cy="9" r="2"/><path d="M3 20c0-4 2-6 5-6s5 2 5 6M14 16c4 0 6 1 6 4"/></svg><span>Mentors</span></a>
-  <a class="tab" href="/philosophy.html" aria-label="Book and philosophy"><svg viewBox="0 0 24 24"><path d="M5 4h10a4 4 0 0 1 4 4v12H9a4 4 0 0 0-4-4z"/><path d="M5 4v12a4 4 0 0 1 4 4"/></svg><span>Book &amp; Philosophy</span></a>
-  <a class="tab" href="/app/?section=tests" aria-label="Self tests"><svg viewBox="0 0 24 24"><path d="M7 3h10v4H7zM5 5H3v16h18V5h-2M7 12l3 3 7-7"/></svg><span>Self Tests</span></a>
-  <a class="tab" href="/app/" aria-label="My Happy Space"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2"/><path d="M3 20c0-4 2-6 6-6s6 2 6 6M15 15c4 0 6 1 6 5"/></svg><span>My Happy Space</span></a>
-  <a class="tab" href="/philosophy.html#about" aria-label="About"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 10v6m0-9h.01"/></svg><span>About</span></a>
+<a class="tab active" href="/hospital.html" aria-label="Reception"><svg viewBox="0 0 24 24"><path d="M4 11 12 4l8 7v9H4zM9 20v-6h6v6"/></svg><span>Reception</span></a>
+<a class="tab" href="/journey.html" aria-label="My Journey"><svg viewBox="0 0 24 24"><path d="M5 18C7 8 12 5 19 5M14 4h6v6"/></svg><span>My Journey</span></a>
+<a class="tab" href="/therapies.html" aria-label="Therapies"><svg viewBox="0 0 24 24"><path d="M4 20C4.5 11 10 5.5 20 4c-.7 8.8-6.4 15.3-16 16Z"/><path d="M8 16c2.4-2.5 5-4.5 8.5-6"/></svg><span>Therapies</span></a>
+<a class="tab" href="/mentors.html" aria-label="Mentors"><svg viewBox="0 0 24 24"><circle cx="8" cy="8" r="3"/><circle cx="17" cy="9" r="2"/><path d="M3 20c0-4 2-6 5-6s5 2 5 6M14 16c4 0 6 1 6 4"/></svg><span>Mentors</span></a>
+<a class="tab" href="/philosophy.html" aria-label="Book and philosophy"><svg viewBox="0 0 24 24"><path d="M5 4h10a4 4 0 0 1 4 4v12H9a4 4 0 0 0-4-4z"/><path d="M5 4v12a4 4 0 0 1 4 4"/></svg><span>Book &amp; Philosophy</span></a>
+<a class="tab" href="/app/?section=tests" aria-label="Self tests"><svg viewBox="0 0 24 24"><path d="M7 3h10v4H7zM5 5H3v16h18V5h-2M7 12l3 3 7-7"/></svg><span>Self Tests</span></a>
+<a class="tab" href="/app/" aria-label="My Happy Space"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2"/><path d="M3 20c0-4 2-6 6-6s6 2 6 6M15 15c4 0 6 1 6 5"/></svg><span>My Happy Space</span></a>
+<a class="tab" href="/philosophy.html#about" aria-label="About"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 10v6m0-9h.01"/></svg><span>About</span></a>
 </nav>
-<main class="stage" aria-label="Health and Happiness Hospital lobby">
-  <span hidden>Why are you here?</span>
-</main>
-<!-- lobby-release: 20260723-2 -->
+<main hidden aria-label="Health and Happiness Hospital lobby">Why are you here?</main>
+<!-- lobby-release: approved-soft-pink-20260723-423 -->
 </body>
 </html>
