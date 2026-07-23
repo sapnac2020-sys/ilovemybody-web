@@ -1,0 +1,141 @@
+name: Migrate I Love My Body Backend
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - backend/phase_42_pre10_clarity_engine.sql
+      - backend/phase_42b_pre10_choice_library.sql
+      - backend/phase_42c_pre10_calculation_contract.sql
+      - .github/workflows/migrate-backend.yml
+
+concurrency:
+  group: ilovemybody-backend
+  cancel-in-progress: false
+
+jobs:
+  migrate-and-verify:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate migration files
+        run: |
+          set -euo pipefail
+          test -s backend/phase_42_pre10_clarity_engine.sql
+          test -s backend/phase_42b_pre10_choice_library.sql
+          test -s backend/phase_42c_pre10_calculation_contract.sql
+          grep -q 'CREATE TABLE IF NOT EXISTS `ilb_pre10_dimension`' backend/phase_42_pre10_clarity_engine.sql
+          grep -q 'INSERT INTO `ilb_pre10_option`' backend/phase_42b_pre10_choice_library.sql
+          grep -q 'CREATE VIEW `v_ilb_backend_readiness`' backend/phase_42c_pre10_calculation_contract.sql
+          sha256sum backend/phase_42*.sql
+
+      - name: Prepare dedicated SSH identity
+        env:
+          DEPLOY_BUNDLE: ${{ secrets.HOSTINGER_DEPLOY_BUNDLE }}
+        run: |
+          set -euo pipefail
+          test -n "$DEPLOY_BUNDLE"
+          mkdir -p "$HOME/.ssh"
+          printf '%s' "$DEPLOY_BUNDLE" | base64 --decode > /tmp/ilb-deploy.json
+          jq -e '.host and .port and .user and .key' /tmp/ilb-deploy.json >/dev/null
+          jq -r '.key' /tmp/ilb-deploy.json > "$HOME/.ssh/id_ed25519"
+          chmod 600 "$HOME/.ssh/id_ed25519"
+          echo "DEPLOY_HOST=$(jq -r '.host' /tmp/ilb-deploy.json)" >> "$GITHUB_ENV"
+          echo "DEPLOY_PORT=$(jq -r '.port' /tmp/ilb-deploy.json)" >> "$GITHUB_ENV"
+          echo "DEPLOY_USER=$(jq -r '.user' /tmp/ilb-deploy.json)" >> "$GITHUB_ENV"
+          ssh-keyscan -p "$(jq -r '.port' /tmp/ilb-deploy.json)" "$(jq -r '.host' /tmp/ilb-deploy.json)" >> "$HOME/.ssh/known_hosts"
+
+      - name: Upload migrations
+        run: |
+          set -euo pipefail
+          tar -czf "/tmp/ilb-backend-${GITHUB_SHA}.tgz" backend/phase_42*.sql
+          scp -i "$HOME/.ssh/id_ed25519" -P "$DEPLOY_PORT" \
+            "/tmp/ilb-backend-${GITHUB_SHA}.tgz" \
+            "$DEPLOY_USER@$DEPLOY_HOST:ilb-backend-${GITHUB_SHA}.tgz"
+
+      - name: Apply migrations and verify
+        run: |
+          set -euo pipefail
+          ssh -i "$HOME/.ssh/id_ed25519" -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" \
+            "BACKEND_SHA='$GITHUB_SHA' bash -s" > /tmp/backend-verification.tsv <<'REMOTE'
+          set -euo pipefail
+          PACKAGE="$HOME/ilb-backend-${BACKEND_SHA}.tgz"
+          STAGE="$HOME/deployments/ilovemybody-backend/${BACKEND_SHA}"
+          APP_CONFIG="$HOME/domains/ilovemybody.in/public_html/app/config.php"
+          DEFAULTS="$(mktemp "$HOME/.ilb-mysql.XXXXXX")"
+          trap 'rm -f "$DEFAULTS" "$PACKAGE"' EXIT
+
+          test -f "$PACKAGE"
+          test -f "$APP_CONFIG"
+          command -v php >/dev/null
+          command -v mysql >/dev/null
+          mkdir -p "$STAGE"
+          tar -xzf "$PACKAGE" -C "$STAGE"
+
+          php -r '
+            $c = require $argv[1];
+            if (!isset($c["db"])) { fwrite(STDERR, "Database configuration missing\n"); exit(2); }
+            $d = $c["db"];
+            $q = function ($v) {
+              return "\"" . addcslashes((string)$v, "\\\"\n\r\t") . "\"";
+            };
+            echo "[client]\n";
+            echo "host=" . $q($d["host"]) . "\n";
+            echo "port=" . (int)$d["port"] . "\n";
+            echo "user=" . $q($d["user"]) . "\n";
+            echo "password=" . $q($d["pass"]) . "\n";
+            echo "database=" . $q($d["name"]) . "\n";
+            echo "default-character-set=utf8mb4\n";
+          ' "$APP_CONFIG" > "$DEFAULTS"
+          chmod 600 "$DEFAULTS"
+
+          mysql --defaults-extra-file="$DEFAULTS" --execute="SELECT 1" >/dev/null
+          mysql --defaults-extra-file="$DEFAULTS" < "$STAGE/backend/phase_42_pre10_clarity_engine.sql"
+          mysql --defaults-extra-file="$DEFAULTS" < "$STAGE/backend/phase_42b_pre10_choice_library.sql"
+          mysql --defaults-extra-file="$DEFAULTS" < "$STAGE/backend/phase_42c_pre10_calculation_contract.sql"
+
+          BLOCKED="$(mysql --defaults-extra-file="$DEFAULTS" --batch --skip-column-names \
+            --execute="SELECT COUNT(*) FROM v_ilb_backend_readiness WHERE readiness_status='blocked'")"
+          test "$BLOCKED" = "0"
+
+          mysql --defaults-extra-file="$DEFAULTS" --batch --skip-column-names --execute="
+            SELECT 'migration_sha','${BACKEND_SHA}'
+            UNION ALL SELECT 'pre10_dimensions',CAST(COUNT(*) AS CHAR) FROM ilb_pre10_dimension WHERE status='active'
+            UNION ALL SELECT 'pre10_days',CAST(COUNT(*) AS CHAR) FROM ilb_pre10_day WHERE plan_key='pre10_clarity' AND version_label='1.0'
+            UNION ALL SELECT 'pre10_assessments',CAST(COUNT(*) AS CHAR) FROM ilb_pre10_assessment WHERE status='active'
+            UNION ALL SELECT 'pre10_items',CAST(COUNT(*) AS CHAR) FROM ilb_pre10_item WHERE status='active'
+            UNION ALL SELECT 'pre10_options',CAST(COUNT(*) AS CHAR) FROM ilb_pre10_option
+            UNION ALL SELECT 'pre10_result_definitions',CAST(COUNT(*) AS CHAR) FROM ilb_pre10_result_definition WHERE status='active'
+            UNION ALL SELECT 'backend_readiness_blockers',CAST(COUNT(*) AS CHAR) FROM v_ilb_backend_readiness WHERE readiness_status='blocked'
+            UNION ALL SELECT 'verified_at_utc',UTC_TIMESTAMP();
+          "
+          REMOTE
+
+          grep -q $'backend_readiness_blockers\t0' /tmp/backend-verification.tsv
+
+      - name: Record non-sensitive live verification
+        run: |
+          set -euo pipefail
+          {
+            echo "# Live Backend Status"
+            echo
+            echo "This file is generated only after the private Hostinger database migration and structural verification succeed."
+            echo
+            echo "| Check | Live value |"
+            echo "|---|---:|"
+            awk -F '\t' '{ gsub(/\|/, "\\|", $1); gsub(/\|/, "\\|", $2); printf("| %s | %s |\\n",$1,$2) }' /tmp/backend-verification.tsv
+            echo
+            echo "No patient-authored data or credentials are included."
+          } > docs/LIVE_BACKEND_STATUS.md
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/LIVE_BACKEND_STATUS.md
+          if ! git diff --cached --quiet; then
+            git commit -m "Record verified live backend migration [skip ci]"
+            git push
+          fi
