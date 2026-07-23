@@ -1,4 +1,4 @@
-/* Seven deliberate viewport profiles: 1920, 1440, 1280, 1024, 768, 430 and 360. */
+/* Six deliberate viewport profiles: wide, desktop, laptop, tablet, mobile and small mobile. */
 @media(min-width:1680px){.workspace{padding-inline:78px}.welcome-copy{min-height:430px}}
 @media(max-width:1365px){.workspace{padding-inline:34px}.welcome-copy h2{font-size:4rem}.today-card{padding:22px}.journey-track article{padding:20px}}
 @media(max-width:1149px){.welcome-grid{grid-template-columns:1fr .72fr}.entry-strip{grid-template-columns:1fr 1fr}.entry-strip button:nth-child(2){border-right:0}.entry-strip button:nth-child(-n+2){border-bottom:1px solid var(--line)}.start-grid{grid-template-columns:1fr 1fr}.journey-track{grid-template-columns:1fr 1fr}.medicine{grid-template-columns:1fr}.preference-grid{grid-template-columns:1fr 1fr}}
