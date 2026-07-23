@@ -11,7 +11,7 @@
 
 <main id="loginShell" class="login-shell" hidden>
  <section class="login-brand"><div><p class="eyebrow">I LOVE MY BODY</p><h1>My body is<br><em>my present.</em></h1><p>I care for my body because I am alive now.<br>I love my body and I love my life.</p></div><small>EVERYTHING IS CONNECTED.</small></section>
- <form id="login" class="login-card"><p class="eyebrow">MY HAPPY SPACE</p><h2>Welcome<br><em>back.</em></h2><p class="muted">Your reports, reflections and daily observations are private.</p><label class="field">Mobile number<input id="loginMobile" inputmode="tel" autocomplete="tel" maxlength="15" required></label><label class="field">6-digit PIN<input id="loginPin" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" autocomplete="current-password" required></label><button class="primary" type="submit">Enter my space <span>→</span></button><p id="loginError" class="error" role="alert"></p></form>
+ <form id="login" class="login-card"><p class="eyebrow">MY HAPPY SPACE</p><h2>Welcome<br><em>back.</em></h2><p class="muted">Your reports, reflections and daily observations are private.</p><label class="field">Mobile number<input id="loginMobile" inputmode="tel" autocomplete="tel" maxlength="15" required></label><label class="field">6-digit PIN<input id="loginPin" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" autocomplete="current-password" required></label><button class="primary" type="submit">Enter my space <span>→</span></button><button class="browse-btn" id="browseApp" type="button">Browse the experience first <span>→</span></button><small class="browse-note">Preview the complete journey. Sign in only when you wish to save.</small><p id="loginError" class="error" role="alert"></p></form>
 </main>
 
 <div id="app" class="app-shell" hidden>
@@ -29,7 +29,7 @@
   <button id="logoutHint" class="rail-person" data-tip="Private profile"><i>●</i><span id="caseLabel">PRIVATE</span></button>
  </aside>
 
- <header class="topbar"><div class="wordmark"><b>I Love My Body</b><small>MY HAPPY SPACE</small></div><div class="phase-mini"><span id="phaseLabel">STARTING POINT</span><b id="phaseProgress"><i></i></b></div><button data-view="view" class="profile-chip"><span id="mobileCaseLabel">My view</span><i>●</i></button></header>
+ <header class="topbar"><div class="wordmark"><b>I Love My Body</b><small>MY HAPPY SPACE</small></div><div class="phase-mini"><span id="phaseLabel">STARTING POINT</span><b id="phaseProgress"><i></i></b></div><button id="previewSignIn" class="preview-signin" hidden>Sign in to save</button><button data-view="view" class="profile-chip"><span id="mobileCaseLabel">My view</span><i>●</i></button></header>
 
  <main class="workspace">
   <header class="workspace-head"><div><p class="eyebrow" id="viewEyebrow">TODAY</p><h1 id="viewTitle">Good morning, <em id="personName">friend.</em></h1></div><div class="date-chip"><b id="todayDate"></b><small>YOUR DAY</small></div></header>
