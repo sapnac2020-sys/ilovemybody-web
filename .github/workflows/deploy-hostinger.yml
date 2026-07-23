@@ -35,7 +35,7 @@ jobs:
           test -s therapies.html
           test -s mentors.html
           test -s philosophy.html
-          test -s assets/hospital-lobby.b64
+          test -s assets/hospital-lobby-final.b64
           test -s assets/site.css
           test -s assets/site.js
           node --check assets/site.js
@@ -61,7 +61,7 @@ jobs:
 
       - name: Package public website
         run: |
-          base64 --decode assets/hospital-lobby.b64 > assets/hospital-lobby.jpg
+          base64 --decode assets/hospital-lobby-final.b64 > assets/hospital-lobby-final.jpg
           tar -czf "/tmp/ilovemybody-${GITHUB_SHA}.tgz" index.html hospital.html journey.html therapies.html mentors.html philosophy.html assets
 
       - name: Upload release
@@ -88,7 +88,7 @@ jobs:
           test -s "$STAGE/therapies.html"
           test -s "$STAGE/mentors.html"
           test -s "$STAGE/philosophy.html"
-          test -s "$STAGE/assets/hospital-lobby.jpg"
+          test -s "$STAGE/assets/hospital-lobby-final.jpg"
           test -s "$STAGE/assets/site.css"
           test -s "$STAGE/assets/site.js"
           cp -p "$STAGE/index.html" "$TARGET/index.html"
