@@ -44,7 +44,6 @@
 
   const canvas = document.getElementById('dna-field');
   const ctx = canvas.getContext('2d');
-  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
   let width, height, dpr, points = [];
   function makePoints() {
     points = [];
@@ -53,7 +52,7 @@
     for (let i = 0; i < count; i++) {
       const t = i / (count - 1), y = cy - length * .47 + t * length * .94;
       const wave = Math.sin(t * Math.PI * 5.2), spread = Math.min(width * .22, 290);
-      [-1,1].forEach(side => points.push({baseX:cx + side * wave * spread,baseY:y,x:0,y:0,phase:Math.random()*6.28,size:.7+Math.random()*1.4}));
+      [-1,1].forEach(side => points.push({baseX:cx + side * wave * spread,baseY:y,x:0,y:0,phase:Math.random()*6.28,size:.7+Math.random()*1.4,helix:true,side,t,spread,cx}));
     }
     for (let i=0;i<70;i++) points.push({baseX:width*(.16+Math.random()*.8),baseY:height*(.04+Math.random()*.92),x:0,y:0,phase:Math.random()*6.28,size:.45+Math.random()*.9});
   }
@@ -64,14 +63,23 @@
   }
   function draw(time=0) {
     ctx.clearRect(0,0,width,height);
-    const tick=time*.00018;
-    points.forEach(p=>{p.x=p.baseX+(reduced?0:Math.sin(tick+p.phase)*3);p.y=p.baseY+(reduced?0:Math.cos(tick*1.2+p.phase)*2)});
+    const tick=time*.00032;
+    points.forEach(p=>{
+      if(p.helix){
+        const movingWave=Math.sin(p.t*Math.PI*5.2+tick*3.4);
+        p.x=p.cx+p.side*movingWave*p.spread+Math.sin(tick+p.phase)*7;
+        p.y=p.baseY+Math.cos(tick*2+p.phase)*5;
+      }else{
+        p.x=p.baseX+Math.sin(tick*1.4+p.phase)*8;
+        p.y=p.baseY+Math.cos(tick*1.1+p.phase)*6;
+      }
+    });
     for(let i=0;i<points.length;i++) for(let j=i+1;j<Math.min(points.length,i+15);j++){
       const a=points[i],b=points[j],distance=Math.hypot(a.x-b.x,a.y-b.y);
       if(distance<145){ctx.strokeStyle=`rgba(242,183,163,${(1-distance/145)*.34})`;ctx.lineWidth=.72;ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke()}
     }
     points.forEach(p=>{const g=ctx.createRadialGradient(p.x,p.y,0,p.x,p.y,p.size*6);g.addColorStop(0,'rgba(255,236,224,1)');g.addColorStop(.28,'rgba(244,176,161,.75)');g.addColorStop(1,'rgba(239,163,151,0)');ctx.fillStyle=g;ctx.beginPath();ctx.arc(p.x,p.y,p.size*6,0,Math.PI*2);ctx.fill()});
-    if(!reduced) requestAnimationFrame(draw);
+    requestAnimationFrame(draw);
   }
   addEventListener('resize',resize,{passive:true});resize();draw();
 })();
