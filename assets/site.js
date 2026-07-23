@@ -1,102 +1,77 @@
 (() => {
-  const views = [...document.querySelectorAll('[data-view]')];
-  const navItems = [...document.querySelectorAll('.nav-item')];
-  const routeControls = [...document.querySelectorAll('[data-route]')];
-
-  function showRoute(route, updateHash = true) {
-    if (!views.some(v => v.dataset.view === route)) route = 'home';
-    views.forEach(v => v.classList.toggle('is-active', v.dataset.view === route));
-    navItems.forEach(item => {
-      const active = item.dataset.route === route;
-      item.classList.toggle('is-active', active);
-      active ? item.setAttribute('aria-current', 'page') : item.removeAttribute('aria-current');
-    });
-    if (updateHash) history.replaceState(null, '', `#${route}`);
-    document.querySelector(`[data-view="${route}"]`)?.scrollTo(0, 0);
-    document.getElementById('site-main').focus({preventScroll:true});
-  }
-
-  routeControls.forEach(control => control.addEventListener('click', event => {
-    if (control.tagName === 'A') event.preventDefault();
-    showRoute(control.dataset.route);
-  }));
-  window.addEventListener('hashchange', () => showRoute(location.hash.slice(1), false));
-  showRoute(location.hash.slice(1) || 'home', false);
-
-  const layers = {
-    medical: ['Your medical baseline','Illnesses, operations, family history, reports, prescriptions, medicines and clinical measurements form the starting point—not the entire person.','Stored with date, source and review status.'],
-    physical: ['Your physical systems','Heart, circulation, oxygen, nervous system, brain, hormones, immunity, metabolism, inflammation, digestion, gut function and repair.','Measured values remain separate from felt experience.'],
-    food: ['What you feed your body','Food identity, chemistry, ingredients, quantity, combinations, preparation, timing, medicines, air, water and information.','Technology estimates; the person confirms.'],
-    mind: ['What you feed your mind','Thoughts, beliefs, memories, fear, love, guilt, shame, confidence, identity, relationships, purpose and emotional experience.','A feeling is real; it is not automatically a diagnosis.'],
-    signals: ['How your body speaks','Pain, fatigue, cravings, hunger, burping, gas, bowel changes, sleep, sweating, breathing, pulse, discomfort and pleasure.','A signal invites attention, not automatic interpretation.'],
-    actions: ['What you choose and do','Eating, movement, rest, sleep, breathing, expression, work, relationships and the action taken after a body signal.','Choice is observed without guilt or moral judgement.'],
-    environment: ['The world around you','People, place, noise, air, water, light, work, social context and other exposures that shape daily experience.','Context may modify a response without being its sole cause.'],
-    response: ['Your biological response','Brain and gut signalling, nervous-system regulation, hormones, immunity, circulation, oxygen use, metabolism, recovery and gene regulation.','Direct biological claims require appropriate measurement.']
-  };
-  const detail = document.getElementById('layer-detail');
-  document.querySelectorAll('#connection-orbit button').forEach(button => button.addEventListener('click', () => {
-    document.querySelectorAll('#connection-orbit button').forEach(b => b.classList.remove('is-active'));
-    button.classList.add('is-active');
-    const [title, text, note] = layers[button.dataset.layer];
-    detail.innerHTML = `<small>Connected layer</small><h3>${title}</h3><p>${text}</p><b>${note}</b>`;
+  const menuButton = document.querySelector('.menu-button');
+  const nav = document.getElementById('site-nav');
+  menuButton.addEventListener('click', () => {
+    const open = nav.classList.toggle('open');
+    menuButton.setAttribute('aria-expanded', String(open));
+  });
+  nav.querySelectorAll('a').forEach(link => link.addEventListener('click', () => {
+    nav.classList.remove('open');
+    menuButton.setAttribute('aria-expanded', 'false');
   }));
 
   const evidence = {
-    food: ['Food chemistry & composition','What is in the food?','Used for food identity, ingredients, nutrients, chemical composition, quantity, processing and preparation context.',['ICMR–NIN','Indian Food Composition Tables','FSSAI','USDA FoodData Central','FAO INFOODS','NIH ODS'],'composition and identity','the same personal response in everyone'],
-    medical: ['Reports, pathology & medicines','What does the medical record establish?','Used to standardise tests, units, medicine identities, regulatory labels and clinical interpretation boundaries.',['WHO','ICD-11','LOINC','UCUM','IFCC','CLSI','CDSCO','DailyMed','RxNorm'],'standardisation, labels and guidance','an automated diagnosis or medicine change'],
-    mind: ['Clinical psychology & neuroscience','What can be measured responsibly?','Validated instruments support screening and comparison. Brain datasets support anatomy and pathway research—not mind reading.',['WHO-5','PHQ-9','GAD-7','PROMIS','APA PsycNet','Allen Brain Atlas','BrainSpan','Human Connectome Project'],'validated measurement and research context','that a score independently diagnoses a person'],
-    pathways: ['Biochemistry & biological pathways','How might the connection work?','Used to map chemicals, enzymes, metabolites, reactions, pathways and possible mechanisms.',['Reactome','Rhea','BRENDA','PubChem','ChEMBL','NIST','PharmGKB'],'mechanisms, reactions and identifiers','that a plausible mechanism caused one patient’s outcome'],
-    traditional: ['Traditional & interpretive knowledge','What framework is being used?','Ayurveda, yoga, acupuncture, acupressure, chakra traditions, philosophy and personal teachers retain their own labels and sources.',['Classical texts','Reviewed scholarship','Ayurveda','Yoga','Acupuncture','Acupressure','Bhagavad Gita','Author philosophy'],'tradition, meaning and practice provenance','biomedical proof'],
-    personal: ['Personal longitudinal evidence','What happened for this person?','Reports, prescriptions, food photographs, check-ins, body signals, actions, sessions and follow-up create private within-person evidence.',['Medical reports','Prescriptions','Daily check-ins','Food events','Body signals','Assessments','Actions','Follow-ups'],'the individual timeline and repeated personal patterns','that the same result applies universally']
+    medical: ['Official, regulatory and clinical sources','What does the medical record establish?','Reports, tests, units, medicines and clinical guidance retain their dates, sources, scope and limitations.',['WHO','LOINC','UCUM','IFCC','CDSCO','DailyMed','RxNorm']],
+    food: ['Food identity and chemistry','What is in the food—and how was it prepared?','Composition, ingredients, quantity, combinations and preparation are connected without assuming the same response in every person.',['ICMR–NIN','IFCT','FSSAI','USDA FoodData Central','FAO INFOODS','NIH ODS']],
+    mind: ['Validated measures and neuroscience','What can be measured responsibly?','Official instruments remain separate from our own discovery questions. A score supports reflection and review; it does not define or diagnose a person.',['WHO-5','PHQ-9','GAD-7','IPIP','Rosenberg SES','Allen Brain Atlas']],
+    traditional: ['Traditional and interpretive knowledge','Which framework is speaking?','Ayurveda, yoga, acupuncture, acupressure, energy practices and philosophy keep their original names and are never disguised as biomedical proof.',['Classical texts','Reviewed scholarship','Practice provenance','Evidence label','Safety boundary']],
+    personal: ['Private longitudinal evidence','What happened for this person?','Reports, check-ins, body signals, actions and follow-up form a personal timeline. A repeated personal pattern is not automatically universal proof.',['Medical reports','Prescriptions','Assessments','Body signals','Actions','Follow-up']]
   };
-  const evidenceCard = document.getElementById('evidence-card');
+  const detail = document.getElementById('evidence-detail');
   document.querySelectorAll('[data-evidence]').forEach(button => button.addEventListener('click', () => {
-    document.querySelectorAll('[data-evidence]').forEach(b => b.classList.remove('is-active'));
-    button.classList.add('is-active');
-    const [small,title,text,sources,supports,notProve] = evidence[button.dataset.evidence];
-    evidenceCard.innerHTML = `<small>${small}</small><h3>${title}</h3><p>${text}</p><div class="source-list">${sources.map(s=>`<span>${s}</span>`).join('')}</div><footer><b>What it supports:</b> ${supports}. <b>What it does not prove:</b> ${notProve}.</footer>`;
+    document.querySelectorAll('[data-evidence]').forEach(item => item.classList.remove('active'));
+    button.classList.add('active');
+    const [small,title,text,sources] = evidence[button.dataset.evidence];
+    detail.innerHTML = `<small>${small}</small><h3>${title}</h3><p>${text}</p><div>${sources.map(source => `<span>${source}</span>`).join('')}</div><button type="button" id="source-button">How a source is shown →</button>`;
+    document.getElementById('source-button').addEventListener('click', () => sourceDialog.showModal());
   }));
 
-  const dialog = document.getElementById('source-dialog');
-  document.getElementById('source-demo').addEventListener('click', () => dialog.showModal());
-  dialog.querySelector('.dialog-close').addEventListener('click', () => dialog.close());
-  dialog.addEventListener('click', e => { if (e.target === dialog) dialog.close(); });
+  const sourceDialog = document.getElementById('source-dialog');
+  document.getElementById('source-button').addEventListener('click', () => sourceDialog.showModal());
+  sourceDialog.querySelector('button').addEventListener('click', () => sourceDialog.close());
+  sourceDialog.addEventListener('click', event => { if (event.target === sourceDialog) sourceDialog.close(); });
 
-  const jaadu = document.getElementById('jaadu-panel');
-  const jaaduTrigger = document.getElementById('jaadu-trigger');
-  function setJaadu(open) {
-    jaadu.classList.toggle('is-open', open); jaadu.setAttribute('aria-hidden', String(!open));
-    jaaduTrigger.setAttribute('aria-expanded', String(open));
-  }
-  jaaduTrigger.addEventListener('click', () => setJaadu(!jaadu.classList.contains('is-open')));
-  document.getElementById('jaadu-close').addEventListener('click', () => setJaadu(false));
-  document.querySelectorAll('[data-jaadu]').forEach(button => button.addEventListener('click', () => { setJaadu(false); showRoute(button.dataset.jaadu); }));
+  const jaaduButton = document.getElementById('jaadu-button');
+  const jaadu = document.getElementById('jaadu');
+  const setJaadu = open => {
+    jaadu.hidden = !open;
+    jaadu.classList.toggle('open', open);
+    jaaduButton.setAttribute('aria-expanded', String(open));
+  };
+  jaaduButton.addEventListener('click', () => setJaadu(!jaadu.classList.contains('open')));
+  jaadu.querySelector('.jaadu-close').addEventListener('click', () => setJaadu(false));
+  jaadu.querySelectorAll('a').forEach(link => link.addEventListener('click', () => setJaadu(false)));
 
   const canvas = document.getElementById('dna-field');
   const ctx = canvas.getContext('2d');
-  let width, height, dpr, points = [], raf;
   const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  function resize() {
-    dpr = Math.min(devicePixelRatio || 1, 2); width = innerWidth; height = innerHeight;
-    canvas.width = width*dpr; canvas.height = height*dpr; canvas.style.width=`${width}px`; canvas.style.height=`${height}px`;
-    ctx.setTransform(dpr,0,0,dpr,0,0); makePoints();
-  }
+  let width, height, dpr, points = [];
   function makePoints() {
-    points=[]; const cx=width*.63, cy=height*.48, length=Math.min(width*.68,1100), count=Math.max(52,Math.floor(width/17));
-    for(let i=0;i<count;i++){
-      const t=i/(count-1), y=cy-length*.42+t*length*.84, wave=Math.sin(t*Math.PI*5.4), spread=Math.min(width*.21,310);
-      points.push({x:cx+wave*spread,y,baseX:cx+wave*spread,baseY:y,phase:Math.random()*Math.PI*2,size:Math.random()*1.8+.6,strand:i%2});
-      points.push({x:cx-wave*spread,y,baseX:cx-wave*spread,baseY:y,phase:Math.random()*Math.PI*2,size:Math.random()*1.8+.6,strand:(i%2)+2});
+    points = [];
+    const cx = width * .68, cy = height * .48, length = Math.min(height * 1.15, 920);
+    const count = Math.max(40, Math.floor(width / 24));
+    for (let i = 0; i < count; i++) {
+      const t = i / (count - 1), y = cy - length * .47 + t * length * .94;
+      const wave = Math.sin(t * Math.PI * 5.2), spread = Math.min(width * .18, 250);
+      [-1,1].forEach(side => points.push({baseX:cx + side * wave * spread,baseY:y,x:0,y:0,phase:Math.random()*6.28,size:.4+Math.random()*1.2}));
     }
-    for(let i=0;i<Math.min(80,Math.floor(width/13));i++) points.push({x:width*(.19+Math.random()*.69),y:height*(.08+Math.random()*.84),baseX:0,baseY:0,phase:Math.random()*6.28,size:Math.random()*1.2+.3,strand:9,free:true});
+    for (let i=0;i<50;i++) points.push({baseX:width*(.2+Math.random()*.75),baseY:height*(.05+Math.random()*.9),x:0,y:0,phase:Math.random()*6.28,size:.3+Math.random()*.8});
+  }
+  function resize() {
+    width=innerWidth;height=innerHeight;dpr=Math.min(devicePixelRatio||1,2);
+    canvas.width=width*dpr;canvas.height=height*dpr;canvas.style.width=width+'px';canvas.style.height=height+'px';
+    ctx.setTransform(dpr,0,0,dpr,0,0);makePoints();
   }
   function draw(time=0) {
-    ctx.clearRect(0,0,width,height); const tick=time*.00022;
-    points.forEach((p,i)=>{if(!reduced){p.x=(p.free?p.x:p.baseX)+Math.sin(tick*2+p.phase)*3;p.y=(p.free?p.y:p.baseY)+Math.cos(tick*1.5+p.phase)*2}if(p.free){p.x+=Math.sin(p.phase)*.025;p.y+=Math.cos(p.phase)*.02}});
-    ctx.lineWidth=.55;
-    for(let i=0;i<points.length;i++){const a=points[i];for(let j=i+1;j<Math.min(points.length,i+18);j++){const b=points[j],dx=a.x-b.x,dy=a.y-b.y,dist=Math.hypot(dx,dy);if(dist<145){ctx.strokeStyle=`rgba(238,184,160,${(1-dist/145)*.22})`;ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke()}}}
-    points.forEach(p=>{const glow=ctx.createRadialGradient(p.x,p.y,0,p.x,p.y,p.size*5);glow.addColorStop(0,'rgba(255,224,201,.96)');glow.addColorStop(.28,'rgba(235,171,145,.65)');glow.addColorStop(1,'rgba(235,171,145,0)');ctx.fillStyle=glow;ctx.beginPath();ctx.arc(p.x,p.y,p.size*5,0,Math.PI*2);ctx.fill()});
-    if(!reduced) raf=requestAnimationFrame(draw);
+    ctx.clearRect(0,0,width,height);
+    const tick=time*.00018;
+    points.forEach(p=>{p.x=p.baseX+(reduced?0:Math.sin(tick+p.phase)*3);p.y=p.baseY+(reduced?0:Math.cos(tick*1.2+p.phase)*2)});
+    for(let i=0;i<points.length;i++) for(let j=i+1;j<Math.min(points.length,i+15);j++){
+      const a=points[i],b=points[j],distance=Math.hypot(a.x-b.x,a.y-b.y);
+      if(distance<130){ctx.strokeStyle=`rgba(242,183,163,${(1-distance/130)*.2})`;ctx.lineWidth=.55;ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke()}
+    }
+    points.forEach(p=>{const g=ctx.createRadialGradient(p.x,p.y,0,p.x,p.y,p.size*5);g.addColorStop(0,'rgba(255,226,211,.9)');g.addColorStop(.3,'rgba(239,163,151,.55)');g.addColorStop(1,'rgba(239,163,151,0)');ctx.fillStyle=g;ctx.beginPath();ctx.arc(p.x,p.y,p.size*5,0,Math.PI*2);ctx.fill()});
+    if(!reduced) requestAnimationFrame(draw);
   }
-  addEventListener('resize', resize, {passive:true}); resize(); draw();
+  addEventListener('resize',resize,{passive:true});resize();draw();
 })();
