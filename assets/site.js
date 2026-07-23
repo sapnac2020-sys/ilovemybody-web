@@ -45,7 +45,19 @@
   const jaaduThread = document.getElementById('jaadu-thread');
   const jaaduCount = document.getElementById('jaadu-count');
   const guestKey = 'ilb_jaadu_guest_questions';
+  const threadKey = 'ilb_jaadu_guest_thread';
   let guestQuestions = Math.min(3, Number(localStorage.getItem(guestKey) || 0));
+  let savedThread = [];
+  try { savedThread = JSON.parse(localStorage.getItem(threadKey) || '[]'); } catch (_) {}
+  if (Array.isArray(savedThread) && savedThread.length) {
+    jaaduThread.innerHTML = '';
+    savedThread.slice(-6).forEach(item => {
+      const message = document.createElement('p');
+      message.className = `jaadu-message${item.role === 'user' ? ' user' : ''}`;
+      message.textContent = String(item.text || '');
+      jaaduThread.appendChild(message);
+    });
+  }
   const answers = [
     {
       test: /test|assessment|dimension/i,
@@ -95,6 +107,8 @@
     reply.className = 'jaadu-message';
     reply.textContent = match?.text || 'I can help you find the right entrance: My Journey, Therapies, Mentors, or My Philosophy.';
     jaaduThread.appendChild(reply);
+    savedThread.push({role: 'user', text: question}, {role: 'jaadu', text: reply.textContent});
+    localStorage.setItem(threadKey, JSON.stringify(savedThread.slice(-6)));
     guestQuestions += 1;
     localStorage.setItem(guestKey, String(guestQuestions));
     jaaduInput.value = '';
