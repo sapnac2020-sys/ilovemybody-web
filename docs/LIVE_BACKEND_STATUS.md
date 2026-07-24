@@ -1,12 +1,11 @@
 # Live Backend Status
 
-This file records a sanitized Hostinger backend migration outcome.
+- Database: `u756742628_ilovemybody`
+- Migration: phases 47, 48 and 49
+- Verification: `workflow_failed_before_migration`
+- Workflow run: `30077394345` (attempt `1`)
+- Source commit: `a88a21d0c872f2e66f2b6d01b4670d8bb339a60d`
+- Verified at (UTC): `2026-07-24T08:00:57Z`
 
-| Check | Live value |
-|---|---:|
-| migration_sha | e38a0887b9cc7ee7db33738dd313136becb3c854 |\n| pre10_dimensions | 10 |\n| pre10_days | 10 |\n| pre10_assessments | 18 |\n| pre10_items | 71 |\n| pre10_options | 329 |\n| pre10_result_definitions | 8 |\n| backend_readiness_blockers | 0 |\n| app_pathways | 4 |\n| app_flow_steps | 14 |\n| app_readiness_blockers | 0 |\n| frozen_releases | 1 |\n| canonical_backend_objects | 23 |\n| isolated_legacy_objects | 11 |\n| redikall_tables_remaining | 0 |\n| redikall_registry_rows | 0 |\n| verified_at_utc | 2026-07-24 04:24:31 |\n| migration_status | verified |\n| source_validation | success |
-| ssh_preparation | success |
-| migration_upload | success |
-| github_step_outcome | success |
-
-No patient-authored data or credentials are included.
+```text
+```
