@@ -74,7 +74,7 @@ $migrations = [
     }
 
     $missing = (int)$pdo->query(
-        "SELECT COUNT(*) FROM `v_ilb_plug_play_readiness` WHERE `object_status` = 'missing'"
+        "SELECT COUNT(*) FROM `v_ilb_plug_play_readiness` WHERE `readiness_status` = 'missing'"
     )->fetchColumn();
 
     if ($missing !== 0) {
