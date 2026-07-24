@@ -283,3 +283,45 @@ html:has(.single-screen),.single-screen{width:100%;height:100%;overflow:hidden}
 .jaadu-launch{position:fixed;z-index:11;right:18px;bottom:22px;padding:11px 15px;border:1px solid rgba(255,255,255,.18);border-radius:999px;background:rgba(8,7,11,.83);color:white;font:500 9px "DM Sans",sans-serif;cursor:pointer;backdrop-filter:blur(12px)}
 @media(max-width:900px){.hospital-brand{left:96px}.hospital-stage{right:18px}.hospital-room:has(.room-card + .room-card){align-items:center}.hospital-room:has(.room-card + .room-card) .room-card{width:min(760px,84vw)}.hospital-room:has(.room-card + .room-card) .room-card+ .room-card{display:none}.process-line{grid-template-columns:repeat(3,1fr)}.hospital-dock{width:calc(100% - 200px)}}
 @media(max-width:650px){.hospital-world{overflow:auto}.hospital-scene{background-position:center top}.hospital-shade{background:rgba(7,5,9,.5)}.hospital-brand{top:14px;left:18px}.hospital-brand b{font-size:19px}.hospital-rail{top:auto;left:0;right:0;bottom:0;width:100%;height:64px;flex-direction:row;border:0;border-radius:0;padding:7px 9px}.hospital-rail:before,.rail-item span,.rail-item.active:after{display:none}.rail-item{width:40px;height:40px}.hospital-stage{position:relative;inset:auto;min-height:100vh;padding:84px 14px 128px}.hospital-room{position:relative;inset:auto;min-height:calc(100vh - 212px)}.hospital-screen{top:1%;width:calc(100% - 18px)}.reception-card{position:relative;left:auto;bottom:auto;width:100%;margin-top:210px;transform:none}.reception-actions{grid-template-columns:1fr}.room-card,.hospital-room:has(.room-card + .room-card) .room-card{width:100%;max-height:none;padding:24px 18px}.process-line{grid-template-columns:1fr}.process-line li{min-height:auto}.evidence-list{grid-template-columns:1fr}.hospital-dock{display:none}.jaadu-launch{bottom:72px}.hospital-room:has(.room-card + .room-card) .room-card+ .room-card{display:none}}
+
+/* Three-scene experience: the lobby remains the hero. */
+.hospital-stage{inset:86px 34px 34px 105px}
+.hospital-room[data-room-panel="reception"]{align-items:flex-end;justify-content:center;padding-bottom:18px}
+.hospital-room[data-room-panel="reception"] .reception-card{
+  position:relative;
+  left:auto;
+  bottom:auto;
+  width:min(850px,78vw);
+  padding:18px 20px;
+  transform:none;
+  border:1px solid rgba(255,255,255,.2);
+  border-radius:18px;
+  background:linear-gradient(110deg,rgba(9,7,11,.91),rgba(21,13,20,.82));
+  box-shadow:0 20px 65px rgba(0,0,0,.45);
+  backdrop-filter:blur(18px);
+}
+.hospital-room[data-room-panel="reception"] .reception-card h2{
+  margin:3px 0 4px;
+  font-size:clamp(24px,2.25vw,36px);
+}
+.hospital-room[data-room-panel="reception"] .reception-card>p:not(.room-kicker){
+  font-size:10px;
+}
+.hospital-room[data-room-panel="reception"] .reception-actions{
+  margin-top:11px;
+}
+.hospital-room[data-room-panel="reception"] .reception-actions button{
+  min-height:43px;
+}
+.hospital-brand{top:23px}
+.hospital-room:not([data-room-panel="reception"]) .room-card{
+  background:linear-gradient(140deg,rgba(10,7,11,.94),rgba(28,17,26,.88));
+  border:1px solid rgba(255,255,255,.18);
+  box-shadow:0 24px 80px rgba(0,0,0,.48);
+  backdrop-filter:blur(21px);
+}
+@media(max-width:650px){
+  .hospital-room[data-room-panel="reception"]{padding-bottom:86px}
+  .hospital-room[data-room-panel="reception"] .reception-card{width:100%;margin-top:auto}
+  .hospital-room[data-room-panel="reception"] .reception-actions{grid-template-columns:1fr}
+}
