@@ -325,3 +325,34 @@ html:has(.single-screen),.single-screen{width:100%;height:100%;overflow:hidden}
   .hospital-room[data-room-panel="reception"] .reception-card{width:100%;margin-top:auto}
   .hospital-room[data-room-panel="reception"] .reception-actions{grid-template-columns:1fr}
 }
+
+/* Reception is a decision desk, not a promotional homepage. */
+.reception-intro{display:flex;align-items:end;justify-content:space-between;gap:28px}
+.reception-intro h2{flex:0 0 auto}
+.reception-intro>p:last-child{max-width:430px;margin:0 0 5px;color:var(--hospital-muted);font-size:10px;line-height:1.5}
+.reception-paths{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:13px}
+.reception-paths button{min-height:64px;padding:11px 12px;display:flex;flex-direction:column;align-items:flex-start;justify-content:space-between;gap:8px;border:1px solid rgba(255,255,255,.16);border-radius:11px;background:rgba(255,255,255,.04);color:white;text-align:left;cursor:pointer;transition:.18s ease}
+.reception-paths button:hover,.reception-paths button.selected{border-color:var(--hospital-pink);background:rgba(255,94,172,.13);transform:translateY(-1px)}
+.reception-paths b{color:var(--hospital-pink);font-size:8px;letter-spacing:.15em}
+.reception-paths span{font:500 13px/1.25 "Playfair Display",serif}
+.reception-next{margin-top:10px;padding:10px 12px;display:flex;align-items:center;justify-content:space-between;gap:18px;border-radius:11px;background:var(--hospital-pink);color:#28101d}
+.reception-next[hidden]{display:none}
+.reception-next small{display:block;font-size:7px;letter-spacing:.2em}.reception-next strong{display:block;margin-top:2px;font:500 13px "Playfair Display",serif}.reception-next p{max-width:560px;margin:2px 0 0;font-size:8px;line-height:1.4}
+.reception-next a{flex:0 0 auto;padding:10px 13px;border-radius:999px;background:#24101c;color:white;text-decoration:none;font-size:9px;font-weight:600}
+.reception-process-link{margin-top:10px;padding:0;border:0;background:none;color:var(--hospital-peach);font:500 9px "DM Sans",sans-serif;cursor:pointer}
+.reception-boundary{margin-top:8px;color:#bbaeb5;font-size:7px;line-height:1.4}
+.process-line{grid-template-columns:repeat(6,1fr)}
+.entering-hospital .entrance-content{opacity:0;transform:translate(-50%,-48%) scale(.96)}
+.entering-hospital #scene{filter:brightness(1.45) blur(1px);transform:scale(1.08)}
+.entrance-content,#scene{transition:opacity .6s ease,transform .7s ease,filter .7s ease}
+
+@media(max-width:1000px){
+  .reception-paths{grid-template-columns:1fr 1fr}
+  .process-line{grid-template-columns:repeat(3,1fr)}
+}
+@media(max-width:650px){
+  .reception-intro{display:block}
+  .reception-paths{grid-template-columns:1fr}
+  .reception-next{align-items:flex-start;flex-direction:column}
+  .reception-next a{width:100%;text-align:center}
+}
