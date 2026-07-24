@@ -17,6 +17,14 @@
 <div id="app" class="app-shell" hidden>
  <aside class="side">
   <button class="brand-mark" data-view="today" data-tip="Dashboard">♥</button>
+  <nav class="patient-rail" aria-label="My Happy Space">
+   <button class="active" data-view="today" data-tip="Dashboard" aria-label="Dashboard">⌂</button>
+   <button data-view="checkin" data-tip="Daily check-in" aria-label="Daily check-in">✓</button>
+   <button data-view="journal" data-tip="Journal" aria-label="Journal">✎</button>
+   <button data-view="records" data-tip="Reports & medicines" aria-label="Reports and medicines">▤</button>
+   <button data-view="journey" data-tip="My journey" aria-label="My journey">↗</button>
+   <button data-view="view" data-tip="My view" aria-label="Display settings">Aa</button>
+  </nav>
   <button id="logoutHint" class="rail-person" data-tip="Private profile"><i>●</i><span id="caseLabel">PRIVATE</span></button>
  </aside>
 
