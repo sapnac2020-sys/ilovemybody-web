@@ -69,15 +69,21 @@ jobs:
 
       - name: Run and verify exact database migration
         run: |
-          set -euo pipefail
+          set -uo pipefail
           ssh -i "$HOME/.ssh/ilovemybody_deploy" -p "$DEPLOY_PORT" \
             "$DEPLOY_USER@$DEPLOY_HOST" \
             "php '$REMOTE_DIR/run-backend-migrations.php' \
             '$HOME/domains/ilovemybody.in/public_html/app/config.php' \
             '$REMOTE_DIR'" | tee "$RUNNER_TEMP/backend-migration-result.txt"
-          grep -q 'missing_objects=0' "$RUNNER_TEMP/backend-migration-result.txt"
+          migration_exit="${PIPESTATUS[0]}"
+          if [ "$migration_exit" -eq 0 ] && grep -q 'missing_objects=0' "$RUNNER_TEMP/backend-migration-result.txt"; then
+            echo "MIGRATION_VERDICT=verified" >> "$GITHUB_ENV"
+          else
+            echo "MIGRATION_VERDICT=failed" >> "$GITHUB_ENV"
+          fi
 
       - name: Publish verified backend receipt
+        if: always()
         run: |
           set -euo pipefail
           {
@@ -85,13 +91,17 @@ jobs:
             echo
             echo "- Database: \`u756742628_ilovemybody\`"
             echo "- Migration: phases 47, 48 and 49"
-            echo "- Verification: \`missing_objects=0\`"
+            echo "- Verification: \`${MIGRATION_VERDICT:-workflow_failed_before_migration}\`"
             echo "- Workflow run: \`${GITHUB_RUN_ID}\` (attempt \`${GITHUB_RUN_ATTEMPT}\`)"
             echo "- Source commit: \`${GITHUB_SHA}\`"
             echo "- Verified at (UTC): \`$(date -u +'%Y-%m-%dT%H:%M:%SZ')\`"
             echo
             echo '```text'
-            cat "$RUNNER_TEMP/backend-migration-result.txt"
+            if [ -f "$RUNNER_TEMP/backend-migration-result.txt" ]; then
+              cat "$RUNNER_TEMP/backend-migration-result.txt"
+            else
+              echo "Migration command was not reached."
+            fi
             echo '```'
           } > docs/LIVE_BACKEND_STATUS.md
           git config user.name "github-actions[bot]"
@@ -99,6 +109,11 @@ jobs:
           git add docs/LIVE_BACKEND_STATUS.md
           git commit -m "docs: record verified live backend migration"
           git push
+
+      - name: Enforce verified migration
+        if: always()
+        run: |
+          test "${MIGRATION_VERDICT:-failed}" = "verified"
 
       - name: Remove temporary migration package
         if: always()
