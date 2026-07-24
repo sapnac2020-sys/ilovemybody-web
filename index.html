@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Playfair+Display:ital,wght@0,500;1,500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/assets/site.css?v=20260723-12">
+  <link rel="stylesheet" href="/assets/site.css?v=20260724-4">
 </head>
 <body class="hospital-entrance">
   <canvas id="scene" aria-hidden="true"></canvas>
@@ -20,8 +20,15 @@
     <h1>Health &amp; Happiness<br>Hospital</h1>
     <p class="entrance-tagline">Everything is connected.</p>
     <p class="entrance-purpose">Building the world’s first hospital<br>for non-invasive treatment.</p>
-    <a class="entrance-button" href="/hospital.html">Enter <span>→</span></a>
+    <a class="entrance-button" href="/hospital.html" id="enter-hospital">Enter <span>→</span></a>
   </main>
   <script src="/assets/network.js?v=20260723-5"></script>
+  <script>
+    document.getElementById('enter-hospital')?.addEventListener('click', function (event) {
+      event.preventDefault();
+      document.body.classList.add('entering-hospital');
+      window.setTimeout(() => { window.location.href = this.href; }, 720);
+    });
+  </script>
 </body>
 </html>
