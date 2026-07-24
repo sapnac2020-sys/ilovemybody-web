@@ -10,7 +10,7 @@ on:
       - backend/phase_42c_pre10_calculation_contract.sql
       - backend/phase_43_backend_driven_app_flow.sql
       - backend/phase_44_canonical_backend_freeze.sql
-      - backend/phase_45_redikall_ten_point_pilot.sql
+      - backend/phase_46_remove_redikall_pilot.sql
       - .github/workflows/migrate-backend.yml
 
 concurrency:
@@ -34,16 +34,16 @@ jobs:
           test -s backend/phase_42c_pre10_calculation_contract.sql
           test -s backend/phase_43_backend_driven_app_flow.sql
           test -s backend/phase_44_canonical_backend_freeze.sql
-          test -s backend/phase_45_redikall_ten_point_pilot.sql
+          test -s backend/phase_46_remove_redikall_pilot.sql
           grep -q 'CREATE TABLE IF NOT EXISTS `ilb_pre10_dimension`' backend/phase_42_pre10_clarity_engine.sql
           grep -q 'INSERT INTO `ilb_pre10_option`' backend/phase_42b_pre10_choice_library.sql
           grep -q 'CREATE VIEW `v_ilb_backend_readiness`' backend/phase_42c_pre10_calculation_contract.sql
           grep -q 'CREATE VIEW `v_ilb_app_flow_contract`' backend/phase_43_backend_driven_app_flow.sql
           grep -q 'CREATE TABLE IF NOT EXISTS `ilb_backend_release`' backend/phase_44_canonical_backend_freeze.sql
-          grep -q 'CREATE TABLE IF NOT EXISTS `ilb_energy_map_point`' backend/phase_45_redikall_ten_point_pilot.sql
+          grep -q 'DROP TABLE IF EXISTS `ilb_energy_map_system`' backend/phase_46_remove_redikall_pilot.sql
           sha256sum backend/phase_42*.sql backend/phase_43_backend_driven_app_flow.sql \
             backend/phase_44_canonical_backend_freeze.sql \
-            backend/phase_45_redikall_ten_point_pilot.sql
+            backend/phase_46_remove_redikall_pilot.sql
 
       - name: Prepare dedicated SSH identity
         id: ssh
@@ -69,7 +69,7 @@ jobs:
           tar -czf "/tmp/ilb-backend-${GITHUB_SHA}.tgz" \
             backend/phase_42*.sql backend/phase_43_backend_driven_app_flow.sql \
             backend/phase_44_canonical_backend_freeze.sql \
-            backend/phase_45_redikall_ten_point_pilot.sql
+            backend/phase_46_remove_redikall_pilot.sql
           scp -i "$HOME/.ssh/id_ed25519" -P "$DEPLOY_PORT" \
             "/tmp/ilb-backend-${GITHUB_SHA}.tgz" \
             "$DEPLOY_USER@$DEPLOY_HOST:ilb-backend-${GITHUB_SHA}.tgz"
@@ -145,9 +145,9 @@ jobs:
           CURRENT_STAGE="phase_44_canonical_backend_freeze"
           mysql --defaults-extra-file="$DEFAULTS" \
             < "$STAGE/backend/phase_44_canonical_backend_freeze.sql" >/tmp/ilb-phase44.log
-          CURRENT_STAGE="phase_45_redikall_ten_point_pilot"
+          CURRENT_STAGE="phase_46_remove_redikall_pilot"
           mysql --defaults-extra-file="$DEFAULTS" \
-            < "$STAGE/backend/phase_45_redikall_ten_point_pilot.sql" >/tmp/ilb-phase45.log
+            < "$STAGE/backend/phase_46_remove_redikall_pilot.sql" >/tmp/ilb-phase46.log
 
           CURRENT_STAGE="backend_readiness_verification"
           BLOCKED="$(mysql --defaults-extra-file="$DEFAULTS" --batch --skip-column-names \
@@ -172,7 +172,8 @@ jobs:
             UNION ALL SELECT 'frozen_releases',CAST(COUNT(*) AS CHAR) FROM ilb_backend_release WHERE status='frozen'
             UNION ALL SELECT 'canonical_backend_objects',CAST(COUNT(*) AS CHAR) FROM ilb_backend_object_registry WHERE lifecycle_status='canonical'
             UNION ALL SELECT 'isolated_legacy_objects',CAST(COUNT(*) AS CHAR) FROM ilb_backend_object_registry WHERE lifecycle_status IN ('superseded','retired','blocked')
-            UNION ALL SELECT 'redikall_pilot_points',CAST(COUNT(*) AS CHAR) FROM ilb_energy_map_point WHERE energy_map_system_key='redikall_minor_chakra'
+            UNION ALL SELECT 'redikall_tables_remaining',CAST(COUNT(*) AS CHAR) FROM information_schema.tables WHERE table_schema=DATABASE() AND (table_name LIKE 'ilb_energy_map_%' OR table_name LIKE 'ilb_energy_point_%')
+            UNION ALL SELECT 'redikall_registry_rows',CAST(COUNT(*) AS CHAR) FROM ilb_backend_object_registry WHERE object_name IN ('ilb_energy_map_system','ilb_energy_map_point','ilb_energy_point_observation','ilb_energy_point_response')
             UNION ALL SELECT 'verified_at_utc',UTC_TIMESTAMP();
           "
           printf 'migration_status\tverified\n'
