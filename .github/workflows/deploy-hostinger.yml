@@ -40,15 +40,18 @@ jobs:
           test -s assets/hospital-lobby-final.b64
           test -s assets/site.css
           test -s assets/site.js
+          test -s assets/hospital.js
           test -s app/index.php
           test -s app/assets/app.css
           test -s app/assets/responsive.css
           test -s app/assets/app.js
           node --check assets/site.js
+          node --check assets/hospital.js
           node --check app/assets/app.js
           grep -q '/hospital.html' index.html
-          grep -q 'hospital-main-rail' hospital.html
-          grep -q 'Health and Happiness Hospital lobby' hospital.html
+          grep -q 'hospital-world' hospital.html
+          grep -q 'Self Care Hospital' hospital.html
+          grep -q 'data-room-panel=\"reception\"' hospital.html
 
       - name: Prepare dedicated SSH identity
         env:
@@ -100,6 +103,7 @@ jobs:
           test -s "$STAGE/assets/hospital-lobby-final.jpg"
           test -s "$STAGE/assets/site.css"
           test -s "$STAGE/assets/site.js"
+          test -s "$STAGE/assets/hospital.js"
           test -s "$STAGE/app/index.php"
           test -s "$STAGE/app/assets/app.css"
           test -s "$STAGE/app/assets/responsive.css"
@@ -126,7 +130,8 @@ jobs:
           curl --fail --retry 5 --retry-delay 5 --max-time 30 --output /tmp/home.html https://ilovemybody.in/
           grep -q 'hospital-entrance' /tmp/home.html
           curl --fail --retry 5 --retry-delay 5 --max-time 30 --output /tmp/hospital.html https://ilovemybody.in/hospital.html
-          grep -q 'hospital-main-rail' /tmp/hospital.html
+          grep -q 'hospital-world' /tmp/hospital.html
+          grep -q 'Self Care Hospital' /tmp/hospital.html
           curl --fail --retry 5 --retry-delay 5 --max-time 30 --output /tmp/journey.html https://ilovemybody.in/journey.html
           grep -q 'free self-tests' /tmp/journey.html
           curl --fail --retry 5 --retry-delay 5 --max-time 30 --output /tmp/app.html https://ilovemybody.in/app/
