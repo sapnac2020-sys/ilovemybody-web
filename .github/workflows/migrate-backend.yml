@@ -9,6 +9,8 @@ on:
       - backend/phase_42b_pre10_choice_library.sql
       - backend/phase_42c_pre10_calculation_contract.sql
       - backend/phase_43_backend_driven_app_flow.sql
+      - backend/phase_44_canonical_backend_freeze.sql
+      - backend/phase_45_redikall_ten_point_pilot.sql
       - .github/workflows/migrate-backend.yml
 
 concurrency:
@@ -31,11 +33,17 @@ jobs:
           test -s backend/phase_42b_pre10_choice_library.sql
           test -s backend/phase_42c_pre10_calculation_contract.sql
           test -s backend/phase_43_backend_driven_app_flow.sql
+          test -s backend/phase_44_canonical_backend_freeze.sql
+          test -s backend/phase_45_redikall_ten_point_pilot.sql
           grep -q 'CREATE TABLE IF NOT EXISTS `ilb_pre10_dimension`' backend/phase_42_pre10_clarity_engine.sql
           grep -q 'INSERT INTO `ilb_pre10_option`' backend/phase_42b_pre10_choice_library.sql
           grep -q 'CREATE VIEW `v_ilb_backend_readiness`' backend/phase_42c_pre10_calculation_contract.sql
           grep -q 'CREATE VIEW `v_ilb_app_flow_contract`' backend/phase_43_backend_driven_app_flow.sql
-          sha256sum backend/phase_42*.sql backend/phase_43_backend_driven_app_flow.sql
+          grep -q 'CREATE TABLE IF NOT EXISTS `ilb_backend_release`' backend/phase_44_canonical_backend_freeze.sql
+          grep -q 'CREATE TABLE IF NOT EXISTS `ilb_energy_map_point`' backend/phase_45_redikall_ten_point_pilot.sql
+          sha256sum backend/phase_42*.sql backend/phase_43_backend_driven_app_flow.sql \
+            backend/phase_44_canonical_backend_freeze.sql \
+            backend/phase_45_redikall_ten_point_pilot.sql
 
       - name: Prepare dedicated SSH identity
         id: ssh
@@ -59,7 +67,9 @@ jobs:
         run: |
           set -euo pipefail
           tar -czf "/tmp/ilb-backend-${GITHUB_SHA}.tgz" \
-            backend/phase_42*.sql backend/phase_43_backend_driven_app_flow.sql
+            backend/phase_42*.sql backend/phase_43_backend_driven_app_flow.sql \
+            backend/phase_44_canonical_backend_freeze.sql \
+            backend/phase_45_redikall_ten_point_pilot.sql
           scp -i "$HOME/.ssh/id_ed25519" -P "$DEPLOY_PORT" \
             "/tmp/ilb-backend-${GITHUB_SHA}.tgz" \
             "$DEPLOY_USER@$DEPLOY_HOST:ilb-backend-${GITHUB_SHA}.tgz"
@@ -132,6 +142,12 @@ jobs:
           CURRENT_STAGE="phase_43_backend_driven_flow"
           mysql --defaults-extra-file="$DEFAULTS" \
             < "$STAGE/backend/phase_43_backend_driven_app_flow.sql" >/tmp/ilb-phase43.log
+          CURRENT_STAGE="phase_44_canonical_backend_freeze"
+          mysql --defaults-extra-file="$DEFAULTS" \
+            < "$STAGE/backend/phase_44_canonical_backend_freeze.sql" >/tmp/ilb-phase44.log
+          CURRENT_STAGE="phase_45_redikall_ten_point_pilot"
+          mysql --defaults-extra-file="$DEFAULTS" \
+            < "$STAGE/backend/phase_45_redikall_ten_point_pilot.sql" >/tmp/ilb-phase45.log
 
           CURRENT_STAGE="backend_readiness_verification"
           BLOCKED="$(mysql --defaults-extra-file="$DEFAULTS" --batch --skip-column-names \
@@ -153,6 +169,10 @@ jobs:
             UNION ALL SELECT 'app_pathways',CAST(COUNT(*) AS CHAR) FROM ilb_app_pathway WHERE status='active'
             UNION ALL SELECT 'app_flow_steps',CAST(COUNT(*) AS CHAR) FROM v_ilb_app_flow_contract
             UNION ALL SELECT 'app_readiness_blockers',CAST(COUNT(*) AS CHAR) FROM v_ilb_app_backend_readiness WHERE readiness_status='blocked'
+            UNION ALL SELECT 'frozen_releases',CAST(COUNT(*) AS CHAR) FROM ilb_backend_release WHERE status='frozen'
+            UNION ALL SELECT 'canonical_backend_objects',CAST(COUNT(*) AS CHAR) FROM ilb_backend_object_registry WHERE lifecycle_status='canonical'
+            UNION ALL SELECT 'isolated_legacy_objects',CAST(COUNT(*) AS CHAR) FROM ilb_backend_object_registry WHERE lifecycle_status IN ('superseded','retired','blocked')
+            UNION ALL SELECT 'redikall_pilot_points',CAST(COUNT(*) AS CHAR) FROM ilb_energy_map_point WHERE energy_map_system_key='redikall_minor_chakra'
             UNION ALL SELECT 'verified_at_utc',UTC_TIMESTAMP();
           "
           printf 'migration_status\tverified\n'
