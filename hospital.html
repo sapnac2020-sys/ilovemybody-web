@@ -1,38 +1,142 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#0c0810">
-<title>I Love My Body Hospital</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-<style>
-:root{--pink:#ff8fc7;--cyan:#79deef;--white:#fff;--rail:#0a0c1a}
-*{box-sizing:border-box}html,body{width:100%;height:100%;margin:0}body{overflow:hidden;background:#111;color:#fff;font-family:Inter,Arial,sans-serif}
-.lobby{position:fixed;inset:0;background:url('/assets/hospital-lobby-final.jpg?v=20260723-423') center/cover no-repeat}
-.rail{position:fixed;z-index:5;left:18px;top:18px;bottom:18px;width:62px;padding:9px 8px;display:flex;flex-direction:column;align-items:center;justify-content:space-evenly;border:1px solid rgba(139,151,194,.28);border-radius:34px;background:rgba(7,8,20,.86);box-shadow:inset 0 0 22px rgba(0,0,0,.25);backdrop-filter:blur(15px)}
-.rail:before{content:'';position:absolute;top:26px;bottom:26px;left:50%;width:1px;background:rgba(132,141,177,.14);transform:translateX(-50%);z-index:-1}
-.tab{position:relative;width:42px;height:42px;flex:0 0 42px;border-radius:50%;display:grid;place-items:center;border:1px solid rgba(139,151,194,.25);background:#090b1c;color:#8991a7;transition:.2s}
-.tab:hover{color:#fff;border-color:rgba(255,143,199,.65)}.tab.active{color:#211325;background:var(--pink);border-color:var(--pink);box-shadow:0 0 22px rgba(255,143,199,.25)}.tab svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.35;stroke-linecap:round;stroke-linejoin:round}
-.tab span{position:absolute;left:calc(100% + 13px);white-space:nowrap;padding:7px 12px;border:1px solid rgba(255,143,199,.3);border-radius:99px;background:rgba(12,8,17,.94);color:#fff;font-size:10px;opacity:0;visibility:hidden;transform:translateX(-5px);transition:.18s}.tab:hover span{opacity:1;visibility:visible;transform:none}
-@media(max-width:700px){.lobby{background-position:center top}.rail{left:0;right:0;top:auto;bottom:0;width:100%;height:62px;flex-direction:row;border:0;border-radius:0;padding:5px 8px}.rail:before,.tab span,.tab:nth-child(n+7){display:none}.tab{width:40px;height:40px;flex-basis:40px}}
-</style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#191118">
+  <meta name="description" content="I Love My Body Self Care Hospital — where health meets happiness.">
+  <title>I Love My Body — Self Care Hospital</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Playfair+Display:ital,wght@0,500;1,500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/site.css?v=20260724-1">
 </head>
-<body>
-<div class="lobby" aria-label="I Love My Body Hospital reception"></div>
-<nav class="rail hospital-main-rail" aria-label="Hospital sections">
-<a class="tab active" href="/hospital.html" aria-label="Reception"><svg viewBox="0 0 24 24"><path d="M4 11 12 4l8 7v9H4zM9 20v-6h6v6"/></svg><span>Reception</span></a>
-<a class="tab" href="/journey.html" aria-label="My Journey"><svg viewBox="0 0 24 24"><path d="M5 18C7 8 12 5 19 5M14 4h6v6"/></svg><span>My Journey</span></a>
-<a class="tab" href="/therapies.html" aria-label="Therapies"><svg viewBox="0 0 24 24"><path d="M4 20C4.5 11 10 5.5 20 4c-.7 8.8-6.4 15.3-16 16Z"/><path d="M8 16c2.4-2.5 5-4.5 8.5-6"/></svg><span>Therapies</span></a>
-<a class="tab" href="/mentors.html" aria-label="Mentors"><svg viewBox="0 0 24 24"><circle cx="8" cy="8" r="3"/><circle cx="17" cy="9" r="2"/><path d="M3 20c0-4 2-6 5-6s5 2 5 6M14 16c4 0 6 1 6 4"/></svg><span>Mentors</span></a>
-<a class="tab" href="/philosophy.html" aria-label="Book and philosophy"><svg viewBox="0 0 24 24"><path d="M5 4h10a4 4 0 0 1 4 4v12H9a4 4 0 0 0-4-4z"/><path d="M5 4v12a4 4 0 0 1 4 4"/></svg><span>Book &amp; Philosophy</span></a>
-<a class="tab" href="/app/?section=tests" aria-label="Self tests"><svg viewBox="0 0 24 24"><path d="M7 3h10v4H7zM5 5H3v16h18V5h-2M7 12l3 3 7-7"/></svg><span>Self Tests</span></a>
-<a class="tab" href="/app/" aria-label="My Happy Space"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2"/><path d="M3 20c0-4 2-6 6-6s6 2 6 6M15 15c4 0 6 1 6 5"/></svg><span>My Happy Space</span></a>
-<a class="tab" href="/philosophy.html#about" aria-label="About"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 10v6m0-9h.01"/></svg><span>About</span></a>
-</nav>
-<main hidden aria-label="Health and Happiness Hospital lobby">Why are you here?</main>
-<!-- lobby-release: approved-soft-pink-20260723-423 -->
+<body class="hospital-world">
+  <div class="hospital-scene" aria-hidden="true"></div>
+  <div class="hospital-shade" aria-hidden="true"></div>
+
+  <header class="hospital-brand">
+    <span class="brand-heart">♥</span>
+    <span><b>I Love My Body</b><small>SELF CARE HOSPITAL</small></span>
+  </header>
+
+  <nav class="hospital-rail" aria-label="Hospital navigation">
+    <button class="rail-item active" data-room="reception" aria-label="Reception">
+      <svg viewBox="0 0 24 24"><path d="M4 11 12 4l8 7v9H4zM9 20v-6h6v6"/></svg><span>Reception</span>
+    </button>
+    <button class="rail-item" data-room="journey" aria-label="Patient journey">
+      <svg viewBox="0 0 24 24"><path d="M5 18C7 8 12 5 19 5M14 4h6v6"/></svg><span>My Journey</span>
+    </button>
+    <button class="rail-item" data-room="tests" aria-label="Self tests">
+      <svg viewBox="0 0 24 24"><path d="M7 3h10v4H7zM5 5H3v16h18V5h-2M7 12l3 3 7-7"/></svg><span>Self Tests</span>
+    </button>
+    <button class="rail-item" data-room="therapies" aria-label="Therapies">
+      <svg viewBox="0 0 24 24"><path d="M4 20C4.5 11 10 5.5 20 4c-.7 8.8-6.4 15.3-16 16Z"/><path d="M8 16c2.4-2.5 5-4.5 8.5-6"/></svg><span>Therapies</span>
+    </button>
+    <button class="rail-item" data-room="mentors" aria-label="Mentors">
+      <svg viewBox="0 0 24 24"><circle cx="8" cy="8" r="3"/><circle cx="17" cy="9" r="2"/><path d="M3 20c0-4 2-6 5-6s5 2 5 6M14 16c4 0 6 1 6 4"/></svg><span>Mentors</span>
+    </button>
+    <button class="rail-item" data-room="book" aria-label="Book and philosophy">
+      <svg viewBox="0 0 24 24"><path d="M5 4h10a4 4 0 0 1 4 4v12H9a4 4 0 0 0-4-4z"/><path d="M5 4v12a4 4 0 0 1 4 4"/></svg><span>Book</span>
+    </button>
+    <button class="rail-item" data-room="evidence" aria-label="Evidence">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 13l2.5 2.5L16.5 9"/></svg><span>Evidence</span>
+    </button>
+  </nav>
+
+  <main class="hospital-stage">
+    <section class="hospital-room active" data-room-panel="reception">
+      <div class="hospital-screen">
+        <small>WELCOME TO</small>
+        <h1>I Love My Body</h1>
+        <strong>Self Care Hospital</strong>
+        <p>Where Health Meets Happiness</p>
+      </div>
+      <div class="reception-card">
+        <p class="room-kicker">RECEPTION</p>
+        <h2>Everything is connected.</h2>
+        <p>Begin with one clear question. We will guide you to the right place.</p>
+        <div class="reception-actions">
+          <button data-open-room="journey">I am seeking help <span>→</span></button>
+          <a href="/app/?section=tests">Take a free self-test <span>→</span></a>
+          <button data-open-room="therapies">Explore the hospital <span>→</span></button>
+        </div>
+      </div>
+    </section>
+
+    <section class="hospital-room" data-room-panel="journey">
+      <div class="room-card">
+        <p class="room-kicker">PATIENT JOURNEY</p>
+        <h2>Begin where you are.</h2>
+        <p class="room-lead">For preventive wellbeing, an ongoing illness, recovery after a procedure, anxiety or stress, addiction, or a search for direction.</p>
+        <ol class="process-line">
+          <li><b>01</b><span><strong>Share</strong>Reports, prescriptions, medicines and your story.</span></li>
+          <li><b>02</b><span><strong>Understand</strong>Ten guided assessment days across your connected life.</span></li>
+          <li><b>03</b><span><strong>Begin</strong>A personal seven-week journey alongside existing medical treatment.</span></li>
+          <li><b>04</b><span><strong>Review</strong>Two days to compare reports, experience and change.</span></li>
+          <li><b>05</b><span><strong>Continue if useful</strong>A further seven weeks is decided after review.</span></li>
+        </ol>
+        <a class="room-cta" href="/app/">Enter My Happy Space <span>→</span></a>
+      </div>
+    </section>
+
+    <section class="hospital-room" data-room-panel="tests">
+      <div class="room-card">
+        <p class="room-kicker">FREE SELF-DISCOVERY</p>
+        <h2>Understand yourself without labels.</h2>
+        <p class="room-lead">Short, private self-tests help you notice your present patterns across ten connected dimensions. They support reflection; they do not diagnose you.</p>
+        <div class="dimension-cloud"><span>Love</span><span>Instinct</span><span>Fear</span><span>Physical</span><span>Sexual</span><span>Emotional</span><span>Relational</span><span>Mental</span><span>Occupational</span><span>Money</span></div>
+        <a class="room-cta" href="/app/?section=tests">Choose a self-test <span>→</span></a>
+      </div>
+    </section>
+
+    <section class="hospital-room" data-room-panel="therapies">
+      <div class="room-card">
+        <p class="room-kicker">COMPLEMENTARY THERAPIES</p>
+        <h2>Explore more ways to support yourself.</h2>
+        <p class="room-lead">A carefully labelled library of non-invasive and complementary practices, with their traditional logic, available evidence, safety boundaries and original links.</p>
+        <div class="room-links"><a href="/therapies.html">Browse therapies <span>→</span></a><button data-open-room="evidence">How evidence is shown <span>→</span></button></div>
+      </div>
+    </section>
+
+    <section class="hospital-room" data-room-panel="mentors">
+      <div class="room-card">
+        <p class="room-kicker">SELECTED SUPPORT</p>
+        <h2>Meet a person, not a category.</h2>
+        <p class="room-lead">Profiles are published only after review. Each microsite states qualifications, scope, approach, availability and booking information clearly.</p>
+        <a class="room-cta" href="/mentors.html">Visit the mentor directory <span>→</span></a>
+      </div>
+    </section>
+
+    <section class="hospital-room" data-room-panel="book">
+      <div class="room-card">
+        <p class="room-kicker">THE BOOK &amp; PHILOSOPHY</p>
+        <h2>My body is my present.</h2>
+        <p class="room-lead">I care for my body because I am alive now. I love my body and I love my life.</p>
+        <a class="room-cta" href="/philosophy.html">Enter the book department <span>→</span></a>
+      </div>
+    </section>
+
+    <section class="hospital-room" data-room-panel="evidence">
+      <div class="room-card">
+        <p class="room-kicker">EVIDENCE-MAPPED</p>
+        <h2>See the source. See the boundary.</h2>
+        <p class="room-lead">Medical facts, scientific evidence, traditional frameworks, philosophy and personal observations remain visibly separate. Every explanation can show where it came from and what it does not establish.</p>
+        <div class="evidence-list"><span>Medical &amp; regulatory</span><span>Food identity &amp; chemistry</span><span>Psychology &amp; neuroscience</span><span>Traditional knowledge</span><span>Your own timeline</span></div>
+      </div>
+    </section>
+  </main>
+
+  <div class="hospital-dock" aria-label="Quick entrances">
+    <button data-open-room="journey"><i>01</i><b>My Journey</b></button>
+    <button data-open-room="tests"><i>02</i><b>Self Tests</b></button>
+    <button data-open-room="therapies"><i>03</i><b>Therapies</b></button>
+    <button data-open-room="mentors"><i>04</i><b>Mentors</b></button>
+    <button data-open-room="book"><i>05</i><b>My Book</b></button>
+    <button data-open-room="evidence"><i>06</i><b>Evidence</b></button>
+  </div>
+
+  <button class="jaadu-launch" type="button" aria-label="Ask Jaadu">✦ <span>Ask Jaadu</span></button>
+  <script src="/assets/hospital.js?v=20260724-2"></script>
 </body>
 </html>
