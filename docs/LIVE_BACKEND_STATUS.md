@@ -3,9 +3,9 @@
 - Database: `u756742628_ilovemybody`
 - Migration: phases 47, 48 and 49
 - Verification: `workflow_failed_before_migration`
-- Workflow run: `30077670872` (attempt `1`)
-- Source commit: `55744dfdb5f45033e2142cbb6435abae5b9d7795`
-- Verified at (UTC): `2026-07-24T08:05:35Z`
+- Workflow run: `30077877677` (attempt `1`)
+- Source commit: `8e2f0ae8dac6159d12736a7cf361194fae20354b`
+- Verified at (UTC): `2026-07-24T08:09:04Z`
 
 ```text
 Running phase_47_hospital_product_contract.sql...
