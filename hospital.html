@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Playfair+Display:ital,wght@0,500;1,500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/assets/site.css?v=20260724-2">
+  <link rel="stylesheet" href="/assets/site.css?v=20260724-4">
 </head>
 <body class="hospital-world">
   <div class="hospital-scene" aria-hidden="true"></div>
@@ -47,13 +47,30 @@
   <main class="hospital-stage">
     <section class="hospital-room active" data-room-panel="reception">
       <div class="reception-card">
-        <p class="room-kicker">WELCOME TO I LOVE MY BODY</p>
-        <h2>Where Health Meets Happiness.</h2>
-        <p>Everything is connected. Reception will guide you from here.</p>
-        <div class="reception-actions">
-          <button data-open-room="journey">Begin my journey <span>→</span></button>
-          <button data-open-room="tests">Take a free self-test <span>→</span></button>
-          <button data-open-room="therapies">Explore the hospital <span>→</span></button>
+        <div class="reception-intro">
+          <p class="room-kicker">RECEPTION · WHERE HEALTH MEETS HAPPINESS</p>
+          <h2>Why are you here?</h2>
+          <p>Choose the entrance that describes what you want help with. It is a starting point—not a label.</p>
+        </div>
+        <div class="reception-paths" role="group" aria-label="Choose your starting point">
+          <button type="button" data-start-path="illness"><b>01</b><span>I have an illness</span></button>
+          <button type="button" data-start-path="stress"><b>02</b><span>I am anxious, tense or stressed</span></button>
+          <button type="button" data-start-path="addiction"><b>03</b><span>I am struggling with addiction</span></button>
+          <button type="button" data-start-path="direction"><b>04</b><span>I feel lost and seek direction</span></button>
+        </div>
+        <div class="reception-next" id="reception-next" hidden>
+          <div>
+            <small>YOUR NEXT STEP</small>
+            <strong id="reception-next-title">Create your private starting point.</strong>
+            <p id="reception-next-copy">We will collect only what is needed, explain why it matters and show what comes next.</p>
+          </div>
+          <a href="/app/?mode=register" id="reception-register">Register at reception <span>→</span></a>
+        </div>
+        <button class="reception-process-link" type="button" data-open-room="journey">
+          See the complete process before you begin <span>→</span>
+        </button>
+        <div class="reception-boundary">
+          This hospital supports self-care alongside medical treatment. It does not replace diagnosis, prescriptions or emergency care.
         </div>
       </div>
     </section>
@@ -61,16 +78,17 @@
     <section class="hospital-room" data-room-panel="journey">
       <div class="room-card">
         <p class="room-kicker">PATIENT JOURNEY</p>
-        <h2>Begin where you are.</h2>
-        <p class="room-lead">For preventive wellbeing, an ongoing illness, recovery after a procedure, anxiety or stress, addiction, or a search for direction.</p>
+        <h2>Know exactly what to expect.</h2>
+        <p class="room-lead">One guided path. Your dashboard always shows where you are, why the current step matters, what completes it and what follows.</p>
         <ol class="process-line">
-          <li><b>01</b><span><strong>Share</strong>Reports, prescriptions, medicines and your story.</span></li>
-          <li><b>02</b><span><strong>Understand</strong>Ten guided assessment days across your connected life.</span></li>
-          <li><b>03</b><span><strong>Begin</strong>A personal seven-week journey alongside existing medical treatment.</span></li>
-          <li><b>04</b><span><strong>Review</strong>Two days to compare reports, experience and change.</span></li>
-          <li><b>05</b><span><strong>Continue if useful</strong>A further seven weeks is decided after review.</span></li>
+          <li><b>01</b><span><strong>Medical picture</strong>Reports, prescriptions, medicines, procedures and present concerns.</span></li>
+          <li><b>02</b><span><strong>10-day assessment</strong>Short guided questions across ten connected dimensions.</span></li>
+          <li><b>03</b><span><strong>Connected summary</strong>A sourced starting picture, written without labels or judgement.</span></li>
+          <li><b>04</b><span><strong>7-week journey</strong>One clear focus at a time, with private observations and daily support.</span></li>
+          <li><b>05</b><span><strong>2-day review</strong>Compare reports, experience, actions and changes before deciding anything.</span></li>
+          <li><b>06</b><span><strong>Finish or continue</strong>Maintain progress or begin another seven weeks only when useful.</span></li>
         </ol>
-        <a class="room-cta" href="/app/">Enter My Happy Space <span>→</span></a>
+        <button class="room-cta" type="button" data-open-room="reception">Return to reception <span>→</span></button>
       </div>
     </section>
 
@@ -122,6 +140,6 @@
   </main>
 
   <button class="jaadu-launch" type="button" aria-label="Ask Jaadu">✦ <span>Ask Jaadu</span></button>
-  <script src="/assets/hospital.js?v=20260724-3"></script>
+  <script src="/assets/hospital.js?v=20260724-4"></script>
 </body>
 </html>
