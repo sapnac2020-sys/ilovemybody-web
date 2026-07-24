@@ -131,3 +131,23 @@ html[data-background="dark"] .app-shell .topbar{background:rgba(29,21,29,.88);co
 html[data-background="dark"] .app-shell .profile-chip{background:rgba(255,255,255,.08);color:#fff;border-color:rgba(255,255,255,.15)}
 html[data-background="dark"] .app-shell .welcome-copy,html[data-background="dark"] .app-shell .today-card,html[data-background="dark"] .app-shell .entry-strip,html[data-background="dark"] .app-shell .entry-strip button,html[data-background="dark"] .app-shell .start-grid>article,html[data-background="dark"] .app-shell .score-grid label,html[data-background="dark"] .app-shell .metric-grid label,html[data-background="dark"] .app-shell .food-card,html[data-background="dark"] .app-shell .medicine,html[data-background="dark"] .app-shell .journal-paper,html[data-background="dark"] .app-shell .journey-track article,html[data-background="dark"] .app-shell .source-row button,html[data-background="dark"] .app-shell .upload,html[data-background="dark"] .app-shell .record-actions>button,html[data-background="dark"] .app-shell .preference-grid section{background:rgba(255,255,255,.08);color:#fff;border-color:rgba(255,255,255,.14)}
 html[data-background="dark"] .app-shell .records-grid h3,html[data-background="dark"] .app-shell .preference-grid h3{color:#fff}
+
+/* 2026-07-24: one calm patient dashboard */
+.patient-rail{display:flex;flex:1;flex-direction:column;align-items:center;justify-content:center;gap:10px}
+.patient-rail button{position:relative;width:44px;height:44px;display:grid;place-items:center;border:1px solid color-mix(in srgb,var(--accent) 18%,#d8ced5);border-radius:50%;background:color-mix(in srgb,var(--surface) 96%,var(--accent));color:var(--text);font:600 12px/1 "DM Sans",sans-serif;cursor:pointer;transition:.2s ease}
+.patient-rail button:hover,.patient-rail button.active{background:var(--accent);border-color:var(--accent);color:var(--accent-contrast,#24101b);transform:translateY(-1px);box-shadow:0 8px 24px color-mix(in srgb,var(--accent) 20%,transparent)}
+.patient-rail button:after{content:attr(data-tip);position:absolute;left:54px;padding:7px 10px;border-radius:99px;background:#171017;color:#fff;font-size:9px;white-space:nowrap;opacity:0;visibility:hidden;transform:translateX(-4px);transition:.16s;z-index:20}
+.patient-rail button:hover:after{opacity:1;visibility:visible;transform:none}
+.dashboard-intro{padding:28px 30px;border-radius:22px;background:linear-gradient(125deg,color-mix(in srgb,var(--accent) 13%,var(--surface)),var(--surface));border:1px solid color-mix(in srgb,var(--accent) 20%,var(--line))}
+.dashboard-intro h2{font-size:clamp(34px,4vw,58px)!important;line-height:.98!important}
+.dashboard-intro h3{margin:0 0 5px;font-size:13px}.dashboard-intro h3~h3{margin-top:16px}.dashboard-intro p{font-size:12px;line-height:1.65}
+.journey-steps{margin-top:16px;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}
+.journey-steps article{min-height:150px;padding:17px;display:flex;flex-direction:column;border-radius:16px;background:var(--surface);border:1px solid var(--line)}
+.journey-steps article.current{background:color-mix(in srgb,var(--accent) 12%,var(--surface));border-color:color-mix(in srgb,var(--accent) 48%,var(--line))}
+.journey-steps article i{font-size:8px;letter-spacing:.18em;color:var(--accent)}.journey-steps article b{display:block;margin:14px 0 6px;font-family:"Playfair Display",serif;font-size:17px}.journey-steps article span,.journey-steps article small{font-size:9px;line-height:1.5;color:var(--muted)}.journey-steps article button{margin-top:auto;padding:9px 10px;font-size:9px}
+.dashboard-tools{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px}.dashboard-tools button{padding:14px;border:1px solid var(--line);border-radius:12px;background:var(--surface);color:var(--text);font-weight:600;cursor:pointer}.dashboard-tools button:hover{border-color:var(--accent);color:var(--accent)}
+body.size-compact{--text-scale:.88}body.size-comfortable{--text-scale:1}body.size-large{--text-scale:1.16}
+.workspace{font-size:calc(16px * var(--text-scale,1))}
+.workspace p,.workspace span,.workspace label,.workspace button,.workspace input,.workspace textarea{font-size:calc(1em * var(--text-scale,1))}
+@media(max-width:1050px){.journey-steps{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:720px){.patient-rail{display:none}.journey-steps{grid-template-columns:1fr}.dashboard-tools{grid-template-columns:1fr 1fr}.dashboard-intro{padding:22px 18px}}
