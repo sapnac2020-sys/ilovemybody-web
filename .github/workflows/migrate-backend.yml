@@ -73,7 +73,7 @@ jobs:
           ssh -i "$HOME/.ssh/ilovemybody_deploy" -p "$DEPLOY_PORT" \
             "$DEPLOY_USER@$DEPLOY_HOST" \
             "php '$REMOTE_DIR/run-backend-migrations.php' \
-            '\$HOME/domains/ilovemybody.in/public_html/app/config.php' \
+            \"\$HOME/domains/ilovemybody.in/public_html/app/config.php\" \
             '$REMOTE_DIR'" | tee "$RUNNER_TEMP/backend-migration-result.txt"
           migration_exit="${PIPESTATUS[0]}"
           if [ "$migration_exit" -eq 0 ] && grep -q 'missing_objects=0' "$RUNNER_TEMP/backend-migration-result.txt"; then
