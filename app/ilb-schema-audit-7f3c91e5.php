@@ -13,10 +13,26 @@ if (!hash_equals($expectedToken, $providedToken)) {
     exit;
 }
 
-$configPath = __DIR__ . '/config.php';
-if (!is_file($configPath)) {
+$candidates = [
+    __DIR__ . '/config.php',
+    __DIR__ . '/secrets.php',
+    dirname(__DIR__) . '/config.php',
+    dirname(__DIR__) . '/secrets.php',
+    dirname(dirname(__DIR__)) . '/config.php',
+    dirname(dirname(__DIR__)) . '/private/config.php',
+    dirname(dirname(__DIR__)) . '/private/secrets.php',
+];
+$configPath = '';
+foreach ($candidates as $candidate) {
+    if (is_file($candidate)) { $configPath = $candidate; break; }
+}
+if ($configPath === '') {
     http_response_code(503);
-    echo json_encode(['error' => 'Configuration unavailable']);
+    echo json_encode([
+        'error' => 'Configuration unavailable',
+        'checked' => array_map(static fn(string $p): string => basename(dirname($p)) . '/' . basename($p), $candidates),
+        'environment_keys_present' => array_values(array_filter(['DB_HOST','DB_NAME','DB_USER','DB_PASS'], static fn(string $k): bool => getenv($k) !== false)),
+    ]);
     exit;
 }
 $config = require $configPath;
