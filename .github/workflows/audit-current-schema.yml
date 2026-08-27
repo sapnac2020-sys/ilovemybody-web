@@ -1,0 +1,104 @@
+name: Audit Current I Love My Body Schema
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "ops/backend-audit.php"
+      - ".github/workflows/audit-current-schema.yml"
+
+concurrency:
+  group: ilovemybody-production-schema-audit
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  audit-schema:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate read-only audit source
+        run: |
+          set -euo pipefail
+          test -s ops/backend-audit.php
+          php -l ops/backend-audit.php
+          if grep -Eiq '\\b(INSERT|UPDATE|DELETE|REPLACE|ALTER|CREATE|DROP|TRUNCATE|GRANT|REVOKE)[[:space:]]' ops/backend-audit.php; then
+            echo "Audit script contains a database mutation keyword."
+            exit 1
+          fi
+
+      - name: Prepare dedicated SSH identity
+        env:
+          DEPLOY_BUNDLE: ${{ secrets.HOSTINGER_DEPLOY_BUNDLE }}
+        run: |
+          set -euo pipefail
+          test -n "$DEPLOY_BUNDLE"
+          mkdir -p "$HOME/.ssh"
+          chmod 700 "$HOME/.ssh"
+          printf '%s' "$DEPLOY_BUNDLE" | base64 --decode > "$RUNNER_TEMP/deploy.json"
+          jq -e '.host and .port and .user and .key' "$RUNNER_TEMP/deploy.json" >/dev/null
+          jq -r '.key' "$RUNNER_TEMP/deploy.json" > "$HOME/.ssh/ilovemybody_audit"
+          chmod 600 "$HOME/.ssh/ilovemybody_audit"
+          echo "DEPLOY_HOST=$(jq -r '.host' "$RUNNER_TEMP/deploy.json")" >> "$GITHUB_ENV"
+          echo "DEPLOY_PORT=$(jq -r '.port' "$RUNNER_TEMP/deploy.json")" >> "$GITHUB_ENV"
+          echo "DEPLOY_USER=$(jq -r '.user' "$RUNNER_TEMP/deploy.json")" >> "$GITHUB_ENV"
+          ssh-keyscan -p "$(jq -r '.port' "$RUNNER_TEMP/deploy.json")" \
+            "$(jq -r '.host' "$RUNNER_TEMP/deploy.json")" >> "$HOME/.ssh/known_hosts"
+          chmod 600 "$HOME/.ssh/known_hosts"
+
+      - name: Run metadata-only production audit
+        run: |
+          set -euo pipefail
+          remote_script="/tmp/ilovemybody_schema_audit_${GITHUB_RUN_ID}_${GITHUB_RUN_ATTEMPT}.php"
+          echo "REMOTE_SCRIPT=$remote_script" >> "$GITHUB_ENV"
+          scp -i "$HOME/.ssh/ilovemybody_audit" -P "$DEPLOY_PORT" \
+            ops/backend-audit.php "$DEPLOY_USER@$DEPLOY_HOST:$remote_script"
+          ssh -i "$HOME/.ssh/ilovemybody_audit" -p "$DEPLOY_PORT" \
+            "$DEPLOY_USER@$DEPLOY_HOST" \
+            "php '$remote_script' \"\$HOME/domains/ilovemybody.in/public_html/app/config.php\"" \
+            > "$RUNNER_TEMP/current-schema-audit.json"
+          jq -e '.summary and .tables and .column_counts and .foreign_keys' \
+            "$RUNNER_TEMP/current-schema-audit.json" >/dev/null
+
+      - name: Publish current schema audit
+        run: |
+          set -euo pipefail
+          mkdir -p docs/audits
+          cp "$RUNNER_TEMP/current-schema-audit.json" docs/audits/CURRENT_SCHEMA_AUDIT.json
+          {
+            echo "# Current Live Schema Audit"
+            echo
+            echo "- Generated at (UTC): `$(jq -r '.generated_at_utc' "$RUNNER_TEMP/current-schema-audit.json")`"
+            echo "- Database objects: `$(jq -r '.summary.all_tables_and_views' "$RUNNER_TEMP/current-schema-audit.json")`"
+            echo "- Base tables: `$(jq -r '.summary.base_tables' "$RUNNER_TEMP/current-schema-audit.json")`"
+            echo "- Views: `$(jq -r '.summary.views' "$RUNNER_TEMP/current-schema-audit.json")`"
+            echo "- Foreign-key columns: `$(jq -r '.summary.foreign_key_columns' "$RUNNER_TEMP/current-schema-audit.json")`"
+            echo "- Tables without primary keys: `$(jq -r '.summary.tables_without_primary_key' "$RUNNER_TEMP/current-schema-audit.json")`"
+            echo "- Open freeze issues: `$(jq -r '.summary.open_freeze_issues' "$RUNNER_TEMP/current-schema-audit.json")`"
+            echo
+            echo "This report contains schema metadata and aggregate counts only. It contains no credentials or patient records."
+            echo
+            echo "Full machine-readable inventory: [CURRENT_SCHEMA_AUDIT.json](CURRENT_SCHEMA_AUDIT.json)"
+          } > docs/audits/CURRENT_SCHEMA_STATUS.md
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/audits/CURRENT_SCHEMA_AUDIT.json docs/audits/CURRENT_SCHEMA_STATUS.md
+          if git diff --cached --quiet; then
+            echo "Audit output is unchanged."
+          else
+            git commit -m "docs: refresh current live schema audit"
+            git push
+          fi
+
+      - name: Remove temporary audit script
+        if: always()
+        run: |
+          if [ -n "${REMOTE_SCRIPT:-}" ] && [ -n "${DEPLOY_HOST:-}" ]; then
+            ssh -i "$HOME/.ssh/ilovemybody_audit" -p "$DEPLOY_PORT" \
+              "$DEPLOY_USER@$DEPLOY_HOST" "rm -f '$REMOTE_SCRIPT'" || true
+          fi
