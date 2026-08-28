@@ -65,7 +65,7 @@ jobs:
           echo "REMOTE_DIR=$remote_dir" >> "$GITHUB_ENV"
           ssh -i "$HOME/.ssh/ilovemybody_deploy" -p "$DEPLOY_PORT" \
             "$DEPLOY_USER@$DEPLOY_HOST" "mkdir -p '$remote_dir'"
-          scp -i "$HOME/.ssh/ilovemybody_deploy" -P "$DEPLOY_PORT" \
+          # Hostinger supports legacy SCP over SSH but rejects the default SFTP subsystem.\n          scp -O -i "$HOME/.ssh/ilovemybody_deploy" -P "$DEPLOY_PORT" \
             backend/phase_47_hospital_product_contract.sql \
             backend/phase_48_patient_runtime_contract.sql \
             backend/phase_49_plug_and_play_freeze.sql \
