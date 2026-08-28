@@ -8,6 +8,8 @@ on:
       - "backend/phase_47_hospital_product_contract.sql"
       - "backend/phase_48_patient_runtime_contract.sql"
       - "backend/phase_49_plug_and_play_freeze.sql"
+      - "backend/phase_50_gita_verification_system.sql"
+      - "backend/phase_50a_gita_corpus.sql.gz"
       - "ops/run-backend-migrations.php"
       - ".github/workflows/migrate-backend.yml"
 
@@ -31,6 +33,9 @@ jobs:
           test -s backend/phase_47_hospital_product_contract.sql
           test -s backend/phase_48_patient_runtime_contract.sql
           test -s backend/phase_49_plug_and_play_freeze.sql
+          test -s backend/phase_50_gita_verification_system.sql
+          test -s backend/phase_50a_gita_corpus.sql.gz
+          gzip -t backend/phase_50a_gita_corpus.sql.gz
           test -s ops/run-backend-migrations.php
           php -l ops/run-backend-migrations.php
 
@@ -64,6 +69,8 @@ jobs:
             backend/phase_47_hospital_product_contract.sql \
             backend/phase_48_patient_runtime_contract.sql \
             backend/phase_49_plug_and_play_freeze.sql \
+            backend/phase_50_gita_verification_system.sql \
+            backend/phase_50a_gita_corpus.sql.gz \
             ops/run-backend-migrations.php \
             "$DEPLOY_USER@$DEPLOY_HOST:$remote_dir/"
 
@@ -90,7 +97,7 @@ jobs:
             echo "# Live Backend Status"
             echo
             echo "- Database: \`u756742628_ilovemybody\`"
-            echo "- Migration: phases 47, 48 and 49"
+            echo "- Migration: phases 47, 48, 49 and 50"
             echo "- Verification: \`${MIGRATION_VERDICT:-workflow_failed_before_migration}\`"
             echo "- Workflow run: \`${GITHUB_RUN_ID}\` (attempt \`${GITHUB_RUN_ATTEMPT}\`)"
             echo "- Source commit: \`${GITHUB_SHA}\`"
@@ -124,5 +131,7 @@ jobs:
               "rm -f '$REMOTE_DIR/phase_47_hospital_product_contract.sql' \
               '$REMOTE_DIR/phase_48_patient_runtime_contract.sql' \
               '$REMOTE_DIR/phase_49_plug_and_play_freeze.sql' \
+              '$REMOTE_DIR/phase_50_gita_verification_system.sql' \
+              '$REMOTE_DIR/phase_50a_gita_corpus.sql.gz' \
               '$REMOTE_DIR/run-backend-migrations.php'; rmdir '$REMOTE_DIR' 2>/dev/null || true" || true
           fi
