@@ -9,7 +9,29 @@
   "modules": [
     {"pattern": "*Diagnostics*LOINC*.xlsx", "system_id": "SYS-001", "mode": "configured_sheets"},
     {"pattern": "*Human_Body_Systems*.xlsx", "system_id": "SYS-002", "mode": "configured_sheets"},
-    {"pattern": "*Nutrition_Food_Medicine*.xlsx", "system_id": "SYS-003", "mode": "configured_sheets"},
+    {
+      "pattern": "*Nutrition_Food_Medicine*.xlsx",
+      "system_id": "SYS-003",
+      "mode": "configured_sheets",
+      "include_sheets": [
+        "10_IFCT_FOODS", "11_IFCT_COMPONENTS", "12_IFCT_VALUES",
+        "20_USDA_NUTRIENTS", "21_FOUNDATION_FOODS", "22_FOUNDATION_VALUES",
+        "30_SR_LEGACY_FOODS", "31_SR_LEGACY_VALUES",
+        "40_FNDDS_FOODS", "41_FNDDS_VALUES"
+      ],
+      "sheet_keys": {
+        "10_IFCT_FOODS": ["ingredient_key"],
+        "11_IFCT_COMPONENTS": ["component_key"],
+        "12_IFCT_VALUES": ["ingredient_key", "component_key"],
+        "20_USDA_NUTRIENTS": ["id"],
+        "21_FOUNDATION_FOODS": ["fdc_id"],
+        "22_FOUNDATION_VALUES": ["id"],
+        "30_SR_LEGACY_FOODS": ["fdc_id"],
+        "31_SR_LEGACY_VALUES": ["id"],
+        "40_FNDDS_FOODS": ["fdc_id"],
+        "41_FNDDS_VALUES": ["id"]
+      }
+    },
     {"pattern": "*Yoga*Naturopathy*.xlsx", "system_id": "SYS-004", "mode": "configured_sheets"},
     {"pattern": "*Acupuncture*TCM*.xlsx", "system_id": "SYS-005", "mode": "configured_sheets"},
     {"pattern": "*Cupping*Therapy*.xlsx", "system_id": "SYS-006", "mode": "configured_sheets"},
