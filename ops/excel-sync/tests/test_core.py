@@ -53,6 +53,15 @@ class ValidatorTests(unittest.TestCase):
         self.assertFalse(result.valid)
         self.assertTrue(any(x.code == "DUPLICATE_HEADER" for x in result.issues))
 
+    def test_utf8_bom_is_removed_from_first_header(self):
+        wb = Workbook(); ws = wb.active; ws.title = "02_NUTRIENTS"
+        ws.append(["\ufeffRecord_ID", "Name"]); ws.append(["N-001", "Protein"])
+        out = io.BytesIO(); wb.save(out)
+        result = self.validator.validate_bytes("Nutrition.xlsx", out.getvalue())
+        self.assertTrue(result.valid)
+        self.assertEqual(result.rows[0].source_key, "N-001")
+        self.assertIn("Record_ID", result.rows[0].payload)
+
     def test_unregistered_file_is_rejected(self):
         result = self.validator.validate_bytes("Unknown.xlsx", workbook([["X", "Y"]]))
         self.assertFalse(result.valid)
@@ -85,6 +94,26 @@ class ValidatorTests(unittest.TestCase):
         self.assertTrue(result.valid)
         self.assertEqual([r.source_key for r in result.rows], ["ifct_a001::protein", "ifct_a001::fat"])
         self.assertNotIn("99_DATA_MANIFEST", result.sheet_counts)
+
+    def test_row_quality_gates_exclude_missing_and_negative_measurements(self):
+        path = Path(self.temp.name) / "modules.json"
+        path.write_text(json.dumps({"modules": [{
+            "pattern": "Nutrition_USDA_Foundation_*.xlsx", "system_id": "SYS-003",
+            "include_sheets": ["22_FOUNDATION_VALUES"],
+            "sheet_keys": {"22_FOUNDATION_VALUES": ["id"]},
+            "row_gates": {"22_FOUNDATION_VALUES": {"required": ["id", "amount"], "nonnegative": ["amount"]}},
+            "numeric_fields": {"22_FOUNDATION_VALUES": ["amount"]}
+        }]}))
+        validator = WorkbookValidator(ModuleRegistry(path))
+        wb = Workbook(); ws = wb.active; ws.title = "22_FOUNDATION_VALUES"
+        ws.append(["id", "amount"]); ws.append([1, "4.2"]); ws.append([2, None]); ws.append([3, "-0.5"])
+        out = io.BytesIO(); wb.save(out)
+        result = validator.validate_bytes("Nutrition_USDA_Foundation_Values.xlsx", out.getvalue())
+        self.assertTrue(result.valid)
+        self.assertEqual(len(result.rows), 1)
+        self.assertEqual(result.rows[0].payload["amount"], 4.2)
+        self.assertTrue(any(x.code == "ROW_EXCLUDED_MISSING_REQUIRED" for x in result.issues))
+        self.assertTrue(any(x.code == "ROW_EXCLUDED_NEGATIVE_VALUE" for x in result.issues))
 
 
 if __name__ == "__main__":
