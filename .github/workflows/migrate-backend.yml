@@ -65,14 +65,19 @@ jobs:
           echo "REMOTE_DIR=$remote_dir" >> "$GITHUB_ENV"
           ssh -i "$HOME/.ssh/ilovemybody_deploy" -p "$DEPLOY_PORT" \
             "$DEPLOY_USER@$DEPLOY_HOST" "mkdir -p '$remote_dir'"
-          # Hostinger supports legacy SCP over SSH but rejects the default SFTP subsystem.\n          scp -O -i "$HOME/.ssh/ilovemybody_deploy" -P "$DEPLOY_PORT" \
-            backend/phase_47_hospital_product_contract.sql \
+          package_dir="$RUNNER_TEMP/backend-migration-package"
+          mkdir -p "$package_dir"
+          cp backend/phase_47_hospital_product_contract.sql \
             backend/phase_48_patient_runtime_contract.sql \
             backend/phase_49_plug_and_play_freeze.sql \
             backend/phase_50_gita_verification_system.sql \
             backend/phase_50a_gita_corpus.sql.gz \
             ops/run-backend-migrations.php \
-            "$DEPLOY_USER@$DEPLOY_HOST:$remote_dir/"
+            "$package_dir/"
+          # Hostinger permits authenticated SSH commands but blocks its SFTP/SCP subsystems.
+          tar -C "$package_dir" -czf - . | \
+            ssh -i "$HOME/.ssh/ilovemybody_deploy" -p "$DEPLOY_PORT" \
+              "$DEPLOY_USER@$DEPLOY_HOST" "tar -xzf - -C '$remote_dir'"
 
       - name: Run and verify exact database migration
         run: |
