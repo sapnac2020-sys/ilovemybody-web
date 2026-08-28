@@ -16,7 +16,7 @@ from openpyxl import load_workbook
 
 
 PLACEHOLDER_RE = re.compile(r"^(example|sample|placeholder|test)(\b|[_ -])", re.I)
-CONTROL_SHEETS = re.compile(r"(^00_|readme|dashboard|codebook|audit|setup|control|log$|(?:^|_)qc$)", re.I)
+CONTROL_SHEETS = re.compile(r"(^00_|readme|dashboard|codebook|audit|setup|control|(?:^|_)log$|(?:^|_)qc$)", re.I)
 
 
 def utcnow() -> datetime:
