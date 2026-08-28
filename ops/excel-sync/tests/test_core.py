@@ -71,6 +71,14 @@ class ValidatorTests(unittest.TestCase):
         self.assertTrue(result.valid)
         self.assertNotIn("16_QC", result.sheet_counts)
 
+    def test_catalog_suffix_is_not_mistaken_for_log_sheet(self):
+        wb = Workbook(); ws = wb.active; ws.title = "88_REF_SOURCE_CATALOG"
+        ws.append(["Authority", "URL"]); ws.append(["HGNC", "https://www.genenames.org/"])
+        out = io.BytesIO(); wb.save(out)
+        result = self.validator.validate_bytes("Nutrition.xlsx", out.getvalue())
+        self.assertTrue(result.valid)
+        self.assertEqual(result.sheet_counts["88_REF_SOURCE_CATALOG"], 1)
+
     def test_unregistered_file_is_rejected(self):
         result = self.validator.validate_bytes("Unknown.xlsx", workbook([["X", "Y"]]))
         self.assertFalse(result.valid)
