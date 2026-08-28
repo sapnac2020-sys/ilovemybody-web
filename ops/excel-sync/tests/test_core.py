@@ -58,6 +58,15 @@ class ValidatorTests(unittest.TestCase):
         self.assertFalse(result.valid)
         self.assertEqual(result.issues[0].code, "UNREGISTERED_FILE")
 
+    def test_formula_only_template_row_is_excluded(self):
+        wb = Workbook(); ws = wb.active; ws.title = "02_NUTRIENTS"
+        ws.append(["Record_ID", "Derived"]); ws.append(["=IF(A1=\"\",\"\",A1)", "=1+1"])
+        out = io.BytesIO(); wb.save(out)
+        result = self.validator.validate_bytes("Nutrition.xlsx", out.getvalue())
+        self.assertFalse(result.valid)
+        self.assertEqual(len(result.rows), 0)
+        self.assertTrue(any(x.code == "NO_DATA_ROWS" for x in result.issues))
+
 
 if __name__ == "__main__":
     unittest.main()
