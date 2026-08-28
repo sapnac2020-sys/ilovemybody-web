@@ -1,0 +1,119 @@
+name: Deploy ILMB Excel Drive Sync
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: ilovemybody-excel-sync-production
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate connector
+        run: |
+          set -euo pipefail
+          python -m pip install --disable-pip-version-check openpyxl
+          PYTHONPATH=ops/excel-sync/src python -m unittest discover -s ops/excel-sync/tests -v
+          python -m compileall -q ops/excel-sync/src ops/excel-sync/tests
+          test -s ops/excel-sync/migrations/001_sync_control.sql
+
+      - name: Require deployment secrets
+        env:
+          DEPLOY_BUNDLE: ${{ secrets.HOSTINGER_DEPLOY_BUNDLE }}
+          GOOGLE_KEY: ${{ secrets.ILMB_GOOGLE_SERVICE_ACCOUNT_JSON }}
+          DRIVE_FOLDER_ID: ${{ secrets.ILMB_DRIVE_FOLDER_ID }}
+        run: |
+          set -euo pipefail
+          test -n "$DEPLOY_BUNDLE"
+          test -n "$GOOGLE_KEY"
+          test -n "$DRIVE_FOLDER_ID"
+          printf '%s' "$GOOGLE_KEY" > "$RUNNER_TEMP/google-service-account.json"
+          jq -e '.type == "service_account" and .client_email == "ilmb-excel-sync@ilovemybody-sync.iam.gserviceaccount.com" and .private_key' "$RUNNER_TEMP/google-service-account.json" >/dev/null
+          chmod 600 "$RUNNER_TEMP/google-service-account.json"
+          printf '%s' "$DRIVE_FOLDER_ID" > "$RUNNER_TEMP/drive-folder-id"
+
+      - name: Prepare SSH identity
+        env:
+          DEPLOY_BUNDLE: ${{ secrets.HOSTINGER_DEPLOY_BUNDLE }}
+        run: |
+          set -euo pipefail
+          mkdir -p "$HOME/.ssh"
+          chmod 700 "$HOME/.ssh"
+          printf '%s' "$DEPLOY_BUNDLE" | base64 --decode > "$RUNNER_TEMP/deploy.json"
+          jq -e '.host and .port and .user and .key' "$RUNNER_TEMP/deploy.json" >/dev/null
+          jq -r '.key' "$RUNNER_TEMP/deploy.json" > "$HOME/.ssh/ilmb_excel_sync"
+          chmod 600 "$HOME/.ssh/ilmb_excel_sync"
+          echo "DEPLOY_HOST=$(jq -r '.host' "$RUNNER_TEMP/deploy.json")" >> "$GITHUB_ENV"
+          echo "DEPLOY_PORT=$(jq -r '.port' "$RUNNER_TEMP/deploy.json")" >> "$GITHUB_ENV"
+          echo "DEPLOY_USER=$(jq -r '.user' "$RUNNER_TEMP/deploy.json")" >> "$GITHUB_ENV"
+          ssh-keyscan -p "$(jq -r '.port' "$RUNNER_TEMP/deploy.json")" "$(jq -r '.host' "$RUNNER_TEMP/deploy.json")" >> "$HOME/.ssh/known_hosts"
+
+      - name: Upload private connector package
+        run: |
+          set -euo pipefail
+          package="$RUNNER_TEMP/excel-sync-package"
+          mkdir -p "$package"
+          cp -a ops/excel-sync/. "$package/"
+          install -m 600 "$RUNNER_TEMP/google-service-account.json" "$package/google-service-account.json"
+          install -m 600 "$RUNNER_TEMP/drive-folder-id" "$package/drive-folder-id"
+          tar -C "$package" -czf - . | ssh -i "$HOME/.ssh/ilmb_excel_sync" -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" \
+            "mkdir -p \"\$HOME/private/ilmb-excel-sync/releases/$GITHUB_SHA\" && tar -xzf - -C \"\$HOME/private/ilmb-excel-sync/releases/$GITHUB_SHA\""
+
+      - name: Install, migrate, validate and schedule
+        run: |
+          set -euo pipefail
+          ssh -i "$HOME/.ssh/ilmb_excel_sync" -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" "RELEASE_SHA='$GITHUB_SHA' bash -s" <<'REMOTE'
+          set -euo pipefail
+          ROOT="$HOME/private/ilmb-excel-sync"
+          RELEASE="$ROOT/releases/$RELEASE_SHA"
+          CURRENT="$ROOT/current"
+          CONFIG="$HOME/domains/ilovemybody.in/public_html/app/config.php"
+          test -s "$CONFIG"
+          test -s "$RELEASE/google-service-account.json"
+          test -s "$RELEASE/drive-folder-id"
+          python3 -m venv "$RELEASE/.venv"
+          "$RELEASE/.venv/bin/pip" install --disable-pip-version-check --no-cache-dir "$RELEASE"
+          db_json="$(php -r '$c=require $argv[1]; echo json_encode($c["db"] ?? []);' "$CONFIG")"
+          DB_JSON="$db_json" RELEASE="$RELEASE" python3 - <<'PY'
+          import json, os, pathlib, shlex
+          db=json.loads(os.environ['DB_JSON'])
+          required=('host','name','user','pass')
+          missing=[k for k in required if not db.get(k)]
+          if missing: raise SystemExit('Missing DB config keys: '+','.join(missing))
+          release=pathlib.Path(os.environ['RELEASE'])
+          folder=(release/'drive-folder-id').read_text().strip()
+          values={
+            'ILMB_DRIVE_FOLDER_ID':folder,
+            'ILMB_GOOGLE_KEY_FILE':str(release/'google-service-account.json'),
+            'ILMB_DB_HOST':db['host'], 'ILMB_DB_PORT':str(db.get('port',3306)),
+            'ILMB_DB_NAME':db['name'], 'ILMB_DB_USER':db['user'], 'ILMB_DB_PASSWORD':db['pass'],
+            'ILMB_MODULE_CONFIG':str(release/'config/modules.json'),
+            'ILMB_WORK_DIR':str(release/'work'), 'ILMB_REQUIRE_APPROVAL':'true'
+          }
+          (release/'ilmb-sync.env').write_text(''.join(f'{k}={shlex.quote(str(v))}\n' for k,v in values.items()))
+          os.chmod(release/'ilmb-sync.env',0o600)
+          PY
+          set -a; . "$RELEASE/ilmb-sync.env"; set +a
+          "$RELEASE/.venv/bin/ilmb-sync" migrate
+          "$RELEASE/.venv/bin/ilmb-sync" doctor
+          "$RELEASE/.venv/bin/ilmb-sync" scan --dry-run > "$RELEASE/first-dry-run.json"
+          ln -sfn "$RELEASE" "$CURRENT"
+          mkdir -p "$ROOT/logs"
+          cron_line="*/15 * * * * set -a; . $CURRENT/ilmb-sync.env; set +a; $CURRENT/.venv/bin/ilmb-sync scan >> $ROOT/logs/sync.log 2>&1 # ILMB_EXCEL_SYNC"
+          (crontab -l 2>/dev/null | grep -v 'ILMB_EXCEL_SYNC' || true; printf '%s\n' "$cron_line") | crontab -
+          crontab -l | grep 'ILMB_EXCEL_SYNC'
+          REMOTE
+
+      - name: Verify scheduled deployment
+        run: |
+          set -euo pipefail
+          ssh -i "$HOME/.ssh/ilmb_excel_sync" -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" \
+            'test -L "$HOME/private/ilmb-excel-sync/current" && test -s "$HOME/private/ilmb-excel-sync/current/first-dry-run.json" && crontab -l | grep -q ILMB_EXCEL_SYNC'
