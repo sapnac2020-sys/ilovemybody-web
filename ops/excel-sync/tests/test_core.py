@@ -62,6 +62,15 @@ class ValidatorTests(unittest.TestCase):
         self.assertEqual(result.rows[0].source_key, "N-001")
         self.assertIn("Record_ID", result.rows[0].payload)
 
+    def test_qc_sheet_is_control_not_import_data(self):
+        wb = Workbook(); ws = wb.active; ws.title = "02_NUTRIENTS"
+        ws.append(["Record_ID", "Name"]); ws.append(["N-001", "Protein"])
+        qc = wb.create_sheet("16_QC"); qc.append(["Check", "Result"]); qc.append(["Row count", "PASS"])
+        out = io.BytesIO(); wb.save(out)
+        result = self.validator.validate_bytes("Nutrition.xlsx", out.getvalue())
+        self.assertTrue(result.valid)
+        self.assertNotIn("16_QC", result.sheet_counts)
+
     def test_unregistered_file_is_rejected(self):
         result = self.validator.validate_bytes("Unknown.xlsx", workbook([["X", "Y"]]))
         self.assertFalse(result.valid)
