@@ -66,6 +66,22 @@
     {"pattern": "*Pharmaceutical*.xlsx", "system_id": "SYS-018", "mode": "configured_sheets"},
     {"pattern": "*Bhagavad*Gita*.xlsx", "system_id": "SYS-019", "mode": "configured_sheets"},
     {"pattern": "*Celestial*.xlsx", "system_id": "SYS-020", "mode": "configured_sheets"},
-    {"pattern": "*DNA*Ancestors*Self*.xlsx", "system_id": "SYS-021", "mode": "configured_sheets"}
+    {
+      "pattern": "*DNA*Ancestors*Self*.xlsx",
+      "system_id": "SYS-021",
+      "mode": "configured_sheets",
+      "sheet_keys": {
+        "04_MEIOSIS_CALC": ["Scenario_ID"],
+        "05_INHERITANCE_RULES": ["System", "Source_to_child"],
+        "21_BASE_PAIRING": ["Context", "Base_1", "Base_2"],
+        "51_SEXLINE_INHERITANCE": ["Genomic_system", "Source_parent", "Possible_recipient"]
+      },
+      "row_gates": {
+        "04_MEIOSIS_CALC": {"required": ["Scenario_ID", "Parent_1_alt_copies", "Parent_2_alt_copies"], "numeric": ["Scenario_ID", "Parent_1_alt_copies", "Parent_2_alt_copies"]}
+      },
+      "numeric_fields": {
+        "04_MEIOSIS_CALC": ["Scenario_ID", "Parent_1_alt_copies", "Parent_2_alt_copies"]
+      }
+    }
   ]
 }
