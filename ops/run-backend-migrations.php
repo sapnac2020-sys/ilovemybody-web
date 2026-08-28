@@ -48,6 +48,8 @@ $migrations = [
     'phase_47_hospital_product_contract.sql',
     'phase_48_patient_runtime_contract.sql',
     'phase_49_plug_and_play_freeze.sql',
+    'phase_50_gita_verification_system.sql',
+    'phase_50a_gita_corpus.sql.gz',
 ];
 
     foreach ($migrations as $migration) {
@@ -56,7 +58,12 @@ $migrations = [
             throw new RuntimeException("Missing migration: {$migration}");
         }
 
-        $sql = file_get_contents($path);
+        if (str_ends_with($migration, '.gz')) {
+            $compressed = file_get_contents($path);
+            $sql = $compressed === false ? false : gzdecode($compressed);
+        } else {
+            $sql = file_get_contents($path);
+        }
         if ($sql === false || trim($sql) === '') {
             throw new RuntimeException("Empty migration: {$migration}");
         }
@@ -83,8 +90,26 @@ $migrations = [
     }
 
     $summary = $pdo->query("SELECT * FROM `v_ilb_release_summary`")->fetch();
+    $gita = $pdo->query("SELECT * FROM `v_ilb_gita_readiness`")->fetch();
+    $gitaExpected = [
+        'verse_rows' => 700,
+        'source_rows' => 700,
+        'hashed_source_rows' => 700,
+        'tokenised_verses' => 700,
+        'approved_translations' => 0,
+        'passing_formula_tests' => 9,
+        'preregistered_predictions' => 0,
+        'verified_results' => 0,
+        'personally_supported_claims' => 0,
+    ];
+    foreach ($gitaExpected as $field => $expected) {
+        if ((int)($gita[$field] ?? -1) !== $expected) {
+            throw new RuntimeException("Gita readiness mismatch for {$field}: expected {$expected}, got " . ($gita[$field] ?? 'missing'));
+        }
+    }
     echo "Verification passed: missing_objects=0\n";
     echo json_encode($summary, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . "\n";
+    echo 'gita=' . json_encode($gita, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . "\n";
 } catch (Throwable $error) {
     fwrite(
         STDERR,
