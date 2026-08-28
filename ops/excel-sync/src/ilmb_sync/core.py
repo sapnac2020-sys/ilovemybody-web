@@ -138,6 +138,11 @@ class WorkbookValidator:
                 payload = {k: v for k, v in payload.items() if v not in (None, "")}
                 if not payload:
                     continue
+                # Preformatted enterprise templates often copy formulas hundreds
+                # of rows below the real data. Formula-only rows are scaffolding,
+                # not records, and must never inflate database counts.
+                if not any(not isinstance(value, dict) for value in payload.values()):
+                    continue
                 source_key = self._source_key(payload, source_row)
                 if PLACEHOLDER_RE.search(source_key):
                     issues.append(ValidationIssue("WARNING", "PLACEHOLDER_ROW", "Placeholder/example row excluded", ws.title, source_row))
