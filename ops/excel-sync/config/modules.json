@@ -26,6 +26,7 @@
     {"pattern": "*Homeopathy*.xlsx", "system_id": "SYS-017", "mode": "configured_sheets"},
     {"pattern": "*Pharmaceutical*.xlsx", "system_id": "SYS-018", "mode": "configured_sheets"},
     {"pattern": "*Bhagavad*Gita*.xlsx", "system_id": "SYS-019", "mode": "configured_sheets"},
-    {"pattern": "*Celestial*.xlsx", "system_id": "SYS-020", "mode": "configured_sheets"}
+    {"pattern": "*Celestial*.xlsx", "system_id": "SYS-020", "mode": "configured_sheets"},
+    {"pattern": "*DNA*Ancestors*Self*.xlsx", "system_id": "SYS-021", "mode": "configured_sheets"}
   ]
 }
