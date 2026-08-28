@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ilmb-excel-sync"
+version = "1.0.0"
+description = "Validated Google Drive Excel to existing MySQL staging connector"
+requires-python = ">=3.10"
+dependencies = [
+  "google-api-python-client>=2.130,<3",
+  "google-auth>=2.29,<3",
+  "openpyxl>=3.1,<4",
+  "PyMySQL>=1.1,<2",
+]
+
+[project.scripts]
+ilmb-sync = "ilmb_sync.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
