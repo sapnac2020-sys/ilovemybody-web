@@ -30,8 +30,25 @@
         "31_SR_LEGACY_VALUES": ["id"],
         "40_FNDDS_FOODS": ["fdc_id"],
         "41_FNDDS_VALUES": ["id"]
+      },
+      "row_gates": {
+        "22_FOUNDATION_VALUES": {"required": ["id", "fdc_id", "nutrient_id", "amount"], "nonnegative": ["amount"]}
+      },
+      "numeric_fields": {
+        "10_IFCT_FOODS": ["regions_count"],
+        "11_IFCT_COMPONENTS": ["representation_factor"],
+        "12_IFCT_VALUES": ["corrected_value_amount", "basis_quantity", "error_value", "raw_database_value", "representation_factor"],
+        "20_USDA_NUTRIENTS": ["rank"],
+        "22_FOUNDATION_VALUES": ["amount", "data_points", "derivation_id", "min", "max", "median", "min_year_acquired"],
+        "31_SR_LEGACY_VALUES": ["amount", "data_points", "derivation_id", "min", "max", "median", "min_year_acquired"],
+        "41_FNDDS_VALUES": ["amount", "data_points", "derivation_id", "min", "max", "median", "min_year_acquired"]
       }
     },
+    {"pattern": "Nutrition_IFCT_*.xlsx", "system_id": "SYS-003", "mode": "partitioned_source", "include_sheets": ["10_IFCT_FOODS", "11_IFCT_COMPONENTS", "12_IFCT_VALUES"], "sheet_keys": {"10_IFCT_FOODS": ["ingredient_key"], "11_IFCT_COMPONENTS": ["component_key"], "12_IFCT_VALUES": ["ingredient_key", "component_key"]}, "numeric_fields": {"10_IFCT_FOODS": ["regions_count"], "11_IFCT_COMPONENTS": ["representation_factor"], "12_IFCT_VALUES": ["corrected_value_amount", "basis_quantity", "error_value", "raw_database_value", "representation_factor"]}},
+    {"pattern": "Nutrition_USDA_Nutrients.xlsx", "system_id": "SYS-003", "mode": "partitioned_source", "include_sheets": ["20_USDA_NUTRIENTS"], "sheet_keys": {"20_USDA_NUTRIENTS": ["id"]}, "numeric_fields": {"20_USDA_NUTRIENTS": ["rank"]}},
+    {"pattern": "Nutrition_USDA_Foundation_*.xlsx", "system_id": "SYS-003", "mode": "partitioned_source", "include_sheets": ["21_FOUNDATION_FOODS", "22_FOUNDATION_VALUES"], "sheet_keys": {"21_FOUNDATION_FOODS": ["fdc_id"], "22_FOUNDATION_VALUES": ["id"]}, "row_gates": {"22_FOUNDATION_VALUES": {"required": ["id", "fdc_id", "nutrient_id", "amount"], "nonnegative": ["amount"]}}, "numeric_fields": {"22_FOUNDATION_VALUES": ["amount", "data_points", "derivation_id", "min", "max", "median", "min_year_acquired"]}},
+    {"pattern": "Nutrition_USDA_SR_Legacy_*.xlsx", "system_id": "SYS-003", "mode": "partitioned_source", "include_sheets": ["30_SR_LEGACY_FOODS", "31_SR_LEGACY_VALUES"], "sheet_keys": {"30_SR_LEGACY_FOODS": ["fdc_id"], "31_SR_LEGACY_VALUES": ["id"]}, "numeric_fields": {"31_SR_LEGACY_VALUES": ["amount", "data_points", "derivation_id", "min", "max", "median", "min_year_acquired"]}},
+    {"pattern": "Nutrition_USDA_FNDDS_*.xlsx", "system_id": "SYS-003", "mode": "partitioned_source", "include_sheets": ["40_FNDDS_FOODS", "41_FNDDS_VALUES"], "sheet_keys": {"40_FNDDS_FOODS": ["fdc_id"], "41_FNDDS_VALUES": ["id"]}, "numeric_fields": {"41_FNDDS_VALUES": ["amount", "data_points", "derivation_id", "min", "max", "median", "min_year_acquired"]}},
     {"pattern": "*Yoga*Naturopathy*.xlsx", "system_id": "SYS-004", "mode": "configured_sheets"},
     {"pattern": "*Acupuncture*TCM*.xlsx", "system_id": "SYS-005", "mode": "configured_sheets"},
     {"pattern": "*Cupping*Therapy*.xlsx", "system_id": "SYS-006", "mode": "configured_sheets"},
