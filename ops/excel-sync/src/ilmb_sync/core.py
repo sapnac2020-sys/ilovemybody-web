@@ -137,15 +137,27 @@ class WorkbookValidator:
             if not headers:
                 continue
             sheet_count = 0
+            row_gate = rule.get("row_gates", {}).get(ws.title, {})
             for source_row, vals in enumerate(values, start=header_num + 1):
                 payload = {headers[i]: self._cell(vals[i]) for i in range(min(len(headers), len(vals)))}
                 payload = {k: v for k, v in payload.items() if v not in (None, "")}
+                for field in rule.get("numeric_fields", {}).get(ws.title, []):
+                    if field in payload:
+                        payload[field] = self._number(payload[field])
                 if not payload:
                     continue
                 # Preformatted enterprise templates often copy formulas hundreds
                 # of rows below the real data. Formula-only rows are scaffolding,
                 # not records, and must never inflate database counts.
                 if not any(not isinstance(value, dict) for value in payload.values()):
+                    continue
+                missing_required = [field for field in row_gate.get("required", []) if payload.get(field) in (None, "")]
+                if missing_required:
+                    issues.append(ValidationIssue("WARNING", "ROW_EXCLUDED_MISSING_REQUIRED", f"Row excluded; missing required fields: {', '.join(missing_required)}", ws.title, source_row))
+                    continue
+                invalid_negative = [field for field in row_gate.get("nonnegative", []) if isinstance(payload.get(field), (int, float)) and payload[field] < 0]
+                if invalid_negative:
+                    issues.append(ValidationIssue("WARNING", "ROW_EXCLUDED_NEGATIVE_VALUE", f"Row excluded; negative values are invalid for: {', '.join(invalid_negative)}", ws.title, source_row))
                     continue
                 source_key = self._source_key(payload, source_row, sheet_keys.get(ws.title))
                 if PLACEHOLDER_RE.search(source_key):
@@ -187,7 +199,7 @@ class WorkbookValidator:
         result: list[str] = []
         seen: set[str] = set()
         for idx, value in enumerate(cells, start=1):
-            name = str(value).strip() if value is not None else f"_column_{idx}"
+            name = str(value).strip().lstrip("\ufeff") if value is not None else f"_column_{idx}"
             if not name:
                 name = f"_column_{idx}"
             if name in seen:
@@ -206,6 +218,16 @@ class WorkbookValidator:
             if value.startswith("="):
                 return {"formula": value}
         return value
+
+    @staticmethod
+    def _number(value: Any) -> Any:
+        if not isinstance(value, str):
+            return value
+        text = value.strip()
+        if not re.fullmatch(r"[-+]?(?:\d+(?:\.\d*)?|\.\d+)(?:[Ee][-+]?\d+)?", text):
+            return value
+        number = float(text)
+        return int(number) if number.is_integer() and "e" not in text.lower() and "." not in text else number
 
     @staticmethod
     def _source_key(payload: dict[str, Any], source_row: int, configured_keys: list[str] | None = None) -> str:
