@@ -116,8 +116,12 @@ class WorkbookValidator:
             ], {})
 
         seen_sources: dict[tuple[str, str], str] = {}
+        include_sheets = set(rule.get("include_sheets", []))
+        sheet_keys = rule.get("sheet_keys", {})
         for ws in wb.worksheets:
             if CONTROL_SHEETS.search(ws.title):
+                continue
+            if include_sheets and ws.title not in include_sheets:
                 continue
             values = ws.iter_rows(values_only=True)
             header_row = None
@@ -143,7 +147,7 @@ class WorkbookValidator:
                 # not records, and must never inflate database counts.
                 if not any(not isinstance(value, dict) for value in payload.values()):
                     continue
-                source_key = self._source_key(payload, source_row)
+                source_key = self._source_key(payload, source_row, sheet_keys.get(ws.title))
                 if PLACEHOLDER_RE.search(source_key):
                     issues.append(ValidationIssue("WARNING", "PLACEHOLDER_ROW", "Placeholder/example row excluded", ws.title, source_row))
                     continue
@@ -204,13 +208,17 @@ class WorkbookValidator:
         return value
 
     @staticmethod
-    def _source_key(payload: dict[str, Any], source_row: int) -> str:
+    def _source_key(payload: dict[str, Any], source_row: int, configured_keys: list[str] | None = None) -> str:
+        if configured_keys:
+            missing = [key for key in configured_keys if key not in payload or isinstance(payload[key], dict) or not str(payload[key]).strip()]
+            if not missing:
+                return "::".join(str(payload[key]).strip() for key in configured_keys)
         # Prefer an actual row identifier. Evidence/source IDs are foreign keys and
         # must not be mistaken for the row's own identity.
         for key, value in payload.items():
             normalized = re.sub(r"[^a-z0-9_]", "_", key.lower()).strip("_")
             own_id = normalized in {"id", "record_id", "entity_id", "relationship_id", "observation_id", "outcome_id", "claim_id", "formula_id", "test_id", "verse_id"}
-            standard_code = "loinc" in normalized or normalized == "code" or normalized.endswith("_code") or normalized in {"key", "identifier"}
+            standard_code = "loinc" in normalized or normalized == "code" or normalized.endswith(("_code", "_key")) or normalized in {"key", "identifier", "fdc_id"}
             foreign_id = normalized.startswith(("source_", "evidence_", "parent_", "related_", "process_source_"))
             if (own_id or standard_code) and not foreign_id and not isinstance(value, dict) and str(value).strip():
                 return str(value).strip()
