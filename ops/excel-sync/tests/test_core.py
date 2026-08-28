@@ -67,6 +67,25 @@ class ValidatorTests(unittest.TestCase):
         self.assertEqual(len(result.rows), 0)
         self.assertTrue(any(x.code == "NO_DATA_ROWS" for x in result.issues))
 
+    def test_configured_sheets_and_composite_keys(self):
+        path = Path(self.temp.name) / "modules.json"
+        path.write_text(json.dumps({"modules": [{
+            "pattern": "*Nutrition*.xlsx", "system_id": "SYS-003",
+            "include_sheets": ["12_IFCT_VALUES"],
+            "sheet_keys": {"12_IFCT_VALUES": ["ingredient_key", "component_key"]}
+        }]}))
+        validator = WorkbookValidator(ModuleRegistry(path))
+        wb = Workbook(); control = wb.active; control.title = "99_DATA_MANIFEST"
+        control.append(["Sheet", "Rows"]); control.append(["12_IFCT_VALUES", 2])
+        ws = wb.create_sheet("12_IFCT_VALUES")
+        ws.append(["ingredient_key", "component_key", "amount"])
+        ws.append(["ifct_a001", "protein", 12.3]); ws.append(["ifct_a001", "fat", 7.1])
+        out = io.BytesIO(); wb.save(out)
+        result = validator.validate_bytes("Nutrition.xlsx", out.getvalue())
+        self.assertTrue(result.valid)
+        self.assertEqual([r.source_key for r in result.rows], ["ifct_a001::protein", "ifct_a001::fat"])
+        self.assertNotIn("99_DATA_MANIFEST", result.sheet_counts)
+
 
 if __name__ == "__main__":
     unittest.main()
