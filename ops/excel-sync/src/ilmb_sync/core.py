@@ -16,7 +16,7 @@ from openpyxl import load_workbook
 
 
 PLACEHOLDER_RE = re.compile(r"^(example|sample|placeholder|test)(\b|[_ -])", re.I)
-CONTROL_SHEETS = re.compile(r"(^00_|readme|dashboard|codebook|audit|setup|control|log$)", re.I)
+CONTROL_SHEETS = re.compile(r"(^00_|readme|dashboard|codebook|audit|setup|control|log$|(?:^|_)qc$)", re.I)
 
 
 def utcnow() -> datetime:
@@ -154,6 +154,10 @@ class WorkbookValidator:
                 missing_required = [field for field in row_gate.get("required", []) if payload.get(field) in (None, "")]
                 if missing_required:
                     issues.append(ValidationIssue("WARNING", "ROW_EXCLUDED_MISSING_REQUIRED", f"Row excluded; missing required fields: {', '.join(missing_required)}", ws.title, source_row))
+                    continue
+                invalid_numeric = [field for field in row_gate.get("numeric", []) if not isinstance(payload.get(field), (int, float))]
+                if invalid_numeric:
+                    issues.append(ValidationIssue("WARNING", "ROW_EXCLUDED_NONNUMERIC", f"Row excluded; numeric values required for: {', '.join(invalid_numeric)}", ws.title, source_row))
                     continue
                 invalid_negative = [field for field in row_gate.get("nonnegative", []) if isinstance(payload.get(field), (int, float)) and payload[field] < 0]
                 if invalid_negative:
