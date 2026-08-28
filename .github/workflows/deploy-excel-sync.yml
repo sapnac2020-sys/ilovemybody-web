@@ -29,7 +29,7 @@ jobs:
         env:
           DEPLOY_BUNDLE: ${{ secrets.HOSTINGER_DEPLOY_BUNDLE }}
           GOOGLE_KEY: ${{ secrets.ILMB_GOOGLE_SERVICE_ACCOUNT_JSON }}
-          DRIVE_FOLDER_ID: ${{ secrets.ILMB_DRIVE_FOLDER_ID }}
+          DRIVE_FOLDER_ID: 1iUWxPQ3zQeLAI1kLBdqhbBPtHwt9MirS
         run: |
           set -euo pipefail
           test -n "$DEPLOY_BUNDLE"
