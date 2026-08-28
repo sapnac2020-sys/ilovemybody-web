@@ -54,16 +54,27 @@ jobs:
           echo "DEPLOY_HOST=$(jq -r '.host' "$RUNNER_TEMP/deploy.json")" >> "$GITHUB_ENV"
           echo "DEPLOY_PORT=$(jq -r '.port' "$RUNNER_TEMP/deploy.json")" >> "$GITHUB_ENV"
           echo "DEPLOY_USER=$(jq -r '.user' "$RUNNER_TEMP/deploy.json")" >> "$GITHUB_ENV"
-          ssh-keyscan -p "$(jq -r '.port' "$RUNNER_TEMP/deploy.json")" \
-            "$(jq -r '.host' "$RUNNER_TEMP/deploy.json")" >> "$HOME/.ssh/known_hosts"
+          for attempt in 1 2 3; do
+            if ssh-keyscan -T 10 -p "$(jq -r '.port' "$RUNNER_TEMP/deploy.json")" \
+              "$(jq -r '.host' "$RUNNER_TEMP/deploy.json")" >> "$HOME/.ssh/known_hosts"; then
+              break
+            fi
+            test "$attempt" -lt 3
+          done
           chmod 600 "$HOME/.ssh/known_hosts"
+          control_socket="$RUNNER_TEMP/ilovemybody-ssh-control"
+          ssh -i "$HOME/.ssh/ilovemybody_deploy" \
+            -p "$(jq -r '.port' "$RUNNER_TEMP/deploy.json")" \
+            -M -S "$control_socket" -o ControlPersist=10m -fnNT \
+            "$(jq -r '.user' "$RUNNER_TEMP/deploy.json")@$(jq -r '.host' "$RUNNER_TEMP/deploy.json")"
+          echo "SSH_CONTROL_SOCKET=$control_socket" >> "$GITHUB_ENV"
 
       - name: Upload exact migration package
         run: |
           set -euo pipefail
           remote_dir="/tmp/ilovemybody_backend_${GITHUB_RUN_ID}_${GITHUB_RUN_ATTEMPT}"
           echo "REMOTE_DIR=$remote_dir" >> "$GITHUB_ENV"
-          ssh -i "$HOME/.ssh/ilovemybody_deploy" -p "$DEPLOY_PORT" \
+          ssh -S "$SSH_CONTROL_SOCKET" -p "$DEPLOY_PORT" \
             "$DEPLOY_USER@$DEPLOY_HOST" "mkdir -p '$remote_dir'"
           package_dir="$RUNNER_TEMP/backend-migration-package"
           mkdir -p "$package_dir"
@@ -76,13 +87,13 @@ jobs:
             "$package_dir/"
           # Hostinger permits authenticated SSH commands but blocks its SFTP/SCP subsystems.
           tar -C "$package_dir" -czf - . | \
-            ssh -i "$HOME/.ssh/ilovemybody_deploy" -p "$DEPLOY_PORT" \
+            ssh -S "$SSH_CONTROL_SOCKET" -p "$DEPLOY_PORT" \
               "$DEPLOY_USER@$DEPLOY_HOST" "tar -xzf - -C '$remote_dir'"
 
       - name: Run and verify exact database migration
         run: |
           set -uo pipefail
-          ssh -i "$HOME/.ssh/ilovemybody_deploy" -p "$DEPLOY_PORT" \
+          ssh -S "$SSH_CONTROL_SOCKET" -p "$DEPLOY_PORT" \
             "$DEPLOY_USER@$DEPLOY_HOST" \
             "php '$REMOTE_DIR/run-backend-migrations.php' \
             \"\$HOME/domains/ilovemybody.in/public_html/app/config.php\" \
@@ -98,6 +109,9 @@ jobs:
         if: always()
         run: |
           set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git pull --rebase origin main
           {
             echo "# Live Backend Status"
             echo
@@ -116,8 +130,6 @@ jobs:
             fi
             echo '```'
           } > docs/LIVE_BACKEND_STATUS.md
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add docs/LIVE_BACKEND_STATUS.md
           git commit -m "docs: record verified live backend migration"
           git push
@@ -131,7 +143,7 @@ jobs:
         if: always()
         run: |
           if [ -n "${REMOTE_DIR:-}" ]; then
-            ssh -i "$HOME/.ssh/ilovemybody_deploy" -p "$DEPLOY_PORT" \
+            ssh -S "$SSH_CONTROL_SOCKET" -p "$DEPLOY_PORT" \
               "$DEPLOY_USER@$DEPLOY_HOST" \
               "rm -f '$REMOTE_DIR/phase_47_hospital_product_contract.sql' \
               '$REMOTE_DIR/phase_48_patient_runtime_contract.sql' \
@@ -139,4 +151,7 @@ jobs:
               '$REMOTE_DIR/phase_50_gita_verification_system.sql' \
               '$REMOTE_DIR/phase_50a_gita_corpus.sql.gz' \
               '$REMOTE_DIR/run-backend-migrations.php'; rmdir '$REMOTE_DIR' 2>/dev/null || true" || true
+          fi
+          if [ -n "${SSH_CONTROL_SOCKET:-}" ]; then
+            ssh -S "$SSH_CONTROL_SOCKET" -O exit "$DEPLOY_USER@$DEPLOY_HOST" || true
           fi
