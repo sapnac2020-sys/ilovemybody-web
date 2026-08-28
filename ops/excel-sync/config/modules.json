@@ -1,0 +1,31 @@
+{
+  "version": 1,
+  "defaults": {
+    "header_row": 1,
+    "blank_row_ends_table": false,
+    "minimum_columns": 2,
+    "require_unique_primary_key": true
+  },
+  "modules": [
+    {"pattern": "*Diagnostics*LOINC*.xlsx", "system_id": "SYS-001", "mode": "configured_sheets"},
+    {"pattern": "*Human_Body_Systems*.xlsx", "system_id": "SYS-002", "mode": "configured_sheets"},
+    {"pattern": "*Nutrition_Food_Medicine*.xlsx", "system_id": "SYS-003", "mode": "configured_sheets"},
+    {"pattern": "*Yoga*Naturopathy*.xlsx", "system_id": "SYS-004", "mode": "configured_sheets"},
+    {"pattern": "*Acupuncture*TCM*.xlsx", "system_id": "SYS-005", "mode": "configured_sheets"},
+    {"pattern": "*Cupping*Therapy*.xlsx", "system_id": "SYS-006", "mode": "configured_sheets"},
+    {"pattern": "*Physiotherapy*Rehabilitation*.xlsx", "system_id": "SYS-007", "mode": "configured_sheets"},
+    {"pattern": "*08_Mental_Health*.xlsx", "system_id": "SYS-008", "mode": "configured_sheets"},
+    {"pattern": "*Unani_Medicine*.xlsx", "system_id": "SYS-009", "mode": "configured_sheets"},
+    {"pattern": "*Siddha_Medicine*.xlsx", "system_id": "SYS-010", "mode": "configured_sheets"},
+    {"pattern": "*Sowa_Rigpa*.xlsx", "system_id": "SYS-011", "mode": "configured_sheets"},
+    {"pattern": "*Sleep*Circadian*.xlsx", "system_id": "SYS-012", "mode": "configured_sheets"},
+    {"pattern": "*Lifestyle*Preventive*.xlsx", "system_id": "SYS-013", "mode": "configured_sheets"},
+    {"pattern": "*Environmental_Health*.xlsx", "system_id": "SYS-014", "mode": "configured_sheets"},
+    {"pattern": "*Genetics*Pharmacogenomics*.xlsx", "system_id": "SYS-015", "mode": "configured_sheets"},
+    {"pattern": "*Ayurveda*.xlsx", "system_id": "SYS-016", "mode": "configured_sheets"},
+    {"pattern": "*Homeopathy*.xlsx", "system_id": "SYS-017", "mode": "configured_sheets"},
+    {"pattern": "*Pharmaceutical*.xlsx", "system_id": "SYS-018", "mode": "configured_sheets"},
+    {"pattern": "*Bhagavad*Gita*.xlsx", "system_id": "SYS-019", "mode": "configured_sheets"},
+    {"pattern": "*Celestial*.xlsx", "system_id": "SYS-020", "mode": "configured_sheets"}
+  ]
+}
