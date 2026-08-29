@@ -387,13 +387,13 @@
       "source_partition": "UNREVIEWED_PE3"
     },
     {
-      "pattern": "ILMB_UniProt_Human_Protein_Identity_Unreviewed_PE4_Part_A_*.xlsx",
+      "pattern": "ILMB_UniProt_Human_Protein_Identity_Unreviewed_PE4_A_*.xlsx",
       "system_id": "REF-UNIPROT-HUMAN",
       "mode": "partitioned_source",
       "source_partition": "UNREVIEWED_PE4_A"
     },
     {
-      "pattern": "ILMB_UniProt_Human_Protein_Identity_Unreviewed_PE4_Part_B_*.xlsx",
+      "pattern": "ILMB_UniProt_Human_Protein_Identity_Unreviewed_PE4_B_*.xlsx",
       "system_id": "REF-UNIPROT-HUMAN",
       "mode": "partitioned_source",
       "source_partition": "UNREVIEWED_PE4_B"
