@@ -1,5 +1,5 @@
 {
-  "version": 3,
+  "version": 4,
   "defaults": {
     "header_row": 1,
     "blank_row_ends_table": false,
@@ -527,6 +527,123 @@
     {
       "pattern": "ILMB_UBERON_05_Properties_Release_*.xlsx",
       "system_id": "REF-UBERON",
+      "mode": "partitioned_source",
+      "source_partition": "PROPERTIES",
+      "include_sheets": [
+        "Ontology_Header",
+        "Term_Properties",
+        "Term_Audit",
+        "Typedef_Tags"
+      ],
+      "sheet_keys": {
+        "Ontology_Header": [
+          "tag",
+          "ordinal"
+        ],
+        "Term_Properties": [
+          "term_id",
+          "property_id",
+          "property_value",
+          "ordinal"
+        ],
+        "Term_Audit": [
+          "term_id",
+          "tag",
+          "raw_value",
+          "ordinal"
+        ],
+        "Typedef_Tags": [
+          "typedef_id",
+          "tag",
+          "raw_value",
+          "ordinal"
+        ]
+      }
+    },
+    {
+      "pattern": "ILMB_CL_01_Terms_Release_*.xlsx",
+      "system_id": "REF-CL",
+      "mode": "partitioned_source",
+      "source_partition": "TERMS",
+      "include_sheets": [
+        "Terms",
+        "Obsolete_Actions"
+      ],
+      "sheet_keys": {
+        "Terms": [
+          "term_id"
+        ],
+        "Obsolete_Actions": [
+          "term_id",
+          "action_tag",
+          "target_id",
+          "ordinal"
+        ]
+      }
+    },
+    {
+      "pattern": "ILMB_CL_02_Synonyms_Release_*.xlsx",
+      "system_id": "REF-CL",
+      "mode": "partitioned_source",
+      "source_partition": "SYNONYMS",
+      "include_sheets": [
+        "Synonyms"
+      ],
+      "sheet_keys": {
+        "Synonyms": [
+          "term_id",
+          "synonym_text",
+          "ordinal"
+        ]
+      }
+    },
+    {
+      "pattern": "ILMB_CL_03_Mappings_Release_*.xlsx",
+      "system_id": "REF-CL",
+      "mode": "partitioned_source",
+      "source_partition": "MAPPINGS",
+      "include_sheets": [
+        "Xrefs",
+        "Alternative_IDs",
+        "Subsets"
+      ],
+      "sheet_keys": {
+        "Xrefs": [
+          "term_id",
+          "xref_id",
+          "ordinal"
+        ],
+        "Alternative_IDs": [
+          "alternative_id"
+        ],
+        "Subsets": [
+          "term_id",
+          "subset",
+          "ordinal"
+        ]
+      }
+    },
+    {
+      "pattern": "ILMB_CL_04_Relations_Release_*.xlsx",
+      "system_id": "REF-CL",
+      "mode": "partitioned_source",
+      "source_partition": "RELATIONS",
+      "include_sheets": [
+        "Relations_Original"
+      ],
+      "sheet_keys": {
+        "Relations_Original": [
+          "source_term_id",
+          "source_tag",
+          "predicate",
+          "target_expression",
+          "ordinal"
+        ]
+      }
+    },
+    {
+      "pattern": "ILMB_CL_05_Properties_Release_*.xlsx",
+      "system_id": "REF-CL",
       "mode": "partitioned_source",
       "source_partition": "PROPERTIES",
       "include_sheets": [
