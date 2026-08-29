@@ -75,13 +75,13 @@ jobs:
           ROOT="$HOME/private/ilmb-excel-sync"
           RELEASE="$ROOT/releases/$RELEASE_SHA"
           CURRENT="$ROOT/current"
-          CONFIG="$HOME/domains/ilovemybody.in/public_html/app/config.php"
+          CONFIG="$HOME/domains/ilovemybody.in/ilmb-config.php"
           test -s "$CONFIG"
           test -s "$RELEASE/google-service-account.json"
           test -s "$RELEASE/drive-folder-id"
           python3 -m venv "$RELEASE/.venv"
           "$RELEASE/.venv/bin/pip" install --disable-pip-version-check --no-cache-dir "$RELEASE"
-          db_json="$(php -r '$c=require $argv[1]; echo json_encode($c["db"] ?? []);' "$CONFIG")"
+          db_json="$(php -r '$c=require $argv[1]; echo json_encode(["host"=>$c["host"]??null,"port"=>$c["port"]??3306,"name"=>$c["db"]??null,"user"=>$c["user"]??null,"pass"=>$c["pass"]??null]);' "$CONFIG")"
           DB_JSON="$db_json" RELEASE="$RELEASE" python3 - <<'PY'
           import json, os, pathlib, shlex
           db=json.loads(os.environ['DB_JSON'])
@@ -108,12 +108,20 @@ jobs:
           ln -sfn "$RELEASE" "$CURRENT"
           mkdir -p "$ROOT/logs"
           cron_line="*/15 * * * * set -a; . $CURRENT/ilmb-sync.env; set +a; $CURRENT/.venv/bin/ilmb-sync scan >> $ROOT/logs/sync.log 2>&1 # ILMB_EXCEL_SYNC"
-          (crontab -l 2>/dev/null | grep -v 'ILMB_EXCEL_SYNC' || true; printf '%s\n' "$cron_line") | crontab -
-          crontab -l | grep 'ILMB_EXCEL_SYNC'
+          printf '%s\n' "$cron_line" > "$ROOT/cron-line.txt"
+          if command -v crontab >/dev/null 2>&1; then
+            (crontab -l 2>/dev/null | grep -v 'ILMB_EXCEL_SYNC' || true; printf '%s\n' "$cron_line") | crontab -
+            crontab -l | grep 'ILMB_EXCEL_SYNC'
+            echo "SCHEDULED=crontab" > "$ROOT/schedule-status.txt"
+          else
+            echo "NOTE: no crontab binary on this host. Add this line manually via hPanel -> Advanced -> Cron Jobs:"
+            echo "$cron_line"
+            echo "SCHEDULED=manual-required" > "$ROOT/schedule-status.txt"
+          fi
           REMOTE
 
       - name: Verify scheduled deployment
         run: |
           set -euo pipefail
           ssh -i "$HOME/.ssh/ilmb_excel_sync" -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" \
-            'test -L "$HOME/private/ilmb-excel-sync/current" && test -s "$HOME/private/ilmb-excel-sync/current/first-dry-run.json" && crontab -l | grep -q ILMB_EXCEL_SYNC'
+            'ROOT="$HOME/private/ilmb-excel-sync"; test -L "$ROOT/current" && test -s "$ROOT/current/first-dry-run.json" && test -s "$ROOT/schedule-status.txt" && cat "$ROOT/schedule-status.txt"'

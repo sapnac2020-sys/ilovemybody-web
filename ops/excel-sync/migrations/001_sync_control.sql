@@ -40,7 +40,7 @@ CREATE TABLE IF NOT EXISTS ilmb_sync_stage_row (
   row_hash CHAR(64) NOT NULL,
   payload_json JSON NOT NULL,
   PRIMARY KEY (batch_id, row_id),
-  INDEX ix_stage_source (system_id, sheet_name, source_key),
+  INDEX ix_stage_source (system_id, sheet_name, source_key(255)),
   CONSTRAINT fk_stage_batch FOREIGN KEY (batch_id) REFERENCES ilmb_sync_batch(batch_id)
 ) ENGINE=InnoDB;
 
@@ -68,7 +68,7 @@ CREATE TABLE IF NOT EXISTS ilmb_canonical_record (
   version_no INT NOT NULL,
   active BOOLEAN NOT NULL DEFAULT TRUE,
   effective_at DATETIME(6) NOT NULL,
-  UNIQUE KEY uq_canonical_source (system_id, sheet_name, source_key),
+  INDEX ix_canonical_source (system_id, sheet_name, source_key(255)),
   INDEX ix_canonical_batch (source_batch_id)
 ) ENGINE=InnoDB;
 
