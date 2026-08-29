@@ -133,5 +133,25 @@ class ValidatorTests(unittest.TestCase):
         self.assertTrue(any(x.code == "ROW_EXCLUDED_NEGATIVE_VALUE" for x in result.issues))
 
 
+class ProductionRegistryTests(unittest.TestCase):
+    def test_all_seven_uniprot_partitions_are_registered_once(self):
+        registry = ModuleRegistry(Path(__file__).resolve().parents[1] / "config" / "modules.json")
+        expected = {
+            "ILMB_UniProt_Human_Protein_Identity_Reviewed_Release_2026-08-28.xlsx": "REVIEWED",
+            "ILMB_UniProt_Human_Protein_Identity_Unreviewed_PE1_2026-08-28.xlsx": "UNREVIEWED_PE1",
+            "ILMB_UniProt_Human_Protein_Identity_Unreviewed_PE2_2026-08-28.xlsx": "UNREVIEWED_PE2",
+            "ILMB_UniProt_Human_Protein_Identity_Unreviewed_PE3_2026-08-28.xlsx": "UNREVIEWED_PE3",
+            "ILMB_UniProt_Human_Protein_Identity_Unreviewed_PE4_Part_A_2026-08-28.xlsx": "UNREVIEWED_PE4_A",
+            "ILMB_UniProt_Human_Protein_Identity_Unreviewed_PE4_Part_B_2026-08-28.xlsx": "UNREVIEWED_PE4_B",
+            "ILMB_UniProt_Human_Protein_Identity_Unreviewed_PE5_2026-08-28.xlsx": "UNREVIEWED_PE5",
+        }
+        for filename, partition in expected.items():
+            with self.subTest(filename=filename):
+                rule = registry.match(filename)
+                self.assertIsNotNone(rule)
+                self.assertEqual(rule["system_id"], "REF-UNIPROT-HUMAN")
+                self.assertEqual(rule["source_partition"], partition)
+
+
 if __name__ == "__main__":
     unittest.main()
