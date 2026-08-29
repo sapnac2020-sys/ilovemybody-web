@@ -1,5 +1,5 @@
 {
-  "version": 7,
+  "version": 8,
   "defaults": {
     "header_row": 1,
     "blank_row_ends_table": false,
@@ -910,6 +910,115 @@
             "tty"
           ]
         }
+      }
+    },
+    {
+      "pattern": "ILMB_GO_01_Terms_Release_*.xlsx",
+      "system_id": "REF-GO",
+      "mode": "partitioned_source",
+      "source_partition": "TERMS",
+      "header_row": 4,
+      "include_sheets": [
+        "Terms",
+        "Obsolete_Actions"
+      ],
+      "sheet_keys": {
+        "Terms": [
+          "term_id"
+        ],
+        "Obsolete_Actions": [
+          "term_id",
+          "action_tag",
+          "target_id",
+          "ordinal"
+        ]
+      }
+    },
+    {
+      "pattern": "ILMB_GO_02_Synonyms_Release_*.xlsx",
+      "system_id": "REF-GO",
+      "mode": "partitioned_source",
+      "source_partition": "SYNONYMS",
+      "header_row": 4,
+      "include_sheets": [
+        "Synonyms"
+      ],
+      "sheet_keys": {
+        "Synonyms": [
+          "term_id",
+          "synonym_text",
+          "scope",
+          "ordinal"
+        ]
+      }
+    },
+    {
+      "pattern": "ILMB_GO_03_Mappings_Release_*.xlsx",
+      "system_id": "REF-GO",
+      "mode": "partitioned_source",
+      "source_partition": "MAPPINGS",
+      "header_row": 4,
+      "include_sheets": [
+        "Xrefs",
+        "Alternative_IDs",
+        "Subsets"
+      ],
+      "sheet_keys": {
+        "Xrefs": [
+          "term_id",
+          "xref_id",
+          "ordinal"
+        ],
+        "Alternative_IDs": [
+          "alternative_id"
+        ],
+        "Subsets": [
+          "term_id",
+          "subset",
+          "ordinal"
+        ]
+      }
+    },
+    {
+      "pattern": "ILMB_GO_04_Relations_Release_*.xlsx",
+      "system_id": "REF-GO",
+      "mode": "partitioned_source",
+      "source_partition": "RELATIONS",
+      "header_row": 4,
+      "include_sheets": [
+        "Relations_Original"
+      ],
+      "sheet_keys": {
+        "Relations_Original": [
+          "source_term_id",
+          "source_tag",
+          "predicate",
+          "target_expression",
+          "ordinal"
+        ]
+      }
+    },
+    {
+      "pattern": "ILMB_GO_05_Properties_Release_*.xlsx",
+      "system_id": "REF-GO",
+      "mode": "partitioned_source",
+      "source_partition": "PROPERTIES",
+      "header_row": 4,
+      "include_sheets": [
+        "Ontology_Header",
+        "Term_Properties"
+      ],
+      "sheet_keys": {
+        "Ontology_Header": [
+          "tag",
+          "ordinal"
+        ],
+        "Term_Properties": [
+          "term_id",
+          "property_id",
+          "property_value",
+          "ordinal"
+        ]
       }
     }
   ]
