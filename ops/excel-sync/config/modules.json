@@ -1,5 +1,5 @@
 {
-  "version": 8,
+  "version": 9,
   "defaults": {
     "header_row": 1,
     "blank_row_ends_table": false,
@@ -1018,6 +1018,435 @@
           "property_id",
           "property_value",
           "ordinal"
+        ]
+      }
+    },
+    {
+      "pattern": "ILMB_Reactome_01_Pathways_Release_*.xlsx",
+      "system_id": "REF-REACTOME-HUMAN",
+      "mode": "partitioned_source",
+      "source_partition": "PATHWAYS",
+      "header_row": 4,
+      "include_sheets": [
+        "Pathways",
+        "Hierarchy"
+      ],
+      "sheet_keys": {
+        "Pathways": [
+          "pathway_id"
+        ],
+        "Hierarchy": [
+          "parent_pathway_id",
+          "child_pathway_id"
+        ]
+      }
+    },
+    {
+      "pattern": "ILMB_Reactome_02_Reactions_Release_*.xlsx",
+      "system_id": "REF-REACTOME-HUMAN",
+      "mode": "partitioned_source",
+      "source_partition": "REACTIONS",
+      "header_row": 4,
+      "include_sheets": [
+        "Reactions",
+        "Reaction_PMIDs"
+      ],
+      "sheet_keys": {
+        "Reactions": [
+          "reaction_id"
+        ],
+        "Reaction_PMIDs": [
+          "reaction_id",
+          "pubmed_id",
+          "ordinal"
+        ]
+      }
+    },
+    {
+      "pattern": "ILMB_Reactome_03_Protein_Roles_Release_*.xlsx",
+      "system_id": "REF-REACTOME-HUMAN",
+      "mode": "partitioned_source",
+      "source_partition": "PROTEIN_ROLES",
+      "header_row": 4,
+      "include_sheets": [
+        "Protein_Roles_P01",
+        "Protein_Roles_P02",
+        "Protein_Roles_P03",
+        "Protein_Roles_P04",
+        "Protein_Roles_P05"
+      ],
+      "sheet_keys": {
+        "Protein_Roles_P01": [
+          "uniprot_id",
+          "role",
+          "reaction_id",
+          "ordinal"
+        ],
+        "Protein_Roles_P02": [
+          "uniprot_id",
+          "role",
+          "reaction_id",
+          "ordinal"
+        ],
+        "Protein_Roles_P03": [
+          "uniprot_id",
+          "role",
+          "reaction_id",
+          "ordinal"
+        ],
+        "Protein_Roles_P04": [
+          "uniprot_id",
+          "role",
+          "reaction_id",
+          "ordinal"
+        ],
+        "Protein_Roles_P05": [
+          "uniprot_id",
+          "role",
+          "reaction_id",
+          "ordinal"
+        ]
+      }
+    },
+    {
+      "pattern": "ILMB_Reactome_04_Complexes_Release_*.xlsx",
+      "system_id": "REF-REACTOME-HUMAN",
+      "mode": "partitioned_source",
+      "source_partition": "COMPLEXES",
+      "header_row": 4,
+      "include_sheets": [
+        "Complexes"
+      ],
+      "sheet_keys": {
+        "Complexes": [
+          "complex_id"
+        ]
+      }
+    },
+    {
+      "pattern": "ILMB_Reactome_05_UniProt_Pathways_Release_*.xlsx",
+      "system_id": "REF-REACTOME-HUMAN",
+      "mode": "partitioned_source",
+      "source_partition": "UNIPROT_PATHWAYS",
+      "header_row": 4,
+      "include_sheets": [
+        "UniProt_Pathways_P01",
+        "UniProt_Pathways_P02"
+      ],
+      "sheet_keys": {
+        "UniProt_Pathways_P01": [
+          "external_id",
+          "reactome_id"
+        ],
+        "UniProt_Pathways_P02": [
+          "external_id",
+          "reactome_id"
+        ]
+      }
+    },
+    {
+      "pattern": "ILMB_Reactome_06_UniProt_Reactions_Release_*.xlsx",
+      "system_id": "REF-REACTOME-HUMAN",
+      "mode": "partitioned_source",
+      "source_partition": "UNIPROT_REACTIONS",
+      "header_row": 4,
+      "include_sheets": [
+        "UniProt_Reactions_P01",
+        "UniProt_Reactions_P02",
+        "UniProt_Reactions_P03"
+      ],
+      "sheet_keys": {
+        "UniProt_Reactions_P01": [
+          "external_id",
+          "reactome_id"
+        ],
+        "UniProt_Reactions_P02": [
+          "external_id",
+          "reactome_id"
+        ],
+        "UniProt_Reactions_P03": [
+          "external_id",
+          "reactome_id"
+        ]
+      }
+    },
+    {
+      "pattern": "ILMB_Reactome_07_ChEBI_Pathways_Release_*.xlsx",
+      "system_id": "REF-REACTOME-HUMAN",
+      "mode": "partitioned_source",
+      "source_partition": "CHEBI_PATHWAYS",
+      "header_row": 4,
+      "include_sheets": [
+        "Chebi_Pathways"
+      ],
+      "sheet_keys": {
+        "Chebi_Pathways": [
+          "external_id",
+          "reactome_id"
+        ]
+      }
+    },
+    {
+      "pattern": "ILMB_Reactome_08_ChEBI_Reactions_Release_*.xlsx",
+      "system_id": "REF-REACTOME-HUMAN",
+      "mode": "partitioned_source",
+      "source_partition": "CHEBI_REACTIONS",
+      "header_row": 4,
+      "include_sheets": [
+        "Chebi_Reactions"
+      ],
+      "sheet_keys": {
+        "Chebi_Reactions": [
+          "external_id",
+          "reactome_id"
+        ]
+      }
+    },
+    {
+      "pattern": "ILMB_Reactome_09_Ensembl_Pathways_A_Release_*.xlsx",
+      "system_id": "REF-REACTOME-HUMAN",
+      "mode": "partitioned_source",
+      "source_partition": "ENSEMBL_PATHWAYS_A",
+      "header_row": 4,
+      "include_sheets": [
+        "Ensembl_Pathways_A_P01",
+        "Ensembl_Pathways_A_P02",
+        "Ensembl_Pathways_A_P03",
+        "Ensembl_Pathways_A_P04"
+      ],
+      "sheet_keys": {
+        "Ensembl_Pathways_A_P01": [
+          "external_id",
+          "reactome_id"
+        ],
+        "Ensembl_Pathways_A_P02": [
+          "external_id",
+          "reactome_id"
+        ],
+        "Ensembl_Pathways_A_P03": [
+          "external_id",
+          "reactome_id"
+        ],
+        "Ensembl_Pathways_A_P04": [
+          "external_id",
+          "reactome_id"
+        ]
+      }
+    },
+    {
+      "pattern": "ILMB_Reactome_10_Ensembl_Pathways_B_Release_*.xlsx",
+      "system_id": "REF-REACTOME-HUMAN",
+      "mode": "partitioned_source",
+      "source_partition": "ENSEMBL_PATHWAYS_B",
+      "header_row": 4,
+      "include_sheets": [
+        "Ensembl_Pathways_B_P01",
+        "Ensembl_Pathways_B_P02",
+        "Ensembl_Pathways_B_P03",
+        "Ensembl_Pathways_B_P04"
+      ],
+      "sheet_keys": {
+        "Ensembl_Pathways_B_P01": [
+          "external_id",
+          "reactome_id"
+        ],
+        "Ensembl_Pathways_B_P02": [
+          "external_id",
+          "reactome_id"
+        ],
+        "Ensembl_Pathways_B_P03": [
+          "external_id",
+          "reactome_id"
+        ],
+        "Ensembl_Pathways_B_P04": [
+          "external_id",
+          "reactome_id"
+        ]
+      }
+    },
+    {
+      "pattern": "ILMB_Reactome_11_Ensembl_Reactions_A1_Release_*.xlsx",
+      "system_id": "REF-REACTOME-HUMAN",
+      "mode": "partitioned_source",
+      "source_partition": "ENSEMBL_REACTIONS_A1",
+      "header_row": 4,
+      "include_sheets": [
+        "Ensembl_Rxn_A1_P01",
+        "Ensembl_Rxn_A1_P02",
+        "Ensembl_Rxn_A1_P03",
+        "Ensembl_Rxn_A1_P04"
+      ],
+      "sheet_keys": {
+        "Ensembl_Rxn_A1_P01": [
+          "external_id",
+          "reactome_id"
+        ],
+        "Ensembl_Rxn_A1_P02": [
+          "external_id",
+          "reactome_id"
+        ],
+        "Ensembl_Rxn_A1_P03": [
+          "external_id",
+          "reactome_id"
+        ],
+        "Ensembl_Rxn_A1_P04": [
+          "external_id",
+          "reactome_id"
+        ]
+      }
+    },
+    {
+      "pattern": "ILMB_Reactome_12_Ensembl_Reactions_A2_Release_*.xlsx",
+      "system_id": "REF-REACTOME-HUMAN",
+      "mode": "partitioned_source",
+      "source_partition": "ENSEMBL_REACTIONS_A2",
+      "header_row": 4,
+      "include_sheets": [
+        "Ensembl_Rxn_A2_P01",
+        "Ensembl_Rxn_A2_P02",
+        "Ensembl_Rxn_A2_P03",
+        "Ensembl_Rxn_A2_P04"
+      ],
+      "sheet_keys": {
+        "Ensembl_Rxn_A2_P01": [
+          "external_id",
+          "reactome_id"
+        ],
+        "Ensembl_Rxn_A2_P02": [
+          "external_id",
+          "reactome_id"
+        ],
+        "Ensembl_Rxn_A2_P03": [
+          "external_id",
+          "reactome_id"
+        ],
+        "Ensembl_Rxn_A2_P04": [
+          "external_id",
+          "reactome_id"
+        ]
+      }
+    },
+    {
+      "pattern": "ILMB_Reactome_13_Ensembl_Reactions_B1_Release_*.xlsx",
+      "system_id": "REF-REACTOME-HUMAN",
+      "mode": "partitioned_source",
+      "source_partition": "ENSEMBL_REACTIONS_B1",
+      "header_row": 4,
+      "include_sheets": [
+        "Ensembl_Rxn_B1_P01",
+        "Ensembl_Rxn_B1_P02",
+        "Ensembl_Rxn_B1_P03",
+        "Ensembl_Rxn_B1_P04"
+      ],
+      "sheet_keys": {
+        "Ensembl_Rxn_B1_P01": [
+          "external_id",
+          "reactome_id"
+        ],
+        "Ensembl_Rxn_B1_P02": [
+          "external_id",
+          "reactome_id"
+        ],
+        "Ensembl_Rxn_B1_P03": [
+          "external_id",
+          "reactome_id"
+        ],
+        "Ensembl_Rxn_B1_P04": [
+          "external_id",
+          "reactome_id"
+        ]
+      }
+    },
+    {
+      "pattern": "ILMB_Reactome_14_Ensembl_Reactions_B2_Release_*.xlsx",
+      "system_id": "REF-REACTOME-HUMAN",
+      "mode": "partitioned_source",
+      "source_partition": "ENSEMBL_REACTIONS_B2",
+      "header_row": 4,
+      "include_sheets": [
+        "Ensembl_Rxn_B2_P01",
+        "Ensembl_Rxn_B2_P02",
+        "Ensembl_Rxn_B2_P03",
+        "Ensembl_Rxn_B2_P04"
+      ],
+      "sheet_keys": {
+        "Ensembl_Rxn_B2_P01": [
+          "external_id",
+          "reactome_id"
+        ],
+        "Ensembl_Rxn_B2_P02": [
+          "external_id",
+          "reactome_id"
+        ],
+        "Ensembl_Rxn_B2_P03": [
+          "external_id",
+          "reactome_id"
+        ],
+        "Ensembl_Rxn_B2_P04": [
+          "external_id",
+          "reactome_id"
+        ]
+      }
+    },
+    {
+      "pattern": "ILMB_Reactome_15_Ensembl_Reactions_C1_Release_*.xlsx",
+      "system_id": "REF-REACTOME-HUMAN",
+      "mode": "partitioned_source",
+      "source_partition": "ENSEMBL_REACTIONS_C1",
+      "header_row": 4,
+      "include_sheets": [
+        "Ensembl_Rxn_C1_P01",
+        "Ensembl_Rxn_C1_P02",
+        "Ensembl_Rxn_C1_P03",
+        "Ensembl_Rxn_C1_P04"
+      ],
+      "sheet_keys": {
+        "Ensembl_Rxn_C1_P01": [
+          "external_id",
+          "reactome_id"
+        ],
+        "Ensembl_Rxn_C1_P02": [
+          "external_id",
+          "reactome_id"
+        ],
+        "Ensembl_Rxn_C1_P03": [
+          "external_id",
+          "reactome_id"
+        ],
+        "Ensembl_Rxn_C1_P04": [
+          "external_id",
+          "reactome_id"
+        ]
+      }
+    },
+    {
+      "pattern": "ILMB_Reactome_16_Ensembl_Reactions_C2_Release_*.xlsx",
+      "system_id": "REF-REACTOME-HUMAN",
+      "mode": "partitioned_source",
+      "source_partition": "ENSEMBL_REACTIONS_C2",
+      "header_row": 4,
+      "include_sheets": [
+        "Ensembl_Rxn_C2_P01",
+        "Ensembl_Rxn_C2_P02",
+        "Ensembl_Rxn_C2_P03",
+        "Ensembl_Rxn_C2_P04"
+      ],
+      "sheet_keys": {
+        "Ensembl_Rxn_C2_P01": [
+          "external_id",
+          "reactome_id"
+        ],
+        "Ensembl_Rxn_C2_P02": [
+          "external_id",
+          "reactome_id"
+        ],
+        "Ensembl_Rxn_C2_P03": [
+          "external_id",
+          "reactome_id"
+        ],
+        "Ensembl_Rxn_C2_P04": [
+          "external_id",
+          "reactome_id"
         ]
       }
     }
