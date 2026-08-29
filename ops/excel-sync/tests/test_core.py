@@ -134,7 +134,7 @@ class ValidatorTests(unittest.TestCase):
 
 
 class ProductionRegistryTests(unittest.TestCase):
-    def test_all_seven_uniprot_partitions_are_registered_once(self):
+    def test_all_six_published_uniprot_partitions_are_registered_once(self):
         registry = ModuleRegistry(Path(__file__).resolve().parents[1] / "config" / "modules.json")
         expected = {
             "ILMB_UniProt_Human_Protein_Identity_Reviewed_Release_2026-08-28.xlsx": "REVIEWED",
@@ -143,7 +143,6 @@ class ProductionRegistryTests(unittest.TestCase):
             "ILMB_UniProt_Human_Protein_Identity_Unreviewed_PE3_2026-08-28.xlsx": "UNREVIEWED_PE3",
             "ILMB_UniProt_Human_Protein_Identity_Unreviewed_PE4_Part_A_2026-08-28.xlsx": "UNREVIEWED_PE4_A",
             "ILMB_UniProt_Human_Protein_Identity_Unreviewed_PE4_Part_B_2026-08-28.xlsx": "UNREVIEWED_PE4_B",
-            "ILMB_UniProt_Human_Protein_Identity_Unreviewed_PE5_2026-08-28.xlsx": "UNREVIEWED_PE5",
         }
         for filename, partition in expected.items():
             with self.subTest(filename=filename):
