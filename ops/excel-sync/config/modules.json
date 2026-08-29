@@ -476,8 +476,6 @@
         "Synonyms": [
           "term_id",
           "synonym_text",
-          "scope",
-          "synonym_type",
           "ordinal"
         ]
       }
