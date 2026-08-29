@@ -1,5 +1,5 @@
 {
-  "version": 5,
+  "version": 6,
   "defaults": {
     "header_row": 1,
     "blank_row_ends_table": false,
@@ -792,6 +792,57 @@
           "raw_value",
           "ordinal"
         ]
+      }
+    },
+    {
+      "pattern": "ILMB_UCUM_Units_Release_*.xlsx",
+      "system_id": "REF-UCUM",
+      "mode": "configured_sheets",
+      "header_row": 4,
+      "include_sheets": [
+        "02_PREFIXES",
+        "03_BASE_UNITS",
+        "04_DEFINED_UNITS"
+      ],
+      "sheet_keys": {
+        "02_PREFIXES": [
+          "prefix_id"
+        ],
+        "03_BASE_UNITS": [
+          "base_unit_id"
+        ],
+        "04_DEFINED_UNITS": [
+          "unit_id"
+        ]
+      },
+      "row_gates": {
+        "02_PREFIXES": {
+          "required": [
+            "prefix_id",
+            "code_case_sensitive",
+            "code_case_insensitive",
+            "ucum_version"
+          ]
+        },
+        "03_BASE_UNITS": {
+          "required": [
+            "base_unit_id",
+            "code_case_sensitive",
+            "code_case_insensitive",
+            "dimension_symbol",
+            "ucum_version"
+          ]
+        },
+        "04_DEFINED_UNITS": {
+          "required": [
+            "unit_id",
+            "code_case_sensitive",
+            "code_case_insensitive",
+            "is_metric",
+            "is_special",
+            "ucum_version"
+          ]
+        }
       }
     }
   ]
