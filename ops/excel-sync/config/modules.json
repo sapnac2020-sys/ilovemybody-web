@@ -399,12 +399,6 @@
       "source_partition": "UNREVIEWED_PE4_B"
     },
     {
-      "pattern": "ILMB_UniProt_Human_Protein_Identity_Unreviewed_PE5_*.xlsx",
-      "system_id": "REF-UNIPROT-HUMAN",
-      "mode": "partitioned_source",
-      "source_partition": "UNREVIEWED_PE5"
-    },
-    {
       "pattern": "*DNA*Ancestors*Self*.xlsx",
       "system_id": "SYS-021",
       "mode": "configured_sheets",
