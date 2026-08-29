@@ -1,5 +1,5 @@
 {
-  "version": 6,
+  "version": 7,
   "defaults": {
     "header_row": 1,
     "blank_row_ends_table": false,
@@ -841,6 +841,73 @@
             "is_metric",
             "is_special",
             "ucum_version"
+          ]
+        }
+      }
+    },
+    {
+      "pattern": "ILMB_RxNorm_Active_Normalized_Release_*.xlsx",
+      "system_id": "REF-RXNORM",
+      "mode": "configured_sheets",
+      "header_row": 4,
+      "include_sheets": [
+        "02_INGREDIENTS",
+        "03_DOSE_FORMS",
+        "04_CLINICAL_DRUGS",
+        "05_BRANDED_DRUGS",
+        "06_PACKS"
+      ],
+      "sheet_keys": {
+        "02_INGREDIENTS": [
+          "rxcui"
+        ],
+        "03_DOSE_FORMS": [
+          "rxcui"
+        ],
+        "04_CLINICAL_DRUGS": [
+          "rxcui"
+        ],
+        "05_BRANDED_DRUGS": [
+          "rxcui"
+        ],
+        "06_PACKS": [
+          "rxcui"
+        ]
+      },
+      "row_gates": {
+        "02_INGREDIENTS": {
+          "required": [
+            "rxcui",
+            "normalized_name",
+            "tty"
+          ]
+        },
+        "03_DOSE_FORMS": {
+          "required": [
+            "rxcui",
+            "normalized_name",
+            "tty"
+          ]
+        },
+        "04_CLINICAL_DRUGS": {
+          "required": [
+            "rxcui",
+            "normalized_name",
+            "tty"
+          ]
+        },
+        "05_BRANDED_DRUGS": {
+          "required": [
+            "rxcui",
+            "normalized_name",
+            "tty"
+          ]
+        },
+        "06_PACKS": {
+          "required": [
+            "rxcui",
+            "normalized_name",
+            "tty"
           ]
         }
       }
