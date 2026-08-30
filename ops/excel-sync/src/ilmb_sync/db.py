@@ -177,6 +177,92 @@ class Database:
                 cur.execute("SELECT batch_id,file_name,system_id,status,row_count,error_count,created_at,decision_by FROM ilmb_sync_batch ORDER BY created_at DESC LIMIT 100")
                 return list(cur.fetchall())
 
+
+    def rebuild_crosswalks(self) -> dict[str, int]:
+        from .crosswalk import normalize_crosswalk
+        now = utcnow()
+        inserted = updated = unchanged = 0
+        with self.connect() as conn:
+            try:
+                with conn.cursor() as cur:
+                    cur.execute("""SELECT payload_json,source_batch_id,effective_at
+                                   FROM ilmb_canonical_record
+                                  WHERE system_id='REF-ILMB-CROSSWALK'
+                                    AND sheet_name='Crosswalks' AND active=1
+                                  ORDER BY canonical_id""")
+                    canonical_rows = list(cur.fetchall())
+                    for canonical in canonical_rows:
+                        payload = canonical["payload_json"]
+                        if isinstance(payload, str):
+                            payload = json.loads(payload)
+                        row = normalize_crosswalk(payload)
+                        cur.execute("SELECT * FROM ilmb_entity_crosswalk WHERE mapping_id=%s FOR UPDATE", (row.mapping_id,))
+                        old = cur.fetchone()
+                        if old and old["row_hash"] == row.row_hash and old["source_batch_id"] == canonical["source_batch_id"]:
+                            unchanged += 1
+                            continue
+                        if old:
+                            cur.execute("""INSERT INTO ilmb_entity_crosswalk_history
+                              (mapping_id,source_system,source_entity_type,source_id,predicate,target_system,
+                               target_entity_type,target_id,match_type,status,evidence_source,evidence_version,
+                               evidence_locator,confidence,computation_eligible,source_batch_id,row_hash,
+                               effective_at,retired_at,replaced_at,replaced_by_batch_id)
+                              VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)""",
+                              (old["mapping_id"],old["source_system"],old["source_entity_type"],old["source_id"],
+                               old["predicate"],old["target_system"],old["target_entity_type"],old["target_id"],
+                               old["match_type"],old["status"],old["evidence_source"],old["evidence_version"],
+                               old["evidence_locator"],old["confidence"],old["computation_eligible"],
+                               old["source_batch_id"],old["row_hash"],old["effective_at"],old["retired_at"],
+                               now,canonical["source_batch_id"]))
+                        cur.execute("""INSERT INTO ilmb_entity_crosswalk
+                          (mapping_id,source_system,source_entity_type,source_id,predicate,target_system,
+                           target_entity_type,target_id,match_type,status,evidence_source,evidence_version,
+                           evidence_locator,confidence,computation_eligible,source_batch_id,row_hash,effective_at,retired_at)
+                          VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,NULL)
+                          ON DUPLICATE KEY UPDATE source_entity_type=VALUES(source_entity_type),
+                           target_entity_type=VALUES(target_entity_type),match_type=VALUES(match_type),
+                           status=VALUES(status),evidence_source=VALUES(evidence_source),
+                           evidence_version=VALUES(evidence_version),evidence_locator=VALUES(evidence_locator),
+                           confidence=VALUES(confidence),computation_eligible=VALUES(computation_eligible),
+                           source_batch_id=VALUES(source_batch_id),row_hash=VALUES(row_hash),
+                           effective_at=VALUES(effective_at),retired_at=NULL""",
+                          (row.mapping_id,row.source_system,row.source_entity_type,row.source_id,row.predicate,
+                           row.target_system,row.target_entity_type,row.target_id,row.match_type,row.status,
+                           row.evidence_source,row.evidence_version,row.evidence_locator,row.confidence,
+                           row.computation_eligible,canonical["source_batch_id"],row.row_hash,
+                           canonical["effective_at"]))
+                        if old:
+                            updated += 1
+                        else:
+                            inserted += 1
+                    self._audit(cur, "crosswalk-worker", "CROSSWALK_REBUILT", None,
+                                {"canonical_rows": len(canonical_rows), "inserted": inserted,
+                                 "updated": updated, "unchanged": unchanged})
+                conn.commit()
+            except Exception:
+                conn.rollback()
+                raise
+        return {"canonical_rows": len(canonical_rows), "inserted": inserted,
+                "updated": updated, "unchanged": unchanged}
+
+    def crosswalk_audit(self) -> dict[str, Any]:
+        with self.connect() as conn:
+            with conn.cursor() as cur:
+                cur.execute("""SELECT COUNT(*) AS total,
+                                      SUM(computation_eligible=1) AS computation_eligible,
+                                      SUM(status='APPROVED') AS approved,
+                                      SUM(match_type='EXACT') AS exact_matches
+                                 FROM ilmb_entity_crosswalk""")
+                totals = cur.fetchone()
+                cur.execute("""SELECT source_entity_type,target_entity_type,predicate,
+                                      COUNT(*) AS mappings,
+                                      SUM(computation_eligible=1) AS computation_eligible
+                                 FROM ilmb_entity_crosswalk
+                                GROUP BY source_entity_type,target_entity_type,predicate
+                                ORDER BY source_entity_type,target_entity_type,predicate""")
+                routes = list(cur.fetchall())
+        return {"totals": totals, "routes": routes}
+
     @staticmethod
     def _audit(cur, actor: str, event: str, batch_id: str | None, details: dict[str, Any]) -> None:
         cur.execute("INSERT INTO ilmb_sync_audit(event_time,actor,event_type,batch_id,details_json) VALUES (%s,%s,%s,%s,%s)",
