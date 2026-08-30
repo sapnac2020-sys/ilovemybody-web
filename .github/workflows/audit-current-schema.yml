@@ -58,9 +58,10 @@ jobs:
           echo "REMOTE_SCRIPT=$remote_script" >> "$GITHUB_ENV"
           scp -i "$HOME/.ssh/ilovemybody_audit" -P "$DEPLOY_PORT" \
             ops/backend-audit.php "$DEPLOY_USER@$DEPLOY_HOST:$remote_script"
-          ssh -i "$HOME/.ssh/ilovemybody_audit" -p "$DEPLOY_PORT" \
+          ssh -o IdentitiesOnly=yes -o BatchMode=yes -o ConnectTimeout=30 \
+            -i "$HOME/.ssh/ilovemybody_audit" -p "$DEPLOY_PORT" \
             "$DEPLOY_USER@$DEPLOY_HOST" \
-            "php '$remote_script' \"\$HOME/domains/ilovemybody.in/public_html/app/config.php\"" \
+            "php '$remote_script' \"\$HOME/domains/ilovemybody.in/ilmb-config.php\"" \
             > "$RUNNER_TEMP/current-schema-audit.json"
           jq -e '.summary and .tables and .column_counts and .foreign_keys' \
             "$RUNNER_TEMP/current-schema-audit.json" >/dev/null
