@@ -1,5 +1,5 @@
 name: Run ILMB Excel and ChEBI Sync
-# authorized intake trigger: 2026-08-30T10:43Z — corrected mental-health and neuroscience batches
+# authorized intake trigger: 2026-08-30T10:46Z — resolved-only mental-health rescan
 
 on:
   push:
