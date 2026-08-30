@@ -17,9 +17,18 @@ if ($configPath === '' || $migrationDir === '' || !is_file($configPath) || !is_d
 }
 
 $config = require $configPath;
-$db = $config['db'] ?? null;
+$db = is_array($config['db'] ?? null)
+    ? $config['db']
+    : [
+        'host' => $config['host'] ?? null,
+        'port' => $config['port'] ?? 3306,
+        'name' => $config['db'] ?? null,
+        'user' => $config['user'] ?? null,
+        'pass' => $config['pass'] ?? null,
+        'charset' => $config['charset'] ?? 'utf8mb4',
+    ];
 
-if (!is_array($db) || ($db['name'] ?? '') !== EXPECTED_DATABASE) {
+if (($db['name'] ?? '') !== EXPECTED_DATABASE) {
     fwrite(STDERR, "Refusing migration: configured database is not " . EXPECTED_DATABASE . ".\n");
     exit(3);
 }
