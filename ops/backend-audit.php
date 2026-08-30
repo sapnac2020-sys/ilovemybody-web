@@ -14,7 +14,7 @@ if ($configPath === '' || !is_file($configPath)) {
 }
 
 $config = require $configPath;
-$db = $config['db'] ?? null;
+$db = isset($config['db']) && is_array($config['db']) ? $config['db'] : $config;
 if (!is_array($db)) {
     fwrite(STDERR, "Database configuration is unavailable.\n");
     exit(3);
@@ -24,7 +24,7 @@ $dsn = sprintf(
     'mysql:host=%s;port=%d;dbname=%s;charset=%s',
     $db['host'] ?? '127.0.0.1',
     (int)($db['port'] ?? 3306),
-    $db['name'] ?? '',
+    $db['name'] ?? $db['db'] ?? '',
     $db['charset'] ?? 'utf8mb4'
 );
 
@@ -34,7 +34,7 @@ $pdo = new PDO($dsn, $db['user'] ?? '', $db['pass'] ?? '', [
     PDO::ATTR_EMULATE_PREPARES => false,
 ]);
 
-$schema = (string)($db['name'] ?? '');
+$schema = (string)($db['name'] ?? $db['db'] ?? '');
 
 $requiredTables = [
     'ilb_subject',
