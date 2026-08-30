@@ -51,8 +51,8 @@ jobs:
           chmod 700 "$HOME/.ssh"
           printf '%s' "$DEPLOY_BUNDLE" | base64 --decode > "$RUNNER_TEMP/deploy.json"
           jq -e '.host and .port and .user and .key' "$RUNNER_TEMP/deploy.json" >/dev/null
-          jq -r '.key' "$RUNNER_TEMP/deploy.json" > "$HOME/.ssh/ilmb_excel_sync"
-          chmod 600 "$HOME/.ssh/ilmb_excel_sync"
+          jq -r '.key' "$RUNNER_TEMP/deploy.json" > "$HOME/.ssh/id_ed25519"
+          chmod 600 "$HOME/.ssh/id_ed25519"
           echo "DEPLOY_HOST=$(jq -r '.host' "$RUNNER_TEMP/deploy.json")" >> "$GITHUB_ENV"
           echo "DEPLOY_PORT=$(jq -r '.port' "$RUNNER_TEMP/deploy.json")" >> "$GITHUB_ENV"
           echo "DEPLOY_USER=$(jq -r '.user' "$RUNNER_TEMP/deploy.json")" >> "$GITHUB_ENV"
@@ -65,13 +65,13 @@ jobs:
           mkdir -p "$package"
           cp -a ops/excel-sync/. "$package/"
           install -m 600 "$RUNNER_TEMP/drive-folder-id" "$package/drive-folder-id"
-          tar -C "$package" -czf - . | ssh -i "$HOME/.ssh/ilmb_excel_sync" -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" \
+          tar -C "$package" -czf - . | ssh -o IdentitiesOnly=yes -o BatchMode=yes -i "$HOME/.ssh/id_ed25519" -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" \
             "mkdir -p \"\$HOME/private/ilmb-excel-sync/releases/$GITHUB_SHA\" && tar -xzf - -C \"\$HOME/private/ilmb-excel-sync/releases/$GITHUB_SHA\""
 
       - name: Install, migrate, validate and schedule
         run: |
           set -euo pipefail
-          ssh -i "$HOME/.ssh/ilmb_excel_sync" -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" "RELEASE_SHA='$GITHUB_SHA' bash -s" <<'REMOTE'
+          ssh -o IdentitiesOnly=yes -o BatchMode=yes -i "$HOME/.ssh/id_ed25519" -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" "RELEASE_SHA='$GITHUB_SHA' bash -s" <<'REMOTE'
           set -euo pipefail
           ROOT="$HOME/private/ilmb-excel-sync"
           RELEASE="$ROOT/releases/$RELEASE_SHA"
@@ -135,5 +135,5 @@ jobs:
       - name: Verify scheduled deployment
         run: |
           set -euo pipefail
-          ssh -i "$HOME/.ssh/ilmb_excel_sync" -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" \
+          ssh -o IdentitiesOnly=yes -o BatchMode=yes -i "$HOME/.ssh/id_ed25519" -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" \
             'ROOT="$HOME/private/ilmb-excel-sync"; test -L "$ROOT/current" && test -s "$ROOT/current/first-dry-run.json" && test -s "$ROOT/schedule-status.txt" && cat "$ROOT/schedule-status.txt"'
