@@ -1,0 +1,42 @@
+name: Verify Live Hospital Readiness
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "ops/verify-hospital-readiness.php"
+      - ".github/workflows/verify-hospital-readiness.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate read-only verifier
+        run: |
+          set -euo pipefail
+          php -l ops/verify-hospital-readiness.php
+      - name: Prepare Hostinger SSH
+        env:
+          DEPLOY_BUNDLE: ${{ secrets.HOSTINGER_DEPLOY_BUNDLE }}
+        run: |
+          set -euo pipefail
+          mkdir -p "$HOME/.ssh"
+          printf '%s' "$DEPLOY_BUNDLE" | base64 --decode > "$RUNNER_TEMP/deploy.json"
+          jq -r '.key' "$RUNNER_TEMP/deploy.json" > "$HOME/.ssh/id_ed25519"
+          chmod 600 "$HOME/.ssh/id_ed25519"
+          echo "DEPLOY_HOST=$(jq -r '.host' "$RUNNER_TEMP/deploy.json")" >> "$GITHUB_ENV"
+          echo "DEPLOY_PORT=$(jq -r '.port' "$RUNNER_TEMP/deploy.json")" >> "$GITHUB_ENV"
+          echo "DEPLOY_USER=$(jq -r '.user' "$RUNNER_TEMP/deploy.json")" >> "$GITHUB_ENV"
+      - name: Verify production hospital contracts
+        run: |
+          set -euo pipefail
+          remote="/tmp/verify-hospital-${GITHUB_RUN_ID}.php"
+          tar -C ops -czf - verify-hospital-readiness.php | ssh -o StrictHostKeyChecking=accept-new -i "$HOME/.ssh/id_ed25519" -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" "tar -xzf - -C /tmp && mv /tmp/verify-hospital-readiness.php '$remote'"
+          ssh -i "$HOME/.ssh/id_ed25519" -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" "php '$remote' \"\$HOME/domains/ilovemybody.in/ilmb-config.php\"; rm -f '$remote'" | tee "$RUNNER_TEMP/hospital-readiness.json"
+          jq -e '.ready == true and .missing_objects == 0 and .patient_authored_rows_modified == 0' "$RUNNER_TEMP/hospital-readiness.json"
