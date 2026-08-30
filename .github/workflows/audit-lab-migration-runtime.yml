@@ -24,6 +24,9 @@ jobs:
         run: |
           ssh -i "$HOME/.ssh/id_ed25519" -p "$P" "$U@$H" 'bash -s' <<'REMOTE'
           set -euo pipefail
+          echo "LAB_RUNTIME_FILES"
+          find /tmp -maxdepth 2 -path "/tmp/lab-correlation-*" -type f -printf "%p %s bytes\\n" 2>/dev/null || true
+          for f in /tmp/lab-correlation-*/nohup.log /tmp/lab-correlation-*/migration.log /tmp/lab-correlation-*/exit-code; do test -f "$f" && { echo "FILE=$f"; tail -n 80 "$f"; }; done
           echo "LAB_PROCESSES"
           ps -u "$USER" -o pid,etime,stat,cmd | grep -E 'run-lab-correlation|lab-correlation-.*/run.sh' | grep -v grep || true
           php -r '
