@@ -21,6 +21,12 @@ jobs:
           echo "P=$(jq -r '.port' /tmp/d.json)" >>"$GITHUB_ENV"
           echo "U=$(jq -r '.user' /tmp/d.json)" >>"$GITHUB_ENV"
           ssh-keyscan -p "$(jq -r '.port' /tmp/d.json)" "$(jq -r '.host' /tmp/d.json)" >>"$HOME/.ssh/known_hosts"
+      - name: Public correlation response audit
+        run: |
+          curl -sS --compressed -D /tmp/headers.txt 'https://ilovemybody.in/app/lab-correlation.php?loinc=2344-0&value=100&unit=mg%2FdL&low=70&high=99&reference_unit=mg%2FdL' -o /tmp/body.txt || true
+          cat /tmp/headers.txt
+          head -c 2000 /tmp/body.txt
+          echo
       - name: Read-only runtime audit
         run: |
           ssh -i "$HOME/.ssh/id_ed25519" -p "$P" "$U@$H" 'bash -s' <<'REMOTE'
