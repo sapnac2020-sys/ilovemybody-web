@@ -199,6 +199,7 @@ class Database:
                         cur.execute("SELECT * FROM ilmb_entity_crosswalk WHERE mapping_id=%s FOR UPDATE", (row.mapping_id,))
                         old = cur.fetchone()
                         if old and old["row_hash"] == row.row_hash and old["source_batch_id"] == canonical["source_batch_id"]:
+                            self._refresh_crosswalk_resolution(cur, row)
                             unchanged += 1
                             continue
                         if old:
@@ -231,6 +232,7 @@ class Database:
                            row.evidence_source,row.evidence_version,row.evidence_locator,row.confidence,
                            row.computation_eligible,canonical["source_batch_id"],row.row_hash,
                            canonical["effective_at"]))
+                        self._refresh_crosswalk_resolution(cur, row)
                         if old:
                             updated += 1
                         else:
@@ -245,13 +247,37 @@ class Database:
         return {"canonical_rows": len(canonical_rows), "inserted": inserted,
                 "updated": updated, "unchanged": unchanged}
 
+    @staticmethod
+    def _refresh_crosswalk_resolution(cur, row) -> None:
+        cur.execute("""UPDATE ilmb_entity_crosswalk
+                         SET source_endpoint_resolved=EXISTS(
+                               SELECT 1 FROM ilmb_crosswalk_endpoint e
+                                WHERE e.system_id=%s AND e.entity_type=%s
+                                  AND e.external_id=%s AND e.active=1),
+                             target_endpoint_resolved=EXISTS(
+                               SELECT 1 FROM ilmb_crosswalk_endpoint e
+                                WHERE e.system_id=%s AND e.entity_type=%s
+                                  AND e.external_id=%s AND e.active=1)
+                       WHERE mapping_id=%s""",
+                    (row.source_system,row.source_entity_type,row.source_id,
+                     row.target_system,row.target_entity_type,row.target_id,row.mapping_id))
+        cur.execute("""UPDATE ilmb_entity_crosswalk
+                         SET computation_eligible=(
+                           match_type='EXACT' AND status='APPROVED'
+                           AND source_endpoint_resolved=1
+                           AND target_endpoint_resolved=1)
+                       WHERE mapping_id=%s""", (row.mapping_id,))
+
     def crosswalk_audit(self) -> dict[str, Any]:
         with self.connect() as conn:
             with conn.cursor() as cur:
                 cur.execute("""SELECT COUNT(*) AS total,
                                       SUM(computation_eligible=1) AS computation_eligible,
                                       SUM(status='APPROVED') AS approved,
-                                      SUM(match_type='EXACT') AS exact_matches
+                                      SUM(match_type='EXACT') AS exact_matches,
+                                      SUM(source_endpoint_resolved=1) AS source_endpoints_resolved,
+                                      SUM(target_endpoint_resolved=1) AS target_endpoints_resolved,
+                                      SUM(source_endpoint_resolved=0 OR target_endpoint_resolved=0) AS unresolved_mappings
                                  FROM ilmb_entity_crosswalk""")
                 totals = cur.fetchone()
                 cur.execute("""SELECT source_entity_type,target_entity_type,predicate,
