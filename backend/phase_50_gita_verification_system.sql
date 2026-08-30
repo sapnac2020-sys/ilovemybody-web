@@ -159,6 +159,14 @@ CREATE TABLE IF NOT EXISTS `ilb_gita_translation` (
   KEY `ix_gita_translation_verse` (`verse_key`,`language_code`,`review_status`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- Backward compatibility for an earlier partial Gita translation table.
+-- MariaDB on Hostinger supports idempotent ADD COLUMN IF NOT EXISTS.
+ALTER TABLE `ilb_gita_translation`
+  ADD COLUMN IF NOT EXISTS `review_status`
+    enum('machine_draft','human_draft','approved','rejected')
+    NOT NULL DEFAULT 'machine_draft' AFTER `reviewer`,
+  ADD COLUMN IF NOT EXISTS `reviewed_at` datetime DEFAULT NULL AFTER `review_status`;
+
 CREATE TABLE IF NOT EXISTS `ilb_gita_proposition` (
   `proposition_key` varchar(32) NOT NULL,
   `verse_key` varchar(24) NOT NULL,
