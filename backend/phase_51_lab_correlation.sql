@@ -99,6 +99,62 @@ ON DUPLICATE KEY UPDATE rule_name=VALUES(rule_name),expression_text=VALUES(expre
  input_contract=VALUES(input_contract),output_contract=VALUES(output_contract),
  source_boundary=VALUES(source_boundary),status=VALUES(status);
 
+CREATE TABLE IF NOT EXISTS ilb_lab_measurement_contract (
+ loinc_num varchar(20) NOT NULL,
+ canonical_specimen varchar(120) NULL,
+ property_code varchar(40) NULL,
+ scale_type varchar(40) NULL,
+ example_ucum_unit varchar(120) NULL,
+ unit_semantics varchar(500) NOT NULL,
+ interval_semantics varchar(700) NOT NULL,
+ source_system varchar(32) NOT NULL,
+ source_locator varchar(600) NOT NULL,
+ source_batch_id char(36) NOT NULL,
+ active tinyint(1) NOT NULL DEFAULT 1,
+ verified_at datetime(6) NOT NULL,
+ PRIMARY KEY(loinc_num),
+ KEY idx_lab_contract_specimen(canonical_specimen),
+ KEY idx_lab_contract_unit(example_ucum_unit)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+INSERT INTO ilb_lab_measurement_contract
+(loinc_num,canonical_specimen,property_code,scale_type,example_ucum_unit,unit_semantics,
+ interval_semantics,source_system,source_locator,source_batch_id,active,verified_at)
+SELECT c.source_key,
+       NULLIF(JSON_UNQUOTE(JSON_EXTRACT(c.payload_json,'$.SYSTEM')),''),
+       NULLIF(JSON_UNQUOTE(JSON_EXTRACT(c.payload_json,'$.PROPERTY')),''),
+       NULLIF(JSON_UNQUOTE(JSON_EXTRACT(c.payload_json,'$.SCALE_TYP')),''),
+       NULLIF(JSON_UNQUOTE(JSON_EXTRACT(c.payload_json,'$.EXAMPLE_UCUM_UNITS')),''),
+       'LOINC EXAMPLE_UCUM_UNITS is descriptive example metadata. It is not treated as the only valid unit and is never used for implicit conversion.',
+       'Reference boundaries must come from the reporting laboratory or another explicitly governed population/method-specific source; no universal interval is inferred from LOINC.',
+       'LOINC',
+       CONCAT('ilmb_canonical_record:',c.canonical_id),
+       c.source_batch_id,1,NOW(6)
+FROM ilmb_canonical_record c
+WHERE c.system_id='SYS-001' AND c.sheet_name='LOINC_Master' AND c.active=1
+  AND c.source_key<>''
+ON DUPLICATE KEY UPDATE canonical_specimen=VALUES(canonical_specimen),
+ property_code=VALUES(property_code),scale_type=VALUES(scale_type),
+ example_ucum_unit=VALUES(example_ucum_unit),unit_semantics=VALUES(unit_semantics),
+ interval_semantics=VALUES(interval_semantics),source_locator=VALUES(source_locator),
+ source_batch_id=VALUES(source_batch_id),active=1,verified_at=VALUES(verified_at);
+
+UPDATE ilb_lab_correlation_rule
+SET status='retired'
+WHERE rule_key='lab_reference_position' AND version_label='1.0';
+
+INSERT INTO ilb_lab_correlation_rule
+(rule_key,version_label,rule_name,expression_text,input_contract,output_contract,source_boundary,status)
+VALUES
+('lab_reference_position','1.1','Specimen- and unit-gated position against a supplied laboratory interval',
+ 'block unless specimen equals the canonical LOINC specimen code and result unit equals reference unit exactly; otherwise below when value < low, within when low <= value <= high, above when value > high',
+ 'LOINC code with its canonical specimen code, numeric result, numeric low and high boundaries, and exactly matching case-sensitive result/reference unit codes. Low must not exceed high.',
+ 'below | within | above | blocked, with explicit specimen and unit gate results',
+ 'LOINC provides measurement identity and specimen metadata. EXAMPLE_UCUM_UNITS remains example metadata only. The interval must be explicitly supplied from a laboratory or other governed source. No universal interval, implicit unit conversion, diagnosis, or treatment inference is permitted.','active')
+ON DUPLICATE KEY UPDATE rule_name=VALUES(rule_name),expression_text=VALUES(expression_text),
+ input_contract=VALUES(input_contract),output_contract=VALUES(output_contract),
+ source_boundary=VALUES(source_boundary),status=VALUES(status);
+
 DROP VIEW IF EXISTS v_ilmb_loinc_chebi_compute;
 CREATE VIEW v_ilmb_loinc_chebi_compute AS
 SELECT x.mapping_id,x.source_id AS loinc_num,x.predicate,

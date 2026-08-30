@@ -75,10 +75,10 @@ jobs:
           set -euo pipefail
           ssh -i "$HOME/.ssh/id_ed25519" -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" 'bash -s' <<'REMOTE' > /tmp/proof.json
           php -r '
-          parse_str("loinc=2344-0&value=100&unit=mg%2FdL&low=70&high=99&reference_unit=mg%2FdL",$_GET);
+          parse_str("loinc=2344-0&specimen=Body%20fld&value=100&unit=mg%2FdL&low=70&high=99&reference_unit=mg%2FdL",$_GET);
           include $argv[1];
           ' "$HOME/domains/ilovemybody.in/public_html/app/lab-correlation.php"
           REMOTE
-          jq -e '.ok==true and .mode=="non_patient_golden_proof" and .patient_data_read==false and .patient_data_written==false and (.chain[1].eligible_mappings>0) and .calculation.status=="calculated" and .calculation.classification=="above"' /tmp/proof.json >/dev/null
+          jq -e '.ok==true and .mode=="non_patient_golden_proof" and .patient_data_read==false and .patient_data_written==false and (.chain[1].contract.canonical_specimen=="Body fld") and (.chain[1].specimen_gate.status=="passed") and (.chain[1].unit_gate.status=="passed") and (.chain[2].eligible_mappings>0) and .calculation.status=="calculated" and .calculation.classification=="above"' /tmp/proof.json >/dev/null
           ssh -i "$HOME/.ssh/id_ed25519" -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" 'grep -q "Laboratory correlation proof" "$HOME/domains/ilovemybody.in/public_html/app/lab-proof.html"'
           echo "GOLDEN_PROOF=passed"
