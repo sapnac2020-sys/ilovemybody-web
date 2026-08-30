@@ -70,11 +70,15 @@ jobs:
           done
           echo "::error::Remote migration did not finish within 30 minutes."
           exit 1
-      - name: Verify golden proof
+      - name: Verify golden proof on Hostinger origin
         run: |
           set -euo pipefail
-          url='https://ilovemybody.in/app/lab-correlation.php?loinc=2344-0&value=100&unit=mg%2FdL&low=70&high=99&reference_unit=mg%2FdL'
-          curl -sS --compressed --retry 5 --retry-delay 3 --max-time 60 "$url" -o /tmp/proof.json
+          ssh -i "$HOME/.ssh/id_ed25519" -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" 'bash -s' <<'REMOTE' > /tmp/proof.json
+          php -r '
+          parse_str("loinc=2344-0&value=100&unit=mg%2FdL&low=70&high=99&reference_unit=mg%2FdL",$_GET);
+          include $argv[1];
+          ' "$HOME/domains/ilovemybody.in/public_html/app/lab-correlation.php"
+          REMOTE
           jq -e '.ok==true and .mode=="non_patient_golden_proof" and .patient_data_read==false and .patient_data_written==false and (.chain[1].eligible_mappings>0) and .calculation.status=="calculated" and .calculation.classification=="above"' /tmp/proof.json >/dev/null
-          curl -fsS --compressed --retry 5 --retry-delay 3 --max-time 30 https://ilovemybody.in/app/lab-proof.html | grep -q 'Laboratory correlation proof'
+          ssh -i "$HOME/.ssh/id_ed25519" -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" "grep -q 'Laboratory correlation proof' '$HOME/domains/ilovemybody.in/public_html/app/lab-proof.html'"
           echo "GOLDEN_PROOF=passed"
