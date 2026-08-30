@@ -1,0 +1,56 @@
+name: Deploy first lab correlation
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - backend/phase_51_lab_correlation.sql
+      - ops/run-lab-correlation-migration.php
+      - app/lab-correlation.php
+      - app/lab-proof.html
+      - .github/workflows/deploy-lab-correlation.yml
+
+jobs:
+  migrate-deploy-verify:
+    runs-on: ubuntu-latest
+    permissions: {contents: read}
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          php -l ops/run-lab-correlation-migration.php
+          php -l app/lab-correlation.php
+      - name: Prepare SSH
+        env: {DEPLOY_BUNDLE: "${{ secrets.HOSTINGER_DEPLOY_BUNDLE }}"}
+        run: |
+          set -euo pipefail
+          mkdir -p "$HOME/.ssh"
+          printf '%s' "$DEPLOY_BUNDLE" | base64 --decode >/tmp/d.json
+          jq -r '.key' /tmp/d.json >"$HOME/.ssh/id_ed25519"; chmod 600 "$HOME/.ssh/id_ed25519"
+          echo "DEPLOY_HOST=$(jq -r '.host' /tmp/d.json)" >>"$GITHUB_ENV"
+          echo "DEPLOY_PORT=$(jq -r '.port' /tmp/d.json)" >>"$GITHUB_ENV"
+          echo "DEPLOY_USER=$(jq -r '.user' /tmp/d.json)" >>"$GITHUB_ENV"
+          ssh-keyscan -p "$(jq -r '.port' /tmp/d.json)" "$(jq -r '.host' /tmp/d.json)" >>"$HOME/.ssh/known_hosts"
+      - name: Migrate and deploy
+        run: |
+          set -euo pipefail
+          tar -czf /tmp/lab-correlation.tgz backend/phase_51_lab_correlation.sql ops/run-lab-correlation-migration.php app/lab-correlation.php app/lab-proof.html
+          scp -i "$HOME/.ssh/id_ed25519" -P "$DEPLOY_PORT" /tmp/lab-correlation.tgz "$DEPLOY_USER@$DEPLOY_HOST:/tmp/lab-correlation-${GITHUB_RUN_ID}.tgz"
+          ssh -i "$HOME/.ssh/id_ed25519" -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" "RUN_ID='${GITHUB_RUN_ID}' bash -s" <<'REMOTE'
+          set -euo pipefail
+          work="/tmp/lab-correlation-$RUN_ID"; mkdir -p "$work"
+          tar -xzf "/tmp/lab-correlation-$RUN_ID.tgz" -C "$work"
+          php "$work/ops/run-lab-correlation-migration.php" "$HOME/domains/ilovemybody.in/ilmb-config.php" "$work/backend/phase_51_lab_correlation.sql"
+          target="$HOME/domains/ilovemybody.in/public_html/app"
+          install -m 600 "$work/app/lab-correlation.php" "$target/lab-correlation.php"
+          install -m 644 "$work/app/lab-proof.html" "$target/lab-proof.html"
+          rm -rf "$work" "/tmp/lab-correlation-$RUN_ID.tgz"
+          REMOTE
+      - name: Verify golden proof
+        run: |
+          set -euo pipefail
+          url='https://ilovemybody.in/app/lab-correlation.php?loinc=2345-7&value=100&unit=mg%2FdL&low=70&high=99&reference_unit=mg%2FdL'
+          curl -sS --compressed --retry 5 --retry-delay 3 --max-time 60 "$url" -o /tmp/proof.json
+          jq -e '.ok==true and .mode=="non_patient_golden_proof" and .patient_data_read==false and .patient_data_written==false and (.chain[1].eligible_mappings>0) and .calculation.status=="calculated" and .calculation.classification=="above"' /tmp/proof.json >/dev/null
+          curl -fsS --compressed --retry 5 --retry-delay 3 --max-time 30 https://ilovemybody.in/app/lab-proof.html | grep -q 'Laboratory correlation proof'
+          echo "GOLDEN_PROOF=passed"
