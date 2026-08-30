@@ -2,6 +2,12 @@ name: Deploy ILMB Excel Drive Sync
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - ops/excel-sync/**
+      - .github/workflows/deploy-excel-sync.yml
 
 concurrency:
   group: ilovemybody-excel-sync-production
