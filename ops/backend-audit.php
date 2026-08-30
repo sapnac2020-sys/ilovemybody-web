@@ -269,6 +269,84 @@ if (in_array('ilb_backend_object_registry', $tableNames, true)) {
     )->fetchAll();
 }
 
+
+$modulePatterns = [
+    'chebi' => '/chebi/i',
+    'loinc' => '/loinc/i',
+    'human_body' => '/anatom|organ|tissue|cell|organelle|molecule|hormone|enzyme/i',
+    'nutrition' => '/ifct|usda|nutri|food/i',
+    'medicines' => '/medic|drug|pharma|rxnorm/i',
+    'units_ranges' => '/ucum|unit|reference_range|reference_interval/i',
+    'formulas' => '/formula/i',
+    'patients' => '/subject|patient|measurement|lab_episode/i',
+    'ingestion' => '/^(ilmb_sync|ilb_import)/i',
+];
+
+$moduleInventory = [];
+foreach ($modulePatterns as $module => $pattern) {
+    $moduleInventory[$module] = [
+        'base_tables' => 0, 'views' => 0, 'exact_rows' => 0,
+        'nonempty_base_tables' => 0, 'empty_base_tables' => 0, 'tables' => [],
+    ];
+}
+foreach ($tables as $row) {
+    $table = (string)$row['table_name'];
+    foreach ($modulePatterns as $module => $pattern) {
+        if (!preg_match($pattern, $table)) continue;
+        $type = (string)$row['table_type'];
+        $entry = ['table_name' => $table, 'table_type' => $type, 'exact_rows' => null];
+        if ($type === 'BASE TABLE') {
+            $quoted = '`' . str_replace('`', '``', $table) . '`';
+            $count = (int)$pdo->query("SELECT COUNT(*) FROM {$quoted}")->fetchColumn();
+            $entry['exact_rows'] = $count;
+            $moduleInventory[$module]['base_tables']++;
+            $moduleInventory[$module]['exact_rows'] += $count;
+            if ($count === 0) $moduleInventory[$module]['empty_base_tables']++;
+            else $moduleInventory[$module]['nonempty_base_tables']++;
+        } else {
+            $moduleInventory[$module]['views']++;
+        }
+        $moduleInventory[$module]['tables'][] = $entry;
+    }
+}
+
+$provenanceCoverage = [];
+$provenanceStmt = $pdo->prepare(
+    "SELECT table_name,
+            SUM(column_name IN ('source_id','source_key','source_url','source_ref')) AS source_columns,
+            SUM(column_name IN ('release_id','release_key','release_version','version')) AS release_columns,
+            SUM(column_name IN ('checksum','sha256','source_hash','content_hash')) AS checksum_columns,
+            SUM(column_name IN ('created_at','updated_at','retrieved_at','imported_at')) AS timestamp_columns
+       FROM information_schema.columns
+      WHERE table_schema = ?
+      GROUP BY table_name
+      ORDER BY table_name"
+);
+$provenanceStmt->execute([$schema]);
+foreach ($provenanceStmt->fetchAll() as $row) {
+    $table = (string)$row['table_name'];
+    $matchesModule = false;
+    foreach ($modulePatterns as $pattern) {
+        if (preg_match($pattern, $table)) { $matchesModule = true; break; }
+    }
+    if (!$matchesModule) continue;
+    $provenanceCoverage[] = [
+        'table_name' => $table,
+        'source_columns' => (int)$row['source_columns'],
+        'release_columns' => (int)$row['release_columns'],
+        'checksum_columns' => (int)$row['checksum_columns'],
+        'timestamp_columns' => (int)$row['timestamp_columns'],
+    ];
+}
+
+$canonicalControlCounts = [];
+foreach (['ilmb_sync_batch','ilmb_sync_file','ilmb_sync_stage_row','ilmb_sync_validation_error',
+          'ilmb_sync_audit','ilmb_canonical_record','ilmb_canonical_record_history','ilb_source_release'] as $table) {
+    if (!in_array($table, $tableNames, true)) { $canonicalControlCounts[$table] = null; continue; }
+    $quoted = '`' . str_replace('`', '``', $table) . '`';
+    $canonicalControlCounts[$table] = (int)$pdo->query("SELECT COUNT(*) FROM {$quoted}")->fetchColumn();
+}
+
 $audit = [
     'audit_version' => '2026-07-24.3',
     'generated_at_utc' => gmdate('c'),
@@ -299,6 +377,9 @@ $audit = [
     'plug_play_missing_objects' => $plugPlayMissing,
     'open_freeze_issues' => $freezeIssues,
     'legacy_frontend_leakage' => $legacyFrontendLeakage,
+    'module_inventory_exact' => $moduleInventory,
+    'provenance_coverage' => $provenanceCoverage,
+    'canonical_control_counts' => $canonicalControlCounts,
 ];
 
 echo json_encode($audit, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . PHP_EOL;
