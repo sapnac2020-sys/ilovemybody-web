@@ -1449,6 +1449,54 @@
           "reactome_id"
         ]
       }
+    },
+    {
+      "pattern": "ILMB_ChEBI_*.xlsx",
+      "system_id": "REF-CHEBI",
+      "mode": "partitioned_source",
+      "source_partition": "CHEBI_RELEASE",
+      "include_sheets": [
+        "Entities",
+        "Ontology_Identity_Stubs",
+        "Synonyms",
+        "Relationships",
+        "Relationship_Types",
+        "Chemical_Data",
+        "Core_Structures",
+        "Molfile_Chunks",
+        "Structure_Registry",
+        "WURCS",
+        "Database_Accessions",
+        "Secondary_IDs",
+        "Compound_Origins",
+        "Curator_Comments",
+        "Sources",
+        "Statuses",
+        "Relation_Types",
+        "Ontology_Header",
+        "Source_Manifest"
+      ],
+      "sheet_keys": {
+        "Entities": ["chebi_id"],
+        "Ontology_Identity_Stubs": ["chebi_id", "alternative_id"],
+        "Synonyms": ["compound_id", "ordinal"],
+        "Relationships": ["id"],
+        "Relationship_Types": ["id"],
+        "Chemical_Data": ["id"],
+        "Core_Structures": ["id"],
+        "Molfile_Chunks": ["chebi_id", "chunk_ordinal"],
+        "Structure_Registry": ["id"],
+        "WURCS": ["id"],
+        "Database_Accessions": ["id"],
+        "Secondary_IDs": ["id"],
+        "Compound_Origins": ["id"],
+        "Curator_Comments": ["id"],
+        "Sources": ["id"],
+        "Statuses": ["id"],
+        "Relation_Types": ["id"],
+        "Ontology_Header": ["tag", "ordinal"],
+        "Source_Manifest": ["file"]
+      }
     }
   ]
 }

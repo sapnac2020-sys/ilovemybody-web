@@ -8,6 +8,9 @@ import sys
 from pathlib import Path
 
 from .core import ModuleRegistry, WorkbookValidator, sha256_bytes
+from .chebi import api_request as chebi_api_request
+from .chebi import fetch_release as chebi_fetch_release
+from .chebi import validate_manifest as chebi_validate_manifest
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -117,6 +120,44 @@ def cmd_reconcile(args):
         raise SystemExit(2)
 
 
+def cmd_chebi_fetch(args):
+    work_dir = args.work_dir or env("ILMB_WORK_DIR", False, str(ROOT / "work"))
+    manifest = chebi_fetch_release(
+        work_dir,
+        release_label=args.release,
+        include_sdf=args.include_sdf,
+        force=args.force,
+        timeout=args.timeout,
+    )
+    print(json.dumps(chebi_validate_manifest(manifest), indent=2, ensure_ascii=False))
+
+
+def cmd_chebi_validate(args):
+    result = chebi_validate_manifest(args.manifest)
+    print(json.dumps(result, indent=2, ensure_ascii=False))
+    if not result["complete"]:
+        raise SystemExit(2)
+
+
+def cmd_chebi_api(args):
+    params = {}
+    for item in args.param:
+        if "=" not in item:
+            raise ValueError(f"API parameter must be key=value: {item}")
+        key, value = item.split("=", 1)
+        if not key:
+            raise ValueError("API parameter key cannot be empty")
+        params[key] = value
+    work_dir = Path(args.work_dir or env("ILMB_WORK_DIR", False, str(ROOT / "work")))
+    result = chebi_api_request(
+        args.endpoint,
+        params=params,
+        timeout=args.timeout,
+        cache_dir=None if args.no_cache else work_dir / "chebi" / "api-cache",
+    )
+    print(json.dumps(result, indent=2, ensure_ascii=False))
+
+
 def parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(prog="ilmb-sync")
     sub = p.add_subparsers(dest="command", required=True)
@@ -129,6 +170,18 @@ def parser() -> argparse.ArgumentParser:
     r = sub.add_parser("reject"); r.add_argument("batch_id"); r.add_argument("--reviewer", required=True); r.add_argument("--reason", required=True); r.set_defaults(func=cmd_reject)
     pr = sub.add_parser("promote"); pr.add_argument("batch_id"); pr.add_argument("--approver", required=True); pr.set_defaults(func=cmd_promote)
     rc = sub.add_parser("reconcile"); rc.add_argument("batch_id"); rc.set_defaults(func=cmd_reconcile)
+    cf = sub.add_parser("chebi-fetch", help="Download and validate an immutable official ChEBI release")
+    cf.add_argument("--release", help="Local release label; defaults to today's UTC date")
+    cf.add_argument("--work-dir"); cf.add_argument("--include-sdf", action="store_true")
+    cf.add_argument("--force", action="store_true"); cf.add_argument("--timeout", type=int, default=120)
+    cf.set_defaults(func=cmd_chebi_fetch)
+    cv = sub.add_parser("chebi-validate", help="Revalidate a downloaded ChEBI manifest and every file hash")
+    cv.add_argument("manifest"); cv.set_defaults(func=cmd_chebi_validate)
+    ca = sub.add_parser("chebi-api", help="Call an official public ChEBI API path and cache the response")
+    ca.add_argument("endpoint", help="Safe path below the ChEBI API base, beginning /public/")
+    ca.add_argument("--param", action="append", default=[], help="Query parameter in key=value form")
+    ca.add_argument("--work-dir"); ca.add_argument("--no-cache", action="store_true")
+    ca.add_argument("--timeout", type=int, default=30); ca.set_defaults(func=cmd_chebi_api)
     return p
 
 
