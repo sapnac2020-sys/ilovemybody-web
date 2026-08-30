@@ -1,10 +1,10 @@
 {
-    "audit_version": "2026-07-24.3",
-    "generated_at_utc": "2026-08-30T07:03:21+00:00",
+    "audit_version": "2026-08-30.4",
+    "generated_at_utc": "2026-08-30T07:22:17+00:00",
     "schema": "u756742628_ilovemybody",
     "summary": {
-        "all_tables_and_views": 1307,
-        "base_tables": 1004,
+        "all_tables_and_views": 1309,
+        "base_tables": 1006,
         "views": 303,
         "foreign_key_columns": 521,
         "required_tables_checked": 102,
@@ -8346,6 +8346,22 @@
             "update_time": null
         },
         {
+            "table_name": "ilmb_entity_crosswalk",
+            "table_type": "BASE TABLE",
+            "engine": "InnoDB",
+            "table_rows": 0,
+            "create_time": "2026-08-30 07:05:53",
+            "update_time": null
+        },
+        {
+            "table_name": "ilmb_entity_crosswalk_history",
+            "table_type": "BASE TABLE",
+            "engine": "InnoDB",
+            "table_rows": 0,
+            "create_time": "2026-08-30 07:05:53",
+            "update_time": null
+        },
+        {
             "table_name": "ilmb_sync_audit",
             "table_type": "BASE TABLE",
             "engine": "InnoDB",
@@ -14842,6 +14858,14 @@
         {
             "table_name": "ilmb_canonical_record_history",
             "column_count": 13
+        },
+        {
+            "table_name": "ilmb_entity_crosswalk",
+            "column_count": 19
+        },
+        {
+            "table_name": "ilmb_entity_crosswalk_history",
+            "column_count": 22
         },
         {
             "table_name": "ilmb_sync_audit",
@@ -22050,6 +22074,18 @@
             "indexed_columns": "4"
         },
         {
+            "table_name": "ilmb_entity_crosswalk",
+            "primary_key_columns": "1",
+            "unique_key_columns": "0",
+            "indexed_columns": "4"
+        },
+        {
+            "table_name": "ilmb_entity_crosswalk_history",
+            "primary_key_columns": "1",
+            "unique_key_columns": "0",
+            "indexed_columns": "2"
+        },
+        {
             "table_name": "ilmb_sync_audit",
             "primary_key_columns": "1",
             "unique_key_columns": "0",
@@ -29055,6 +29091,8 @@
                 "row_count": 2
             }
         ],
+        "ilmb_entity_crosswalk": [],
+        "ilmb_entity_crosswalk_history": [],
         "ilmb_sync_batch": [],
         "mind_body_all_is_well_centres": [
             {
@@ -33023,5 +33061,3447 @@
         "ilmb_canonical_record": 0,
         "ilmb_canonical_record_history": 0,
         "ilb_source_release": 0
-    }
+    },
+    "identifier_coverage": [
+        {
+            "table_name": "anatomy_items",
+            "column_name": "id",
+            "data_type": "int",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 130,
+            "populated_rows": 130,
+            "distinct_values": 130
+        },
+        {
+            "table_name": "anatomy_items",
+            "column_name": "parent_id",
+            "data_type": "int",
+            "is_nullable": "YES",
+            "column_key": "MUL",
+            "total_rows": 130,
+            "populated_rows": 1,
+            "distinct_values": 1
+        },
+        {
+            "table_name": "anatomy_items",
+            "column_name": "system_id",
+            "data_type": "int",
+            "is_nullable": "YES",
+            "column_key": "MUL",
+            "total_rows": 130,
+            "populated_rows": 98,
+            "distinct_values": 12
+        },
+        {
+            "table_name": "anatomy_items",
+            "column_name": "old_organ_id",
+            "data_type": "int",
+            "is_nullable": "YES",
+            "column_key": "MUL",
+            "total_rows": 130,
+            "populated_rows": 23,
+            "distinct_values": 23
+        },
+        {
+            "table_name": "anatomy_items",
+            "column_name": "code",
+            "data_type": "varchar",
+            "is_nullable": "YES",
+            "column_key": "",
+            "total_rows": 130,
+            "populated_rows": 23,
+            "distinct_values": 23
+        },
+        {
+            "table_name": "anatomy_mind_body_mappings",
+            "column_name": "id",
+            "data_type": "int",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 294,
+            "populated_rows": 294,
+            "distinct_values": 294
+        },
+        {
+            "table_name": "anatomy_mind_body_mappings",
+            "column_name": "anatomy_item_id",
+            "data_type": "int",
+            "is_nullable": "NO",
+            "column_key": "MUL",
+            "total_rows": 294,
+            "populated_rows": 294,
+            "distinct_values": 60
+        },
+        {
+            "table_name": "anatomy_mind_body_mappings",
+            "column_name": "source_id",
+            "data_type": "int",
+            "is_nullable": "YES",
+            "column_key": "MUL",
+            "total_rows": 294,
+            "populated_rows": 294,
+            "distinct_values": 1
+        },
+        {
+            "table_name": "claim_unit",
+            "column_name": "unit_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 25,
+            "populated_rows": 25,
+            "distinct_values": 25
+        },
+        {
+            "table_name": "claim_unit",
+            "column_name": "unit_code",
+            "data_type": "varchar",
+            "is_nullable": "NO",
+            "column_key": "UNI",
+            "total_rows": 25,
+            "populated_rows": 25,
+            "distinct_values": 25
+        },
+        {
+            "table_name": "claim_unit",
+            "column_name": "ucum_code",
+            "data_type": "varchar",
+            "is_nullable": "YES",
+            "column_key": "",
+            "total_rows": 25,
+            "populated_rows": 25,
+            "distinct_values": 25
+        },
+        {
+            "table_name": "ilb_anatomical_coordinate_evidence_master",
+            "column_name": "coordinate_evidence_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilb_anatomical_coordinate_evidence_master",
+            "column_name": "source_record_id",
+            "data_type": "bigint",
+            "is_nullable": "YES",
+            "column_key": "",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilb_anatomical_coordinate_extraction_queue",
+            "column_name": "extraction_queue_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilb_anatomical_coordinate_intake_checkpoint",
+            "column_name": "checkpoint_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 1,
+            "populated_rows": 1,
+            "distinct_values": 1
+        },
+        {
+            "table_name": "ilb_anatomical_coordinate_model_master",
+            "column_name": "coordinate_model_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 1,
+            "populated_rows": 1,
+            "distinct_values": 1
+        },
+        {
+            "table_name": "ilb_anatomical_coordinate_source_intake",
+            "column_name": "coordinate_source_intake_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilb_anatomical_coordinate_source_intake",
+            "column_name": "source_record_id",
+            "data_type": "bigint",
+            "is_nullable": "YES",
+            "column_key": "",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilb_anatomical_coordinate_source_scope",
+            "column_name": "coordinate_source_scope_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 1,
+            "populated_rows": 1,
+            "distinct_values": 1
+        },
+        {
+            "table_name": "ilb_anatomical_coordinate_source_validation",
+            "column_name": "source_validation_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilb_anatomical_coordinate_transform",
+            "column_name": "coordinate_transform_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilb_anatomical_coordinate_transform",
+            "column_name": "source_record_id",
+            "data_type": "bigint",
+            "is_nullable": "YES",
+            "column_key": "",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilb_anatomical_coordinate_validation",
+            "column_name": "coordinate_validation_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilb_anatomical_coordinate_value",
+            "column_name": "coordinate_value_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilb_anatomical_landmark_master",
+            "column_name": "landmark_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilb_anatomical_map_equilibrium_link",
+            "column_name": "anatomical_equilibrium_link_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 317,
+            "populated_rows": 317,
+            "distinct_values": 317
+        },
+        {
+            "table_name": "ilb_anatomical_map_node",
+            "column_name": "anatomical_node_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 151,
+            "populated_rows": 151,
+            "distinct_values": 151
+        },
+        {
+            "table_name": "ilb_anatomical_path_intersection",
+            "column_name": "intersection_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilb_anatomy_composite_ref",
+            "column_name": "composite_item_id",
+            "data_type": "int",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 42,
+            "populated_rows": 42,
+            "distinct_values": 24
+        },
+        {
+            "table_name": "ilb_anatomy_composite_ref",
+            "column_name": "component_item_id",
+            "data_type": "int",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 42,
+            "populated_rows": 42,
+            "distinct_values": 39
+        },
+        {
+            "table_name": "ilb_axis_ph_anatomical_intersection",
+            "column_name": "axis_ph_anatomical_intersection_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 3747,
+            "populated_rows": 3747,
+            "distinct_values": 3747
+        },
+        {
+            "table_name": "ilb_ayurveda_food_attribute",
+            "column_name": "ayurveda_food_profile_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilb_ayurveda_food_profile",
+            "column_name": "ayurveda_food_profile_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilb_ayurveda_food_profile",
+            "column_name": "food_concept_id",
+            "data_type": "bigint",
+            "is_nullable": "YES",
+            "column_key": "MUL",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilb_ayurveda_food_profile",
+            "column_name": "source_reference_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "MUL",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilb_ayurveda_formulation",
+            "column_name": "formulation_id",
+            "data_type": "varchar",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 200,
+            "populated_rows": 200,
+            "distinct_values": 200
+        },
+        {
+            "table_name": "ilb_ayurveda_formulation",
+            "column_name": "classical_source_id",
+            "data_type": "varchar",
+            "is_nullable": "YES",
+            "column_key": "",
+            "total_rows": 200,
+            "populated_rows": 200,
+            "distinct_values": 1
+        },
+        {
+            "table_name": "ilb_brain_ph_anatomical_intersection",
+            "column_name": "brain_ph_anatomical_intersection_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 1550,
+            "populated_rows": 1550,
+            "distinct_values": 1550
+        },
+        {
+            "table_name": "ilb_cardiovascular_anatomy_reference_master",
+            "column_name": "cardiovascular_reference_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 15,
+            "populated_rows": 15,
+            "distinct_values": 15
+        },
+        {
+            "table_name": "ilb_case_formula_result",
+            "column_name": "formula_result_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilb_case_formula_result",
+            "column_name": "program_id",
+            "data_type": "bigint",
+            "is_nullable": "YES",
+            "column_key": "MUL",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilb_case_formula_result",
+            "column_name": "program_day_id",
+            "data_type": "bigint",
+            "is_nullable": "YES",
+            "column_key": "MUL",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilb_case_formula_result",
+            "column_name": "snapshot_id",
+            "data_type": "bigint",
+            "is_nullable": "YES",
+            "column_key": "MUL",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilb_case_formula_result",
+            "column_name": "food_event_id",
+            "data_type": "bigint",
+            "is_nullable": "YES",
+            "column_key": "MUL",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilb_cell_requirement",
+            "column_name": "id",
+            "data_type": "int",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 104,
+            "populated_rows": 104,
+            "distinct_values": 104
+        },
+        {
+            "table_name": "ilb_cell_substrate",
+            "column_name": "id",
+            "data_type": "int",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 86,
+            "populated_rows": 86,
+            "distinct_values": 86
+        },
+        {
+            "table_name": "ilb_cell_type",
+            "column_name": "id",
+            "data_type": "int",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 48,
+            "populated_rows": 48,
+            "distinct_values": 48
+        },
+        {
+            "table_name": "ilb_claim_subject",
+            "column_name": "claim_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 126,
+            "populated_rows": 126,
+            "distinct_values": 126
+        },
+        {
+            "table_name": "ilb_claim_subject",
+            "column_name": "concept_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 126,
+            "populated_rows": 126,
+            "distinct_values": 13
+        },
+        {
+            "table_name": "ilb_clinical_formulation",
+            "column_name": "clinical_formulation_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilb_c_dimension_organ",
+            "column_name": "anatomy_item_id",
+            "data_type": "int",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 23,
+            "populated_rows": 23,
+            "distinct_values": 23
+        },
+        {
+            "table_name": "ilb_digestive_anatomy_reference_master",
+            "column_name": "digestive_reference_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 17,
+            "populated_rows": 17,
+            "distinct_values": 17
+        },
+        {
+            "table_name": "ilb_drug",
+            "column_name": "drug_id",
+            "data_type": "int",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 14,
+            "populated_rows": 14,
+            "distinct_values": 14
+        },
+        {
+            "table_name": "ilb_drug_identifier",
+            "column_name": "drug_id",
+            "data_type": "int",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 4,
+            "populated_rows": 4,
+            "distinct_values": 4
+        },
+        {
+            "table_name": "ilb_drug_identifier",
+            "column_name": "source_id",
+            "data_type": "int",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 4,
+            "populated_rows": 4,
+            "distinct_values": 1
+        },
+        {
+            "table_name": "ilb_drug_identifier",
+            "column_name": "external_code",
+            "data_type": "varchar",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 4,
+            "populated_rows": 4,
+            "distinct_values": 4
+        },
+        {
+            "table_name": "ilb_drug_label_reference",
+            "column_name": "drug_id",
+            "data_type": "int",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 8,
+            "populated_rows": 8,
+            "distinct_values": 8
+        },
+        {
+            "table_name": "ilb_drug_label_reference",
+            "column_name": "reference_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 8,
+            "populated_rows": 8,
+            "distinct_values": 8
+        },
+        {
+            "table_name": "ilb_drug_label_reference",
+            "column_name": "label_set_id",
+            "data_type": "varchar",
+            "is_nullable": "YES",
+            "column_key": "",
+            "total_rows": 8,
+            "populated_rows": 7,
+            "distinct_values": 7
+        },
+        {
+            "table_name": "ilb_drug_lab_rule",
+            "column_name": "rule_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilb_drug_lab_rule",
+            "column_name": "drug_id",
+            "data_type": "int",
+            "is_nullable": "NO",
+            "column_key": "MUL",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilb_drug_lab_rule",
+            "column_name": "unit_id",
+            "data_type": "smallint",
+            "is_nullable": "NO",
+            "column_key": "MUL",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilb_drug_lab_rule",
+            "column_name": "reference_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "MUL",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilb_drug_marker_connection",
+            "column_name": "connection_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 10,
+            "populated_rows": 10,
+            "distinct_values": 10
+        },
+        {
+            "table_name": "ilb_drug_marker_connection",
+            "column_name": "drug_id",
+            "data_type": "int",
+            "is_nullable": "NO",
+            "column_key": "MUL",
+            "total_rows": 10,
+            "populated_rows": 10,
+            "distinct_values": 4
+        },
+        {
+            "table_name": "ilb_drug_marker_connection",
+            "column_name": "reference_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "MUL",
+            "total_rows": 10,
+            "populated_rows": 10,
+            "distinct_values": 4
+        },
+        {
+            "table_name": "ilb_drug_property",
+            "column_name": "drug_property_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 34,
+            "populated_rows": 34,
+            "distinct_values": 34
+        },
+        {
+            "table_name": "ilb_endocrine_anatomy_reference_master",
+            "column_name": "endocrine_reference_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 12,
+            "populated_rows": 12,
+            "distinct_values": 12
+        },
+        {
+            "table_name": "ilb_environment_ph_anatomical_intersection",
+            "column_name": "environment_ph_anatomical_intersection_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 10446,
+            "populated_rows": 10446,
+            "distinct_values": 10446
+        },
+        {
+            "table_name": "ilb_enzyme",
+            "column_name": "enzyme_id",
+            "data_type": "varchar",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 20,
+            "populated_rows": 20,
+            "distinct_values": 20
+        },
+        {
+            "table_name": "ilb_enzyme",
+            "column_name": "primary_organ_id",
+            "data_type": "varchar",
+            "is_nullable": "YES",
+            "column_key": "",
+            "total_rows": 20,
+            "populated_rows": 20,
+            "distinct_values": 10
+        },
+        {
+            "table_name": "ilb_enzyme",
+            "column_name": "source_id",
+            "data_type": "varchar",
+            "is_nullable": "YES",
+            "column_key": "",
+            "total_rows": 20,
+            "populated_rows": 20,
+            "distinct_values": 4
+        },
+        {
+            "table_name": "ilb_food_analysis_candidate",
+            "column_name": "food_analysis_candidate_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilb_food_analysis_candidate",
+            "column_name": "food_analysis_run_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "MUL",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilb_food_analysis_candidate",
+            "column_name": "food_concept_id",
+            "data_type": "bigint",
+            "is_nullable": "YES",
+            "column_key": "MUL",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilb_food_analysis_candidate",
+            "column_name": "identity_confidence",
+            "data_type": "decimal",
+            "is_nullable": "YES",
+            "column_key": "",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilb_food_analysis_input_photo",
+            "column_name": "food_analysis_run_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilb_food_analysis_input_photo",
+            "column_name": "food_capture_photo_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilb_food_analysis_run",
+            "column_name": "food_analysis_run_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilb_food_analysis_run",
+            "column_name": "food_capture_session_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "MUL",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilb_food_capture_photo",
+            "column_name": "food_capture_photo_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilb_food_capture_photo",
+            "column_name": "food_capture_session_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "MUL",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilb_food_capture_session",
+            "column_name": "food_capture_session_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilb_food_capture_session",
+            "column_name": "snapshot_id",
+            "data_type": "bigint",
+            "is_nullable": "YES",
+            "column_key": "MUL",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilb_food_component_measurement",
+            "column_name": "measurement_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 1,
+            "populated_rows": 1,
+            "distinct_values": 1
+        },
+        {
+            "table_name": "ilb_food_component_measurement",
+            "column_name": "food_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "MUL",
+            "total_rows": 1,
+            "populated_rows": 1,
+            "distinct_values": 1
+        },
+        {
+            "table_name": "ilb_food_component_measurement",
+            "column_name": "reference_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "MUL",
+            "total_rows": 1,
+            "populated_rows": 1,
+            "distinct_values": 1
+        },
+        {
+            "table_name": "ilb_food_consumption_adjustment",
+            "column_name": "food_consumption_adjustment_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilb_food_consumption_adjustment",
+            "column_name": "food_event_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "MUL",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilb_food_consumption_adjustment",
+            "column_name": "before_photo_id",
+            "data_type": "bigint",
+            "is_nullable": "YES",
+            "column_key": "MUL",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilb_food_consumption_adjustment",
+            "column_name": "after_photo_id",
+            "data_type": "bigint",
+            "is_nullable": "YES",
+            "column_key": "MUL",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilb_food_event_component",
+            "column_name": "food_event_component_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilb_food_event_component",
+            "column_name": "food_event_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "MUL",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilb_food_event_component",
+            "column_name": "concept_id",
+            "data_type": "bigint",
+            "is_nullable": "YES",
+            "column_key": "MUL",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilb_food_event_component_detail",
+            "column_name": "food_event_component_detail_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilb_food_event_component_detail",
+            "column_name": "food_event_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "MUL",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilb_food_event_component_detail",
+            "column_name": "ingredient_concept_id",
+            "data_type": "bigint",
+            "is_nullable": "YES",
+            "column_key": "MUL",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilb_food_event_confirmation",
+            "column_name": "food_event_confirmation_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilb_food_event_confirmation",
+            "column_name": "food_capture_session_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "MUL",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilb_food_event_confirmation",
+            "column_name": "food_event_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "UNI",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilb_food_event_confirmation",
+            "column_name": "food_analysis_candidate_id",
+            "data_type": "bigint",
+            "is_nullable": "YES",
+            "column_key": "MUL",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilb_food_event_confirmation",
+            "column_name": "serving_vessel_id",
+            "data_type": "bigint",
+            "is_nullable": "YES",
+            "column_key": "MUL",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilb_food_event_context",
+            "column_name": "food_event_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilb_food_event_context",
+            "column_name": "before_snapshot_id",
+            "data_type": "bigint",
+            "is_nullable": "YES",
+            "column_key": "MUL",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilb_food_event_context",
+            "column_name": "after_snapshot_id",
+            "data_type": "bigint",
+            "is_nullable": "YES",
+            "column_key": "MUL",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilb_food_event_context",
+            "column_name": "why_code",
+            "data_type": "varchar",
+            "is_nullable": "YES",
+            "column_key": "",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilb_food_event_context",
+            "column_name": "where_code",
+            "data_type": "varchar",
+            "is_nullable": "YES",
+            "column_key": "",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilb_food_event_context",
+            "column_name": "how_prepared_code",
+            "data_type": "varchar",
+            "is_nullable": "YES",
+            "column_key": "",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilb_food_event_context",
+            "column_name": "how_eaten_code",
+            "data_type": "varchar",
+            "is_nullable": "YES",
+            "column_key": "",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilb_food_event_context",
+            "column_name": "with_whom_code",
+            "data_type": "varchar",
+            "is_nullable": "YES",
+            "column_key": "",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilb_food_event_context",
+            "column_name": "eating_pace_code",
+            "data_type": "varchar",
+            "is_nullable": "YES",
+            "column_key": "",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilb_food_event_context",
+            "column_name": "attention_code",
+            "data_type": "varchar",
+            "is_nullable": "YES",
+            "column_key": "",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilb_food_event_gut_response",
+            "column_name": "gut_response_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilb_food_event_gut_response",
+            "column_name": "food_event_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "MUL",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilb_food_event_gut_response",
+            "column_name": "snapshot_id",
+            "data_type": "bigint",
+            "is_nullable": "YES",
+            "column_key": "MUL",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilb_food_event_revision",
+            "column_name": "food_event_revision_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilb_food_event_revision",
+            "column_name": "food_event_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "MUL",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilb_food_item",
+            "column_name": "food_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 2,
+            "populated_rows": 2,
+            "distinct_values": 2
+        },
+        {
+            "table_name": "ilb_food_media_consent_event",
+            "column_name": "food_media_consent_event_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilb_food_nutrient_derivation",
+            "column_name": "food_nutrient_derivation_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilb_food_nutrient_derivation",
+            "column_name": "food_event_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "MUL",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilb_food_nutrient_derivation",
+            "column_name": "nutrient_concept_id",
+            "data_type": "bigint",
+            "is_nullable": "YES",
+            "column_key": "MUL",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilb_food_nutrient_derivation",
+            "column_name": "reference_id",
+            "data_type": "bigint",
+            "is_nullable": "YES",
+            "column_key": "MUL",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilb_food_nutrient_observation",
+            "column_name": "observation_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 19462,
+            "populated_rows": 19462,
+            "distinct_values": 19462
+        },
+        {
+            "table_name": "ilb_food_nutrient_observation",
+            "column_name": "ingredient_concept_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "MUL",
+            "total_rows": 19462,
+            "populated_rows": 19462,
+            "distinct_values": 641
+        },
+        {
+            "table_name": "ilb_food_nutrient_observation",
+            "column_name": "source_record_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "UNI",
+            "total_rows": 19462,
+            "populated_rows": 19462,
+            "distinct_values": 19462
+        },
+        {
+            "table_name": "ilb_food_nutrient_observation",
+            "column_name": "external_ingredient_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "",
+            "total_rows": 19462,
+            "populated_rows": 19462,
+            "distinct_values": 641
+        },
+        {
+            "table_name": "ilb_food_nutrient_observation",
+            "column_name": "source_food_code",
+            "data_type": "varchar",
+            "is_nullable": "YES",
+            "column_key": "",
+            "total_rows": 19462,
+            "populated_rows": 18970,
+            "distinct_values": 542
+        },
+        {
+            "table_name": "ilb_food_ui_option",
+            "column_name": "language_code",
+            "data_type": "varchar",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 42,
+            "populated_rows": 42,
+            "distinct_values": 1
+        },
+        {
+            "table_name": "ilb_formula_conflict",
+            "column_name": "id",
+            "data_type": "int",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 2,
+            "populated_rows": 2,
+            "distinct_values": 2
+        },
+        {
+            "table_name": "ilb_formula_crosscheck",
+            "column_name": "crosscheck_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 1,
+            "populated_rows": 1,
+            "distinct_values": 1
+        },
+        {
+            "table_name": "ilb_formula_crosscheck",
+            "column_name": "reported_observation_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "MUL",
+            "total_rows": 1,
+            "populated_rows": 1,
+            "distinct_values": 1
+        },
+        {
+            "table_name": "ilb_formula_crosscheck",
+            "column_name": "unit_id",
+            "data_type": "smallint",
+            "is_nullable": "NO",
+            "column_key": "MUL",
+            "total_rows": 1,
+            "populated_rows": 1,
+            "distinct_values": 1
+        },
+        {
+            "table_name": "ilb_formula_partial",
+            "column_name": "partial_id",
+            "data_type": "smallint",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 27,
+            "populated_rows": 27,
+            "distinct_values": 27
+        },
+        {
+            "table_name": "ilb_formula_reference",
+            "column_name": "reference_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 5,
+            "populated_rows": 5,
+            "distinct_values": 5
+        },
+        {
+            "table_name": "ilb_formula_subject_run",
+            "column_name": "id",
+            "data_type": "int",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 19,
+            "populated_rows": 19,
+            "distinct_values": 19
+        },
+        {
+            "table_name": "ilb_gene_drug_pair",
+            "column_name": "pair_id",
+            "data_type": "varchar",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 64,
+            "populated_rows": 64,
+            "distinct_values": 64
+        },
+        {
+            "table_name": "ilb_glucose_hormone_web",
+            "column_name": "id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 8,
+            "populated_rows": 8,
+            "distinct_values": 8
+        },
+        {
+            "table_name": "ilb_gut_ph_anatomical_intersection",
+            "column_name": "gut_ph_anatomical_intersection_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 13727,
+            "populated_rows": 13727,
+            "distinct_values": 13727
+        },
+        {
+            "table_name": "ilb_hormone_dietary_lever",
+            "column_name": "lever_id",
+            "data_type": "int",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 4,
+            "populated_rows": 4,
+            "distinct_values": 4
+        },
+        {
+            "table_name": "ilb_hormone_nutrient",
+            "column_name": "link_id",
+            "data_type": "int",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 53,
+            "populated_rows": 53,
+            "distinct_values": 53
+        },
+        {
+            "table_name": "ilb_hormone_source_organ",
+            "column_name": "hormone_source_organ_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 66,
+            "populated_rows": 66,
+            "distinct_values": 66
+        },
+        {
+            "table_name": "ilb_hormone_target_organ",
+            "column_name": "hormone_target_organ_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 145,
+            "populated_rows": 145,
+            "distinct_values": 145
+        },
+        {
+            "table_name": "ilb_ideal_formula",
+            "column_name": "ideal_key",
+            "data_type": "varchar",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 1,
+            "populated_rows": 1,
+            "distinct_values": 1
+        },
+        {
+            "table_name": "ilb_ideal_formula",
+            "column_name": "ideal_name",
+            "data_type": "varchar",
+            "is_nullable": "NO",
+            "column_key": "",
+            "total_rows": 1,
+            "populated_rows": 1,
+            "distinct_values": 1
+        },
+        {
+            "table_name": "ilb_import_audit_log",
+            "column_name": "audit_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 10,
+            "populated_rows": 10,
+            "distinct_values": 10
+        },
+        {
+            "table_name": "ilb_import_audit_log",
+            "column_name": "batch_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "MUL",
+            "total_rows": 10,
+            "populated_rows": 10,
+            "distinct_values": 1
+        },
+        {
+            "table_name": "ilb_import_batch",
+            "column_name": "batch_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 1,
+            "populated_rows": 1,
+            "distinct_values": 1
+        },
+        {
+            "table_name": "ilb_import_row",
+            "column_name": "row_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 123,
+            "populated_rows": 123,
+            "distinct_values": 123
+        },
+        {
+            "table_name": "ilb_import_row",
+            "column_name": "batch_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "MUL",
+            "total_rows": 123,
+            "populated_rows": 123,
+            "distinct_values": 1
+        },
+        {
+            "table_name": "ilb_integumentary_anatomy_reference_master",
+            "column_name": "integumentary_reference_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 15,
+            "populated_rows": 15,
+            "distinct_values": 15
+        },
+        {
+            "table_name": "ilb_internal_case_equilibrium_formula_input",
+            "column_name": "equilibrium_formula_input_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 6,
+            "populated_rows": 6,
+            "distinct_values": 6
+        },
+        {
+            "table_name": "ilb_internal_case_equilibrium_formula_result",
+            "column_name": "equilibrium_formula_result_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 1,
+            "populated_rows": 1,
+            "distinct_values": 1
+        },
+        {
+            "table_name": "ilb_internal_case_present_formula_term",
+            "column_name": "present_formula_term_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 8,
+            "populated_rows": 8,
+            "distinct_values": 8
+        },
+        {
+            "table_name": "ilb_internal_equilibrium_formula_master",
+            "column_name": "equilibrium_formula_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 2,
+            "populated_rows": 2,
+            "distinct_values": 2
+        },
+        {
+            "table_name": "ilb_internal_equilibrium_formula_weight",
+            "column_name": "equilibrium_formula_weight_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 6,
+            "populated_rows": 6,
+            "distinct_values": 6
+        },
+        {
+            "table_name": "ilb_internal_lab_reference_interval",
+            "column_name": "lab_reference_interval_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 37,
+            "populated_rows": 37,
+            "distinct_values": 37
+        },
+        {
+            "table_name": "ilb_internal_report_measurement_definition",
+            "column_name": "measurement_definition_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 23,
+            "populated_rows": 23,
+            "distinct_values": 23
+        },
+        {
+            "table_name": "ilb_internal_sugar_foods",
+            "column_name": "food_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilb_internal_sugar_foods",
+            "column_name": "food_code",
+            "data_type": "varchar",
+            "is_nullable": "YES",
+            "column_key": "MUL",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilb_internal_sugar_foods",
+            "column_name": "country_code",
+            "data_type": "char",
+            "is_nullable": "YES",
+            "column_key": "",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilb_internal_sugar_foods",
+            "column_name": "source_id",
+            "data_type": "bigint",
+            "is_nullable": "YES",
+            "column_key": "MUL",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilb_internal_sugar_food_composition",
+            "column_name": "food_composition_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilb_internal_sugar_food_composition",
+            "column_name": "food_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "MUL",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilb_internal_sugar_food_composition",
+            "column_name": "sugar_term_id",
+            "data_type": "bigint",
+            "is_nullable": "YES",
+            "column_key": "MUL",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilb_internal_sugar_food_composition",
+            "column_name": "compound_id",
+            "data_type": "bigint",
+            "is_nullable": "YES",
+            "column_key": "MUL",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilb_internal_sugar_food_composition",
+            "column_name": "unit_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "MUL",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilb_internal_sugar_food_composition",
+            "column_name": "basis_unit_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "MUL",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilb_internal_sugar_food_composition",
+            "column_name": "source_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "MUL",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilb_internal_sugar_food_composition",
+            "column_name": "ingestion_batch_id",
+            "data_type": "bigint",
+            "is_nullable": "YES",
+            "column_key": "MUL",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilb_internal_sugar_food_exposures",
+            "column_name": "food_exposure_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilb_internal_sugar_food_exposures",
+            "column_name": "subject_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "MUL",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilb_internal_sugar_food_exposures",
+            "column_name": "food_id",
+            "data_type": "bigint",
+            "is_nullable": "YES",
+            "column_key": "MUL",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilb_internal_sugar_food_exposures",
+            "column_name": "recipe_id",
+            "data_type": "bigint",
+            "is_nullable": "YES",
+            "column_key": "MUL",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilb_internal_sugar_food_exposures",
+            "column_name": "unit_id",
+            "data_type": "bigint",
+            "is_nullable": "YES",
+            "column_key": "MUL",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilb_internal_sugar_food_exposures",
+            "column_name": "source_variable_id",
+            "data_type": "bigint",
+            "is_nullable": "YES",
+            "column_key": "MUL",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilb_internal_sugar_food_exposures",
+            "column_name": "ingestion_batch_id",
+            "data_type": "bigint",
+            "is_nullable": "YES",
+            "column_key": "MUL",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilb_internal_sugar_measurements",
+            "column_name": "measurement_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilb_internal_sugar_measurements",
+            "column_name": "report_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "MUL",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilb_internal_sugar_measurements",
+            "column_name": "biomarker_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "MUL",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilb_internal_sugar_measurements",
+            "column_name": "unit_id",
+            "data_type": "bigint",
+            "is_nullable": "YES",
+            "column_key": "MUL",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilb_internal_sugar_measurements",
+            "column_name": "source_variable_id",
+            "data_type": "bigint",
+            "is_nullable": "YES",
+            "column_key": "MUL",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilb_internal_sugar_measurements",
+            "column_name": "ingestion_batch_id",
+            "data_type": "bigint",
+            "is_nullable": "YES",
+            "column_key": "MUL",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilb_internal_sugar_measurement_contexts",
+            "column_name": "measurement_context_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilb_internal_sugar_measurement_contexts",
+            "column_name": "measurement_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "UNI",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilb_internal_sugar_measurement_contexts",
+            "column_name": "food_exposure_id",
+            "data_type": "bigint",
+            "is_nullable": "YES",
+            "column_key": "MUL",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilb_internal_sugar_medications",
+            "column_name": "medication_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilb_internal_sugar_medications",
+            "column_name": "atc_code",
+            "data_type": "varchar",
+            "is_nullable": "YES",
+            "column_key": "",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilb_internal_sugar_medication_exposures",
+            "column_name": "medication_exposure_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilb_internal_sugar_medication_exposures",
+            "column_name": "subject_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "MUL",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilb_internal_sugar_medication_exposures",
+            "column_name": "medication_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "MUL",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilb_internal_sugar_medication_exposures",
+            "column_name": "dose_unit_id",
+            "data_type": "bigint",
+            "is_nullable": "YES",
+            "column_key": "MUL",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilb_internal_sugar_medication_exposures",
+            "column_name": "source_variable_id",
+            "data_type": "bigint",
+            "is_nullable": "YES",
+            "column_key": "MUL",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilb_internal_sugar_reference_ranges",
+            "column_name": "reference_range_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilb_internal_sugar_reference_ranges",
+            "column_name": "biomarker_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "MUL",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilb_internal_sugar_reference_ranges",
+            "column_name": "unit_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "MUL",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilb_internal_sugar_reference_ranges",
+            "column_name": "source_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "MUL",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilb_internal_sugar_subjects",
+            "column_name": "subject_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilb_internal_sugar_subjects",
+            "column_name": "dataset_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "MUL",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilb_internal_sugar_subjects",
+            "column_name": "country_code",
+            "data_type": "char",
+            "is_nullable": "YES",
+            "column_key": "",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilb_internal_sugar_subjects",
+            "column_name": "strata_code",
+            "data_type": "varchar",
+            "is_nullable": "YES",
+            "column_key": "",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilb_internal_sugar_subjects",
+            "column_name": "cluster_code",
+            "data_type": "varchar",
+            "is_nullable": "YES",
+            "column_key": "",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilb_lab_episode_document",
+            "column_name": "lab_episode_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 2,
+            "populated_rows": 2,
+            "distinct_values": 1
+        },
+        {
+            "table_name": "ilb_lab_episode_document",
+            "column_name": "document_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 2,
+            "populated_rows": 2,
+            "distinct_values": 2
+        },
+        {
+            "table_name": "ilb_marker_unit_map",
+            "column_name": "unit_id",
+            "data_type": "smallint",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 36,
+            "populated_rows": 36,
+            "distinct_values": 18
+        },
+        {
+            "table_name": "ilb_measurement_correction",
+            "column_name": "correction_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 13,
+            "populated_rows": 13,
+            "distinct_values": 13
+        },
+        {
+            "table_name": "ilb_measurement_correction",
+            "column_name": "measurement_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "MUL",
+            "total_rows": 13,
+            "populated_rows": 13,
+            "distinct_values": 13
+        },
+        {
+            "table_name": "ilb_measurement_exclusion",
+            "column_name": "measurement_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 15,
+            "populated_rows": 15,
+            "distinct_values": 15
+        },
+        {
+            "table_name": "ilb_measurement_import_map",
+            "column_name": "measurement_id",
+            "data_type": "bigint",
+            "is_nullable": "YES",
+            "column_key": "UNI",
+            "total_rows": 38,
+            "populated_rows": 38,
+            "distinct_values": 38
+        },
+        {
+            "table_name": "ilb_measurement_import_map",
+            "column_name": "document_id",
+            "data_type": "bigint",
+            "is_nullable": "YES",
+            "column_key": "MUL",
+            "total_rows": 38,
+            "populated_rows": 38,
+            "distinct_values": 1
+        },
+        {
+            "table_name": "ilb_measurement_import_map",
+            "column_name": "lab_episode_id",
+            "data_type": "bigint",
+            "is_nullable": "YES",
+            "column_key": "MUL",
+            "total_rows": 38,
+            "populated_rows": 38,
+            "distinct_values": 1
+        },
+        {
+            "table_name": "ilb_medication_context_interaction",
+            "column_name": "interaction_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 11,
+            "populated_rows": 11,
+            "distinct_values": 11
+        },
+        {
+            "table_name": "ilb_medication_context_interaction",
+            "column_name": "drug_id",
+            "data_type": "int",
+            "is_nullable": "NO",
+            "column_key": "MUL",
+            "total_rows": 11,
+            "populated_rows": 11,
+            "distinct_values": 5
+        },
+        {
+            "table_name": "ilb_medication_context_interaction",
+            "column_name": "target_concept_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "MUL",
+            "total_rows": 11,
+            "populated_rows": 11,
+            "distinct_values": 10
+        },
+        {
+            "table_name": "ilb_medication_context_interaction",
+            "column_name": "reference_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "MUL",
+            "total_rows": 11,
+            "populated_rows": 11,
+            "distinct_values": 5
+        },
+        {
+            "table_name": "ilb_medicine_report_document",
+            "column_name": "medicine_report_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilb_medicine_report_document",
+            "column_name": "document_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilb_medicine_report_ingredient",
+            "column_name": "medicine_report_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 9,
+            "populated_rows": 9,
+            "distinct_values": 7
+        },
+        {
+            "table_name": "ilb_medicine_report_ingredient",
+            "column_name": "drug_id",
+            "data_type": "int",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 9,
+            "populated_rows": 9,
+            "distinct_values": 7
+        },
+        {
+            "table_name": "ilb_need_hormone",
+            "column_name": "link_id",
+            "data_type": "int",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 41,
+            "populated_rows": 41,
+            "distinct_values": 41
+        },
+        {
+            "table_name": "ilb_nervous_system_anatomy_reference_master",
+            "column_name": "nervous_system_anatomy_reference_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 28,
+            "populated_rows": 28,
+            "distinct_values": 28
+        },
+        {
+            "table_name": "ilb_nutrient_catalog",
+            "column_name": "nutrient_id",
+            "data_type": "varchar",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 24,
+            "populated_rows": 24,
+            "distinct_values": 24
+        },
+        {
+            "table_name": "ilb_nutrient_catalog",
+            "column_name": "source_id",
+            "data_type": "varchar",
+            "is_nullable": "YES",
+            "column_key": "",
+            "total_rows": 24,
+            "populated_rows": 24,
+            "distinct_values": 1
+        },
+        {
+            "table_name": "ilb_nutrient_requirement",
+            "column_name": "req_id",
+            "data_type": "int",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 57,
+            "populated_rows": 57,
+            "distinct_values": 57
+        },
+        {
+            "table_name": "ilb_nutrient_share",
+            "column_name": "share_id",
+            "data_type": "int",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 18,
+            "populated_rows": 18,
+            "distinct_values": 18
+        },
+        {
+            "table_name": "ilb_nutrient_source_map",
+            "column_name": "map_id",
+            "data_type": "int",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 13,
+            "populated_rows": 13,
+            "distinct_values": 13
+        },
+        {
+            "table_name": "ilb_oral_dental_anatomy_reference_master",
+            "column_name": "oral_dental_reference_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 19,
+            "populated_rows": 19,
+            "distinct_values": 19
+        },
+        {
+            "table_name": "ilb_organ_anatomical_site",
+            "column_name": "organ_anatomical_site_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 7,
+            "populated_rows": 7,
+            "distinct_values": 7
+        },
+        {
+            "table_name": "ilb_organ_key_alias",
+            "column_name": "anatomy_item_id",
+            "data_type": "int",
+            "is_nullable": "YES",
+            "column_key": "MUL",
+            "total_rows": 86,
+            "populated_rows": 82,
+            "distinct_values": 69
+        },
+        {
+            "table_name": "ilb_organ_nutrient",
+            "column_name": "id",
+            "data_type": "int",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 101,
+            "populated_rows": 101,
+            "distinct_values": 101
+        },
+        {
+            "table_name": "ilb_organ_ph_anatomical_intersection",
+            "column_name": "organ_ph_anatomical_intersection_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 25362,
+            "populated_rows": 25362,
+            "distinct_values": 25362
+        },
+        {
+            "table_name": "ilb_organ_ph_path_intersection",
+            "column_name": "organ_ph_path_intersection_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 609,
+            "populated_rows": 609,
+            "distinct_values": 609
+        },
+        {
+            "table_name": "ilb_organ_ph_path_master",
+            "column_name": "organ_ph_path_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 198,
+            "populated_rows": 198,
+            "distinct_values": 198
+        },
+        {
+            "table_name": "ilb_organ_ph_path_point",
+            "column_name": "organ_ph_path_point_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 2772,
+            "populated_rows": 2772,
+            "distinct_values": 2772
+        },
+        {
+            "table_name": "ilb_organ_ph_scenario",
+            "column_name": "organ_ph_scenario_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 204,
+            "populated_rows": 204,
+            "distinct_values": 204
+        },
+        {
+            "table_name": "ilb_organ_ph_surface_crossing",
+            "column_name": "organ_ph_surface_crossing_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 392,
+            "populated_rows": 392,
+            "distinct_values": 392
+        },
+        {
+            "table_name": "ilb_oxygen_measurement_type_master",
+            "column_name": "oxygen_measurement_type_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 9,
+            "populated_rows": 9,
+            "distinct_values": 9
+        },
+        {
+            "table_name": "ilb_patient_journey",
+            "column_name": "patient_journey_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilb_pharma_medicine",
+            "column_name": "medicine_id",
+            "data_type": "varchar",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 384,
+            "populated_rows": 384,
+            "distinct_values": 384
+        },
+        {
+            "table_name": "ilb_pharma_medicine",
+            "column_name": "atc_code",
+            "data_type": "varchar",
+            "is_nullable": "YES",
+            "column_key": "",
+            "total_rows": 384,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilb_ph_path_anatomical_intersection",
+            "column_name": "ph_intersection_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 128,
+            "populated_rows": 128,
+            "distinct_values": 128
+        },
+        {
+            "table_name": "ilb_ph_reference_anatomy_evidence",
+            "column_name": "reference_anatomy_evidence_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 8,
+            "populated_rows": 8,
+            "distinct_values": 8
+        },
+        {
+            "table_name": "ilb_psych_safety_formulation",
+            "column_name": "safety_formulation_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilb_psych_safety_formulation",
+            "column_name": "snapshot_id",
+            "data_type": "bigint",
+            "is_nullable": "YES",
+            "column_key": "MUL",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilb_psych_safety_formulation",
+            "column_name": "source_reference_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "MUL",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilb_reproductive_anatomy_reference_master",
+            "column_name": "reproductive_anatomy_reference_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 18,
+            "populated_rows": 18,
+            "distinct_values": 18
+        },
+        {
+            "table_name": "ilb_snapshot_food_event",
+            "column_name": "food_event_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 1,
+            "populated_rows": 1,
+            "distinct_values": 1
+        },
+        {
+            "table_name": "ilb_snapshot_food_event",
+            "column_name": "snapshot_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "MUL",
+            "total_rows": 1,
+            "populated_rows": 1,
+            "distinct_values": 1
+        },
+        {
+            "table_name": "ilb_snapshot_food_event",
+            "column_name": "food_concept_id",
+            "data_type": "bigint",
+            "is_nullable": "YES",
+            "column_key": "MUL",
+            "total_rows": 1,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilb_snapshot_medicine_event",
+            "column_name": "medicine_event_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilb_snapshot_medicine_event",
+            "column_name": "snapshot_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "MUL",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilb_snapshot_medicine_event",
+            "column_name": "medicine_report_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "MUL",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilb_subject",
+            "column_name": "country_code",
+            "data_type": "char",
+            "is_nullable": "YES",
+            "column_key": "",
+            "total_rows": 19,
+            "populated_rows": 7,
+            "distinct_values": 1
+        },
+        {
+            "table_name": "ilb_subject_body_claim",
+            "column_name": "body_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 5,
+            "populated_rows": 5,
+            "distinct_values": 5
+        },
+        {
+            "table_name": "ilb_subject_communication_preference",
+            "column_name": "preferred_language_code",
+            "data_type": "varchar",
+            "is_nullable": "NO",
+            "column_key": "",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilb_subject_condition_report",
+            "column_name": "condition_report_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 19,
+            "populated_rows": 19,
+            "distinct_values": 19
+        },
+        {
+            "table_name": "ilb_subject_condition_report",
+            "column_name": "condition_concept_id",
+            "data_type": "bigint",
+            "is_nullable": "YES",
+            "column_key": "MUL",
+            "total_rows": 19,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilb_subject_consent_event",
+            "column_name": "consent_event_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 9,
+            "populated_rows": 9,
+            "distinct_values": 9
+        },
+        {
+            "table_name": "ilb_subject_document",
+            "column_name": "document_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 52,
+            "populated_rows": 52,
+            "distinct_values": 52
+        },
+        {
+            "table_name": "ilb_subject_document",
+            "column_name": "snapshot_id",
+            "data_type": "bigint",
+            "is_nullable": "YES",
+            "column_key": "MUL",
+            "total_rows": 52,
+            "populated_rows": 2,
+            "distinct_values": 1
+        },
+        {
+            "table_name": "ilb_subject_goal",
+            "column_name": "goal_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilb_subject_goal",
+            "column_name": "created_from_snapshot_id",
+            "data_type": "bigint",
+            "is_nullable": "YES",
+            "column_key": "MUL",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilb_subject_lab_episode",
+            "column_name": "lab_episode_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 2,
+            "populated_rows": 2,
+            "distinct_values": 2
+        },
+        {
+            "table_name": "ilb_subject_marker_baseline",
+            "column_name": "baseline_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 2,
+            "populated_rows": 2,
+            "distinct_values": 2
+        },
+        {
+            "table_name": "ilb_subject_measurement",
+            "column_name": "measurement_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 730,
+            "populated_rows": 730,
+            "distinct_values": 730
+        },
+        {
+            "table_name": "ilb_subject_measurement",
+            "column_name": "snapshot_id",
+            "data_type": "bigint",
+            "is_nullable": "YES",
+            "column_key": "MUL",
+            "total_rows": 730,
+            "populated_rows": 554,
+            "distinct_values": 26
+        },
+        {
+            "table_name": "ilb_subject_medication",
+            "column_name": "subject_medication_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 17,
+            "populated_rows": 17,
+            "distinct_values": 17
+        },
+        {
+            "table_name": "ilb_subject_medication",
+            "column_name": "drug_id",
+            "data_type": "int",
+            "is_nullable": "NO",
+            "column_key": "MUL",
+            "total_rows": 17,
+            "populated_rows": 17,
+            "distinct_values": 11
+        },
+        {
+            "table_name": "ilb_subject_medicine_report",
+            "column_name": "medicine_report_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 8,
+            "populated_rows": 8,
+            "distinct_values": 8
+        },
+        {
+            "table_name": "ilb_subject_medicine_report",
+            "column_name": "drug_id",
+            "data_type": "int",
+            "is_nullable": "YES",
+            "column_key": "MUL",
+            "total_rows": 8,
+            "populated_rows": 5,
+            "distinct_values": 3
+        },
+        {
+            "table_name": "ilb_subject_pathway",
+            "column_name": "subject_pathway_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilb_subject_private_identifier",
+            "column_name": "private_identifier_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 2,
+            "populated_rows": 2,
+            "distinct_values": 2
+        },
+        {
+            "table_name": "ilb_subject_private_identifier",
+            "column_name": "identifier_type",
+            "data_type": "enum",
+            "is_nullable": "NO",
+            "column_key": "",
+            "total_rows": 2,
+            "populated_rows": 2,
+            "distinct_values": 2
+        },
+        {
+            "table_name": "ilb_subject_private_identifier",
+            "column_name": "identifier_value",
+            "data_type": "varchar",
+            "is_nullable": "NO",
+            "column_key": "",
+            "total_rows": 2,
+            "populated_rows": 2,
+            "distinct_values": 2
+        },
+        {
+            "table_name": "ilb_subject_private_identity",
+            "column_name": "identity_note",
+            "data_type": "varchar",
+            "is_nullable": "YES",
+            "column_key": "",
+            "total_rows": 5,
+            "populated_rows": 4,
+            "distinct_values": 4
+        },
+        {
+            "table_name": "ilb_subject_profile",
+            "column_name": "gender_identity",
+            "data_type": "varchar",
+            "is_nullable": "YES",
+            "column_key": "",
+            "total_rows": 3,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilb_subject_serving_vessel",
+            "column_name": "serving_vessel_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilb_subject_serving_vessel",
+            "column_name": "reference_photo_id",
+            "data_type": "bigint",
+            "is_nullable": "YES",
+            "column_key": "MUL",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilb_subject_ui_preference",
+            "column_name": "language_code",
+            "data_type": "varchar",
+            "is_nullable": "NO",
+            "column_key": "",
+            "total_rows": 2,
+            "populated_rows": 2,
+            "distinct_values": 1
+        },
+        {
+            "table_name": "ilb_throat_neck_anatomy_reference_master",
+            "column_name": "throat_neck_anatomy_reference_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 19,
+            "populated_rows": 19,
+            "distinct_values": 19
+        },
+        {
+            "table_name": "ilb_unani_formulation",
+            "column_name": "formulation_id",
+            "data_type": "varchar",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 143,
+            "populated_rows": 143,
+            "distinct_values": 143
+        },
+        {
+            "table_name": "ilb_unit",
+            "column_name": "unit_id",
+            "data_type": "smallint",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 60,
+            "populated_rows": 60,
+            "distinct_values": 60
+        },
+        {
+            "table_name": "ilb_unit",
+            "column_name": "ucum_code",
+            "data_type": "varchar",
+            "is_nullable": "NO",
+            "column_key": "UNI",
+            "total_rows": 60,
+            "populated_rows": 60,
+            "distinct_values": 60
+        },
+        {
+            "table_name": "ilb_unit",
+            "column_name": "source_id",
+            "data_type": "int",
+            "is_nullable": "YES",
+            "column_key": "MUL",
+            "total_rows": 60,
+            "populated_rows": 60,
+            "distinct_values": 1
+        },
+        {
+            "table_name": "ilb_unit_alias",
+            "column_name": "alias_id",
+            "data_type": "int",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 11,
+            "populated_rows": 11,
+            "distinct_values": 11
+        },
+        {
+            "table_name": "ilb_unit_alias",
+            "column_name": "unit_id",
+            "data_type": "smallint",
+            "is_nullable": "NO",
+            "column_key": "MUL",
+            "total_rows": 11,
+            "populated_rows": 11,
+            "distinct_values": 6
+        },
+        {
+            "table_name": "ilb_unit_conversion_requirement",
+            "column_name": "requirement_id",
+            "data_type": "int",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 1,
+            "populated_rows": 1,
+            "distinct_values": 1
+        },
+        {
+            "table_name": "ilb_unit_conversion_requirement",
+            "column_name": "from_unit_id",
+            "data_type": "smallint",
+            "is_nullable": "NO",
+            "column_key": "MUL",
+            "total_rows": 1,
+            "populated_rows": 1,
+            "distinct_values": 1
+        },
+        {
+            "table_name": "ilb_unit_conversion_requirement",
+            "column_name": "to_unit_id",
+            "data_type": "smallint",
+            "is_nullable": "NO",
+            "column_key": "MUL",
+            "total_rows": 1,
+            "populated_rows": 1,
+            "distinct_values": 1
+        },
+        {
+            "table_name": "ilb_vertical_endpoint_anatomy_candidate",
+            "column_name": "vertical_endpoint_anatomy_candidate_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 4,
+            "populated_rows": 4,
+            "distinct_values": 4
+        },
+        {
+            "table_name": "ilmb_sync_audit",
+            "column_name": "audit_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilmb_sync_audit",
+            "column_name": "batch_id",
+            "data_type": "char",
+            "is_nullable": "YES",
+            "column_key": "MUL",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilmb_sync_batch",
+            "column_name": "batch_id",
+            "data_type": "char",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilmb_sync_batch",
+            "column_name": "drive_file_id",
+            "data_type": "varchar",
+            "is_nullable": "NO",
+            "column_key": "MUL",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilmb_sync_batch",
+            "column_name": "system_id",
+            "data_type": "varchar",
+            "is_nullable": "NO",
+            "column_key": "",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilmb_sync_file",
+            "column_name": "drive_file_id",
+            "data_type": "varchar",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilmb_sync_file",
+            "column_name": "system_id",
+            "data_type": "varchar",
+            "is_nullable": "NO",
+            "column_key": "MUL",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilmb_sync_stage_row",
+            "column_name": "batch_id",
+            "data_type": "char",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilmb_sync_stage_row",
+            "column_name": "row_id",
+            "data_type": "char",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilmb_sync_stage_row",
+            "column_name": "system_id",
+            "data_type": "varchar",
+            "is_nullable": "NO",
+            "column_key": "MUL",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilmb_sync_validation_error",
+            "column_name": "error_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilmb_sync_validation_error",
+            "column_name": "batch_id",
+            "data_type": "char",
+            "is_nullable": "NO",
+            "column_key": "MUL",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "ilmb_sync_validation_error",
+            "column_name": "code",
+            "data_type": "varchar",
+            "is_nullable": "NO",
+            "column_key": "",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "nutrients",
+            "column_name": "id",
+            "data_type": "int",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 5,
+            "populated_rows": 5,
+            "distinct_values": 5
+        },
+        {
+            "table_name": "nutrients",
+            "column_name": "code",
+            "data_type": "varchar",
+            "is_nullable": "YES",
+            "column_key": "UNI",
+            "total_rows": 5,
+            "populated_rows": 5,
+            "distinct_values": 5
+        },
+        {
+            "table_name": "organs",
+            "column_name": "id",
+            "data_type": "int",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 23,
+            "populated_rows": 23,
+            "distinct_values": 23
+        },
+        {
+            "table_name": "organs",
+            "column_name": "system_id",
+            "data_type": "int",
+            "is_nullable": "NO",
+            "column_key": "MUL",
+            "total_rows": 23,
+            "populated_rows": 23,
+            "distinct_values": 11
+        },
+        {
+            "table_name": "organs",
+            "column_name": "code",
+            "data_type": "varchar",
+            "is_nullable": "NO",
+            "column_key": "UNI",
+            "total_rows": 23,
+            "populated_rows": 23,
+            "distinct_values": 23
+        },
+        {
+            "table_name": "organ_nutrients",
+            "column_name": "organ_id",
+            "data_type": "int",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 4,
+            "populated_rows": 4,
+            "distinct_values": 1
+        },
+        {
+            "table_name": "organ_nutrients",
+            "column_name": "nutrient_id",
+            "data_type": "int",
+            "is_nullable": "NO",
+            "column_key": "PRI",
+            "total_rows": 4,
+            "populated_rows": 4,
+            "distinct_values": 4
+        },
+        {
+            "table_name": "vw_ilb_comparison_by_organ",
+            "column_name": "anatomy_item_id",
+            "data_type": "int",
+            "is_nullable": "NO",
+            "column_key": "",
+            "total_rows": 141,
+            "populated_rows": 141,
+            "distinct_values": 130
+        },
+        {
+            "table_name": "vw_ilb_measurement_violation",
+            "column_name": "measurement_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "",
+            "total_rows": 18,
+            "populated_rows": 18,
+            "distinct_values": 18
+        },
+        {
+            "table_name": "vw_ilb_organ_conserved_need",
+            "column_name": "ideal_ph",
+            "data_type": "decimal",
+            "is_nullable": "YES",
+            "column_key": "",
+            "total_rows": 26,
+            "populated_rows": 12,
+            "distinct_values": 6
+        },
+        {
+            "table_name": "vw_ilb_subject_ideal_requirement",
+            "column_name": "ideal_value",
+            "data_type": "double",
+            "is_nullable": "YES",
+            "column_key": "",
+            "total_rows": 304,
+            "populated_rows": 192,
+            "distinct_values": 181
+        },
+        {
+            "table_name": "v_ilb_active_medication_monitoring",
+            "column_name": "subject_medication_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "",
+            "total_rows": 10,
+            "populated_rows": 10,
+            "distinct_values": 3
+        },
+        {
+            "table_name": "v_ilb_active_medication_monitoring",
+            "column_name": "latest_observation_id",
+            "data_type": "bigint",
+            "is_nullable": "YES",
+            "column_key": "",
+            "total_rows": 10,
+            "populated_rows": 8,
+            "distinct_values": 8
+        },
+        {
+            "table_name": "v_ilb_ayurveda_food_classification",
+            "column_name": "ayurveda_food_profile_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "v_ilb_ayurveda_food_classification",
+            "column_name": "food_concept_id",
+            "data_type": "bigint",
+            "is_nullable": "YES",
+            "column_key": "",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "v_ilb_case_checkpoint_measurements",
+            "column_name": "checkpoint_code",
+            "data_type": "enum",
+            "is_nullable": "NO",
+            "column_key": "",
+            "total_rows": 40,
+            "populated_rows": 40,
+            "distinct_values": 3
+        },
+        {
+            "table_name": "v_ilb_case_checkpoint_measurements",
+            "column_name": "measurement_id",
+            "data_type": "bigint",
+            "is_nullable": "YES",
+            "column_key": "",
+            "total_rows": 40,
+            "populated_rows": 38,
+            "distinct_values": 38
+        },
+        {
+            "table_name": "v_ilb_case_medicine_sources",
+            "column_name": "medicine_report_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "",
+            "total_rows": 9,
+            "populated_rows": 9,
+            "distinct_values": 7
+        },
+        {
+            "table_name": "v_ilb_case_medicine_sources",
+            "column_name": "reference_id",
+            "data_type": "bigint",
+            "is_nullable": "YES",
+            "column_key": "",
+            "total_rows": 9,
+            "populated_rows": 8,
+            "distinct_values": 6
+        },
+        {
+            "table_name": "v_ilb_confirmed_food_capture",
+            "column_name": "food_event_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "v_ilb_confirmed_food_capture",
+            "column_name": "snapshot_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "v_ilb_confirmed_food_capture",
+            "column_name": "food_concept_id",
+            "data_type": "bigint",
+            "is_nullable": "YES",
+            "column_key": "",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "v_ilb_food_gut_brain_action_timeline",
+            "column_name": "food_event_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "",
+            "total_rows": 1,
+            "populated_rows": 1,
+            "distinct_values": 1
+        },
+        {
+            "table_name": "v_ilb_food_gut_brain_action_timeline",
+            "column_name": "snapshot_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "",
+            "total_rows": 1,
+            "populated_rows": 1,
+            "distinct_values": 1
+        },
+        {
+            "table_name": "v_ilb_food_gut_brain_action_timeline",
+            "column_name": "why_code",
+            "data_type": "varchar",
+            "is_nullable": "YES",
+            "column_key": "",
+            "total_rows": 1,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "v_ilb_food_gut_brain_action_timeline",
+            "column_name": "where_code",
+            "data_type": "varchar",
+            "is_nullable": "YES",
+            "column_key": "",
+            "total_rows": 1,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "v_ilb_food_gut_brain_action_timeline",
+            "column_name": "how_prepared_code",
+            "data_type": "varchar",
+            "is_nullable": "YES",
+            "column_key": "",
+            "total_rows": 1,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "v_ilb_food_gut_brain_action_timeline",
+            "column_name": "how_eaten_code",
+            "data_type": "varchar",
+            "is_nullable": "YES",
+            "column_key": "",
+            "total_rows": 1,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "v_ilb_food_gut_brain_action_timeline",
+            "column_name": "with_whom_code",
+            "data_type": "varchar",
+            "is_nullable": "YES",
+            "column_key": "",
+            "total_rows": 1,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "v_ilb_food_gut_brain_action_timeline",
+            "column_name": "eating_pace_code",
+            "data_type": "varchar",
+            "is_nullable": "YES",
+            "column_key": "",
+            "total_rows": 1,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "v_ilb_food_gut_brain_action_timeline",
+            "column_name": "attention_code",
+            "data_type": "varchar",
+            "is_nullable": "YES",
+            "column_key": "",
+            "total_rows": 1,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "v_ilb_food_gut_brain_action_timeline",
+            "column_name": "before_snapshot_id",
+            "data_type": "bigint",
+            "is_nullable": "YES",
+            "column_key": "",
+            "total_rows": 1,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "v_ilb_food_gut_brain_action_timeline",
+            "column_name": "after_snapshot_id",
+            "data_type": "bigint",
+            "is_nullable": "YES",
+            "column_key": "",
+            "total_rows": 1,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "v_ilb_formula_source_catalog",
+            "column_name": "reference_id",
+            "data_type": "bigint",
+            "is_nullable": "YES",
+            "column_key": "",
+            "total_rows": 232,
+            "populated_rows": 5,
+            "distinct_values": 5
+        },
+        {
+            "table_name": "v_ilb_medication_monitoring_gaps",
+            "column_name": "subject_medication_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "",
+            "total_rows": 10,
+            "populated_rows": 10,
+            "distinct_values": 3
+        },
+        {
+            "table_name": "v_ilb_medication_monitoring_gaps",
+            "column_name": "latest_observation_id",
+            "data_type": "bigint",
+            "is_nullable": "YES",
+            "column_key": "",
+            "total_rows": 10,
+            "populated_rows": 8,
+            "distinct_values": 8
+        },
+        {
+            "table_name": "v_ilb_patient_dashboard",
+            "column_name": "patient_journey_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "",
+            "total_rows": 0,
+            "populated_rows": 0,
+            "distinct_values": 0
+        },
+        {
+            "table_name": "v_ilb_records_measurement",
+            "column_name": "measurement_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "",
+            "total_rows": 730,
+            "populated_rows": 730,
+            "distinct_values": 730
+        },
+        {
+            "table_name": "v_ilb_records_medicine_context",
+            "column_name": "medicine_report_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "",
+            "total_rows": 10,
+            "populated_rows": 10,
+            "distinct_values": 3
+        },
+        {
+            "table_name": "v_ilb_subject_marker_latest",
+            "column_name": "observation_id",
+            "data_type": "bigint",
+            "is_nullable": "NO",
+            "column_key": "",
+            "total_rows": 216,
+            "populated_rows": 216,
+            "distinct_values": 216
+        },
+        {
+            "table_name": "v_ilb_subject_marker_latest",
+            "column_name": "unit_id",
+            "data_type": "smallint",
+            "is_nullable": "NO",
+            "column_key": "",
+            "total_rows": 216,
+            "populated_rows": 216,
+            "distinct_values": 29
+        }
+    ]
 }
