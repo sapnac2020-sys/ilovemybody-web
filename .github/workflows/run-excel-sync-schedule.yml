@@ -1,5 +1,5 @@
 name: Run ILMB Excel and ChEBI Sync
-# authorized intake trigger: 2026-08-30T11:59Z — five canonical ChEBI entity partitions
+# authorized intake trigger: 2026-08-30T12:06Z — identify watched Drive intake
 
 on:
   push:
@@ -96,6 +96,7 @@ jobs:
           set -a
           . "$CURRENT/ilmb-sync.env"
           set +a
+          echo "WATCHED_DRIVE_FOLDER_ID=$ILMB_DRIVE_FOLDER_ID"
           case "$SYNC_TASK" in
             excel)
               "$CURRENT/.venv/bin/ilmb-sync" scan 2>&1 | tee -a "$ROOT/logs/sync.log"
