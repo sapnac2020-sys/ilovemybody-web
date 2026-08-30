@@ -1,0 +1,20 @@
+<?php
+declare(strict_types=1);
+const EXPECTED_DATABASE='u756742628_ilovemybody';
+if(PHP_SAPI!=='cli') exit(2);
+$configPath=$argv[1]??'';$sqlPath=$argv[2]??'';
+if(!is_file($configPath)||!is_file($sqlPath)) exit(2);
+$c=require $configPath;if(isset($c['database'])&&is_array($c['database']))$c=$c['database'];
+$host=$c['host']??null;$port=(int)($c['port']??3306);$db=$c['db']??($c['name']??null);$user=$c['user']??null;$pass=$c['pass']??($c['password']??null);
+if($db!==EXPECTED_DATABASE) throw new RuntimeException('Unexpected database');
+$pdo=new PDO("mysql:host={$host};port={$port};dbname={$db};charset=utf8mb4",$user,$pass,[PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION,PDO::MYSQL_ATTR_MULTI_STATEMENTS=>true,PDO::ATTR_DEFAULT_FETCH_MODE=>PDO::FETCH_ASSOC]);
+$sql=file_get_contents($sqlPath);$st=$pdo->prepare($sql);$st->execute();do{if($st->columnCount())$st->fetchAll();}while($st->nextRowset());$st->closeCursor();
+$foods=(int)$pdo->query("SELECT COUNT(*) FROM ilmb_crosswalk_endpoint WHERE system_id='IFCT' AND entity_type='FOOD' AND active=1")->fetchColumn();
+$nutrients=(int)$pdo->query("SELECT COUNT(*) FROM ilmb_crosswalk_endpoint WHERE system_id='IFCT' AND entity_type='NUTRIENT' AND active=1")->fetchColumn();
+$values=(int)$pdo->query("SELECT COUNT(*) FROM ilb_food_nutrient_composition WHERE active=1")->fetchColumn();
+$positive=(int)$pdo->query("SELECT COUNT(*) FROM ilmb_entity_crosswalk WHERE source_system='IFCT' AND source_entity_type='FOOD' AND predicate='CONTAINS' AND target_system='IFCT' AND target_entity_type='NUTRIENT' AND computation_eligible=1")->fetchColumn();
+$known=(int)$pdo->query("SELECT COUNT(*) FROM v_ilmb_food_nutrient_compute WHERE food_id='ifct_a001' AND nutrient_id='al' AND amount=3320 AND amount_unit='ug' AND basis_quantity=100 AND basis_unit='g'")->fetchColumn();
+$chebi=(int)$pdo->query("SELECT COUNT(*) FROM ilmb_entity_crosswalk WHERE (source_system='CHEBI' AND target_system='IFCT') OR (source_system='IFCT' AND target_system='CHEBI')")->fetchColumn();
+$out=['food_endpoints'=>$foods,'nutrient_endpoints'=>$nutrients,'composition_values'=>$values,'positive_exact_relations'=>$positive,'known_proof_rows'=>$known,'approved_chebi_nutrient_links'=>$chebi,'patient_rows_read'=>0,'patient_rows_modified'=>0,'ready'=>$foods===542&&$nutrients===207&&$values===112194&&$positive>0&&$known===1];
+echo json_encode($out,JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES),PHP_EOL;
+if(!$out['ready']) exit(4);
