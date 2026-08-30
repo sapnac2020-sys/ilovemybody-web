@@ -119,7 +119,7 @@ jobs:
             fi
           done
           if test -z "$PYTHON_BIN"; then
-            candidate_path="$(find /usr/local/bin /usr/bin /opt/alt "$HOME" -maxdepth 5 -type f \( -name 'python3' -o -name 'python3.1*' \) -perm -u+x -print 2>/dev/null | sort -V | tail -1)"
+            candidate_path="$({ find /usr/local/bin /usr/bin /opt/alt "$HOME" -maxdepth 5 -type f \( -name 'python3' -o -name 'python3.1*' \) -perm -u+x -print 2>/dev/null || true; } | sort -V | tail -1)"
             if test -n "$candidate_path" && "$candidate_path" -c 'import sys; raise SystemExit(0 if sys.version_info >= (3,10) else 1)' 2>/dev/null; then
               PYTHON_BIN="$candidate_path"
             fi
