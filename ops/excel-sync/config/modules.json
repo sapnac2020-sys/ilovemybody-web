@@ -1,5 +1,5 @@
 {
-  "version": 12,
+  "version": 13,
   "defaults": {
     "header_row": 1,
     "blank_row_ends_table": false,
@@ -1591,8 +1591,7 @@
         "06_Neuroanatomy_Context",
         "07_NLEM_Medicines",
         "08_Collection_Modules",
-        "11_Sources",
-        "12_Unresolved"
+        "11_Sources"
       ],
       "sheet_keys": {
         "01_RDoC_Constructs": [
@@ -1623,9 +1622,6 @@
         ],
         "11_Sources": [
           "source_id"
-        ],
-        "12_Unresolved": [
-          "unresolved_id"
         ]
       },
       "row_gates": {
@@ -1699,16 +1695,6 @@
             "release_version",
             "source_url",
             "status"
-          ]
-        },
-        "12_Unresolved": {
-          "required": [
-            "unresolved_id",
-            "module",
-            "source_value",
-            "reason",
-            "status",
-            "resolution_requirement"
           ]
         }
       }
