@@ -40,12 +40,15 @@ jobs:
             exit 0
           fi
           candidate=""
+          list_file="$(mktemp)"
+          find "$HOME/backups" "$HOME/domains/ilovemybody.in" -type f -name api.php ! -path "$target" -printf '%T@ %p\n' 2>/dev/null | sort -nr | cut -d' ' -f2- > "$list_file" || true
           while IFS= read -r file; do
             if grep -q "bootstrap" "$file" && grep -q "login" "$file" && grep -q "upload" "$file"; then
               candidate="$file"
               break
             fi
-          done < <(find "$HOME/backups" "$HOME/domains/ilovemybody.in" -type f -name api.php ! -path "$target" -printf '%T@ %p\n' 2>/dev/null | sort -nr | cut -d' ' -f2-)
+          done < "$list_file"
+          rm -f "$list_file"
           test -n "$candidate" || { echo "No compatible private app API backup found"; exit 1; }
           mkdir -p "$(dirname "$target")"
           install -m 600 "$candidate" "$target"
