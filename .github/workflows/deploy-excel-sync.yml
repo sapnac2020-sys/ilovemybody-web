@@ -110,7 +110,26 @@ jobs:
             exit 1
           fi
           echo "Hostinger private prerequisites located."
-          python3 - "$KEY_SOURCE" <<'PY'
+          PYTHON_BIN=""
+          for candidate in python3 python3.13 python3.12 python3.11 python3.10 python; do
+            candidate_path="$(command -v "$candidate" 2>/dev/null || true)"
+            if test -n "$candidate_path" && "$candidate_path" -c 'import sys; raise SystemExit(0 if sys.version_info >= (3,10) else 1)' 2>/dev/null; then
+              PYTHON_BIN="$candidate_path"
+              break
+            fi
+          done
+          if test -z "$PYTHON_BIN"; then
+            candidate_path="$(find /usr/local/bin /usr/bin /opt/alt "$HOME" -maxdepth 5 -type f \( -name 'python3' -o -name 'python3.1*' \) -perm -u+x -print 2>/dev/null | sort -V | tail -1)"
+            if test -n "$candidate_path" && "$candidate_path" -c 'import sys; raise SystemExit(0 if sys.version_info >= (3,10) else 1)' 2>/dev/null; then
+              PYTHON_BIN="$candidate_path"
+            fi
+          fi
+          if test -z "$PYTHON_BIN"; then
+            echo "::error::Python 3.10 or newer is not installed or accessible to the Hostinger SSH account."
+            exit 1
+          fi
+          echo "Using Hostinger Python: $("$PYTHON_BIN" --version 2>&1)"
+          "$PYTHON_BIN" - "$KEY_SOURCE" <<'PY'
           import json, pathlib, sys
           payload=json.loads(pathlib.Path(sys.argv[1]).read_text())
           assert payload.get('type') == 'service_account'
@@ -119,10 +138,10 @@ jobs:
           PY
           install -m 600 "$KEY_SOURCE" "$RELEASE/google-service-account.json"
           test -s "$RELEASE/drive-folder-id"
-          python3 -m venv "$RELEASE/.venv"
+          "$PYTHON_BIN" -m venv "$RELEASE/.venv"
           "$RELEASE/.venv/bin/pip" install --disable-pip-version-check --no-cache-dir "$RELEASE"
           db_json="$(php -r '$c=require $argv[1]; echo json_encode(["host"=>$c["host"]??null,"port"=>$c["port"]??3306,"name"=>$c["db"]??null,"user"=>$c["user"]??null,"pass"=>$c["pass"]??null]);' "$CONFIG")"
-          DB_JSON="$db_json" RELEASE="$RELEASE" python3 - <<'PY'
+          DB_JSON="$db_json" RELEASE="$RELEASE" "$PYTHON_BIN" - <<'PY'
           import json, os, pathlib, shlex
           db=json.loads(os.environ['DB_JSON'])
           required=('host','name','user','pass')
