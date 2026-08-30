@@ -1,0 +1,35 @@
+name: Deploy medicine inventory audit
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - app/medicine-inventory.php
+      - .github/workflows/deploy-medicine-inventory.yml
+
+jobs:
+  deploy-verify:
+    runs-on: ubuntu-latest
+    permissions: {contents: read}
+    steps:
+      - uses: actions/checkout@v4
+      - run: php -l app/medicine-inventory.php
+      - name: Prepare SSH
+        env: {DEPLOY_BUNDLE: "${{ secrets.HOSTINGER_DEPLOY_BUNDLE }}"}
+        run: |
+          set -euo pipefail
+          mkdir -p "$HOME/.ssh"
+          printf '%s' "$DEPLOY_BUNDLE" | base64 --decode >/tmp/d.json
+          jq -r '.key' /tmp/d.json >"$HOME/.ssh/id_ed25519"; chmod 600 "$HOME/.ssh/id_ed25519"
+          echo "DEPLOY_HOST=$(jq -r '.host' /tmp/d.json)" >>"$GITHUB_ENV"
+          echo "DEPLOY_PORT=$(jq -r '.port' /tmp/d.json)" >>"$GITHUB_ENV"
+          echo "DEPLOY_USER=$(jq -r '.user' /tmp/d.json)" >>"$GITHUB_ENV"
+          ssh-keyscan -p "$(jq -r '.port' /tmp/d.json)" "$(jq -r '.host' /tmp/d.json)" >>"$HOME/.ssh/known_hosts"
+      - name: Deploy and verify read-only inventory
+        run: |
+          set -euo pipefail
+          scp -i "$HOME/.ssh/id_ed25519" -P "$DEPLOY_PORT" app/medicine-inventory.php "$DEPLOY_USER@$DEPLOY_HOST:/tmp/medicine-inventory.php"
+          ssh -i "$HOME/.ssh/id_ed25519" -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" 'install -m 600 /tmp/medicine-inventory.php "$HOME/domains/ilovemybody.in/public_html/app/medicine-inventory.php"; rm -f /tmp/medicine-inventory.php; php -r '''include $argv[1];''' "$HOME/domains/ilovemybody.in/public_html/app/medicine-inventory.php"' > /tmp/inventory.json
+          jq -e '.ok==true and .mode=="read_only_medicine_inventory" and .patient_data_read==false and .patient_data_written==false' /tmp/inventory.json >/dev/null
+          echo "MEDICINE_INVENTORY=deployed"
