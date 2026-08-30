@@ -49,7 +49,7 @@ jobs:
       - name: Verify golden proof
         run: |
           set -euo pipefail
-          url='https://ilovemybody.in/app/lab-correlation.php?loinc=2345-7&value=100&unit=mg%2FdL&low=70&high=99&reference_unit=mg%2FdL'
+          url='https://ilovemybody.in/app/lab-correlation.php?loinc=2344-0&value=100&unit=mg%2FdL&low=70&high=99&reference_unit=mg%2FdL'
           curl -sS --compressed --retry 5 --retry-delay 3 --max-time 60 "$url" -o /tmp/proof.json
           jq -e '.ok==true and .mode=="non_patient_golden_proof" and .patient_data_read==false and .patient_data_written==false and (.chain[1].eligible_mappings>0) and .calculation.status=="calculated" and .calculation.classification=="above"' /tmp/proof.json >/dev/null
           curl -fsS --compressed --retry 5 --retry-delay 3 --max-time 30 https://ilovemybody.in/app/lab-proof.html | grep -q 'Laboratory correlation proof'
