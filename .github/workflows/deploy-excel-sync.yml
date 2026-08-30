@@ -24,6 +24,7 @@ jobs:
           PYTHONPATH=ops/excel-sync/src python -m unittest discover -s ops/excel-sync/tests -v
           python -m compileall -q ops/excel-sync/src ops/excel-sync/tests
           test -s ops/excel-sync/migrations/001_sync_control.sql
+          test -s ops/excel-sync/migrations/002_canonical_history.sql
 
       - name: Require deployment secrets
         env:
