@@ -79,8 +79,17 @@ jobs:
           mkdir -p "$package"
           cp -a ops/excel-sync/. "$package/"
           install -m 600 "$RUNNER_TEMP/drive-folder-id" "$package/drive-folder-id"
-          tar -C "$package" -czf - . | ssh -o IdentitiesOnly=yes -o BatchMode=yes -i "$HOME/.ssh/id_ed25519" -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" \
-            "mkdir -p \"\$HOME/private/ilmb-excel-sync/releases/$GITHUB_SHA\" && tar -xzf - -C \"\$HOME/private/ilmb-excel-sync/releases/$GITHUB_SHA\""
+          uploaded=false
+          for attempt in 1 2 3 4 5; do
+            if tar -C "$package" -czf - . | ssh -o IdentitiesOnly=yes -o BatchMode=yes -o ConnectTimeout=20 -i "$HOME/.ssh/id_ed25519" -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" \
+              "mkdir -p \"\$HOME/private/ilmb-excel-sync/releases/$GITHUB_SHA\" && tar -xzf - -C \"\$HOME/private/ilmb-excel-sync/releases/$GITHUB_SHA\""; then
+              uploaded=true
+              break
+            fi
+            echo "Hostinger connection attempt $attempt failed; retrying."
+            sleep $((attempt * 15))
+          done
+          test "$uploaded" = true
 
       - name: Install, migrate, validate and schedule
         run: |
