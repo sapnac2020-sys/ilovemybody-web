@@ -20,17 +20,38 @@ ON DUPLICATE KEY UPDATE source_name=VALUES(source_name),source_version=VALUES(so
 
 INSERT INTO ilmb_crosswalk_endpoint
 (system_id,entity_type,external_id,source_name,source_version,source_locator,verified_at,active)
-SELECT 'CHEBI','CHEMICAL',
-       CASE WHEN UPPER(JSON_UNQUOTE(JSON_EXTRACT(c.payload_json,'$.chebi_id'))) LIKE 'CHEBI:%'
-            THEN UPPER(JSON_UNQUOTE(JSON_EXTRACT(c.payload_json,'$.chebi_id')))
-            ELSE CONCAT('CHEBI:',JSON_UNQUOTE(JSON_EXTRACT(c.payload_json,'$.chebi_id'))) END,
+SELECT 'CHEBI','CHEMICAL',ids.external_id,
        'ChEBI canonical promoted bulk release',
        COALESCE((SELECT MAX(file_name) FROM ilmb_sync_batch WHERE system_id='REF-CHEBI' AND status='PROMOTED'),'promoted canonical release'),
-       CONCAT('ilmb_canonical_record:',c.canonical_id),NOW(6),1
-FROM ilmb_canonical_record c
-WHERE c.system_id='REF-CHEBI' AND c.sheet_name='Entities' AND c.active=1
-  AND JSON_UNQUOTE(JSON_EXTRACT(c.payload_json,'$.chebi_id')) IS NOT NULL
-  AND JSON_UNQUOTE(JSON_EXTRACT(c.payload_json,'$.chebi_id'))<>''
+       CONCAT('ilmb_canonical_record:',ids.canonical_id),NOW(6),1
+FROM (
+ SELECT canonical_id,
+        COALESCE(JSON_UNQUOTE(JSON_EXTRACT(payload_json,'$.chebi_id')),
+                 JSON_UNQUOTE(JSON_EXTRACT(payload_json,'$.CHEBI_ID'))) AS external_id
+ FROM ilmb_canonical_record
+ WHERE system_id='REF-CHEBI' AND sheet_name='Entities' AND active=1
+) ids
+WHERE ids.external_id IS NOT NULL AND ids.external_id<>''
+ON DUPLICATE KEY UPDATE source_name=VALUES(source_name),source_version=VALUES(source_version),
+ source_locator=VALUES(source_locator),verified_at=VALUES(verified_at),active=1;
+
+INSERT INTO ilmb_crosswalk_endpoint
+(system_id,entity_type,external_id,source_name,source_version,source_locator,verified_at,active)
+SELECT 'CHEBI','CHEMICAL',
+       CASE WHEN UPPER(ids.external_id) LIKE 'CHEBI:%'
+            THEN SUBSTRING_INDEX(ids.external_id,':',-1)
+            ELSE CONCAT('CHEBI:',ids.external_id) END,
+       'ChEBI canonical promoted bulk release',
+       COALESCE((SELECT MAX(file_name) FROM ilmb_sync_batch WHERE system_id='REF-CHEBI' AND status='PROMOTED'),'promoted canonical release'),
+       CONCAT('ilmb_canonical_record:',ids.canonical_id),NOW(6),1
+FROM (
+ SELECT canonical_id,
+        COALESCE(JSON_UNQUOTE(JSON_EXTRACT(payload_json,'$.chebi_id')),
+                 JSON_UNQUOTE(JSON_EXTRACT(payload_json,'$.CHEBI_ID'))) AS external_id
+ FROM ilmb_canonical_record
+ WHERE system_id='REF-CHEBI' AND sheet_name='Entities' AND active=1
+) ids
+WHERE ids.external_id IS NOT NULL AND ids.external_id<>''
 ON DUPLICATE KEY UPDATE source_name=VALUES(source_name),source_version=VALUES(source_version),
  source_locator=VALUES(source_locator),verified_at=VALUES(verified_at),active=1;
 
@@ -90,7 +111,8 @@ SELECT x.mapping_id,x.source_id AS loinc_num,x.predicate,
        x.target_id AS chebi_id,
        COALESCE(JSON_UNQUOTE(JSON_EXTRACT(ch.payload_json,'$.name')),
                 JSON_UNQUOTE(JSON_EXTRACT(ch.payload_json,'$.compound_name')),
-                JSON_UNQUOTE(JSON_EXTRACT(ch.payload_json,'$.NAME'))) AS chebi_name,
+                JSON_UNQUOTE(JSON_EXTRACT(ch.payload_json,'$.NAME')),
+                JSON_UNQUOTE(JSON_EXTRACT(ch.payload_json,'$.COMPOUND_NAME'))) AS chebi_name,
        x.evidence_source,x.evidence_version,x.evidence_locator,x.confidence,
        x.match_type,x.status,x.computation_eligible,
        se.source_version AS loinc_release,te.source_version AS chebi_release
