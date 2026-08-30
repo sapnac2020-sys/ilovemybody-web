@@ -1,0 +1,36 @@
+name: Audit ChEBI nutrient food path
+on:
+  push:
+    branches: [main]
+    paths: [.github/workflows/audit-chebi-nutrient-food-path.yml]
+permissions: {contents: read}
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Prepare SSH
+        env: {DEPLOY_BUNDLE: "${{ secrets.HOSTINGER_DEPLOY_BUNDLE }}"}
+        run: |
+          set -euo pipefail
+          mkdir -p "$HOME/.ssh"
+          printf '%s' "$DEPLOY_BUNDLE" | base64 --decode >/tmp/d.json
+          jq -r '.key' /tmp/d.json >"$HOME/.ssh/id_ed25519"; chmod 600 "$HOME/.ssh/id_ed25519"
+          echo "H=$(jq -r '.host' /tmp/d.json)" >>"$GITHUB_ENV"
+          echo "P=$(jq -r '.port' /tmp/d.json)" >>"$GITHUB_ENV"
+          echo "U=$(jq -r '.user' /tmp/d.json)" >>"$GITHUB_ENV"
+          ssh-keyscan -p "$(jq -r '.port' /tmp/d.json)" "$(jq -r '.host' /tmp/d.json)" >>"$HOME/.ssh/known_hosts"
+      - name: Read-only nutrition identity and crosswalk audit
+        run: |
+          ssh -i "$HOME/.ssh/id_ed25519" -p "$P" "$U@$H" 'bash -s' <<'REMOTE'
+          set -euo pipefail
+          php -d display_errors=1 -r '
+          $c=require $argv[1];if(isset($c["database"])&&is_array($c["database"]))$c=$c["database"];
+          $db=$c["db"]??$c["name"];$pdo=new PDO("mysql:host=".$c["host"].";port=".($c["port"]??3306).";dbname=".$db.";charset=utf8mb4",$c["user"],$c["pass"]??$c["password"],[PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION,PDO::ATTR_DEFAULT_FETCH_MODE=>PDO::FETCH_ASSOC]);
+          $q=$pdo->query("SELECT system_id,sheet_name,COUNT(*) n FROM ilmb_canonical_record WHERE active=1 AND (UPPER(system_id) LIKE \"%NUTR%\" OR UPPER(system_id) LIKE \"%FOOD%\" OR UPPER(sheet_name) LIKE \"%NUTR%\" OR UPPER(sheet_name) LIKE \"%FOOD%\" OR UPPER(sheet_name) LIKE \"%IFCT%\" OR UPPER(sheet_name) LIKE \"%USDA%\") GROUP BY system_id,sheet_name ORDER BY n DESC");
+          echo "CANONICAL_LOCATIONS\n".json_encode($q->fetchAll(),JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES)."\n";
+          $q=$pdo->query("SELECT system_id,file_name,status,row_count,error_count FROM ilmb_sync_batch WHERE UPPER(file_name) REGEXP \"NUTR|FOOD|IFCT|USDA\" ORDER BY created_at DESC");
+          echo "BATCHES\n".json_encode($q->fetchAll(),JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES)."\n";
+          $q=$pdo->query("SELECT source_system,source_entity_type,predicate,target_system,target_entity_type,match_type,status,computation_eligible,COUNT(*) n FROM ilmb_entity_crosswalk WHERE UPPER(source_system) REGEXP \"CHEBI|NUTR|FOOD|IFCT|USDA\" OR UPPER(target_system) REGEXP \"CHEBI|NUTR|FOOD|IFCT|USDA\" OR UPPER(source_entity_type) REGEXP \"NUTR|FOOD|CHEM\" OR UPPER(target_entity_type) REGEXP \"NUTR|FOOD|CHEM\" GROUP BY source_system,source_entity_type,predicate,target_system,target_entity_type,match_type,status,computation_eligible ORDER BY n DESC");
+          echo "CROSSWALKS\n".json_encode($q->fetchAll(),JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES)."\n";
+          ' "$HOME/domains/ilovemybody.in/ilmb-config.php"
+          REMOTE
