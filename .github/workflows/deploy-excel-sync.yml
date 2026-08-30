@@ -36,7 +36,7 @@ jobs:
       - name: Require deployment configuration
         env:
           DEPLOY_BUNDLE: ${{ secrets.HOSTINGER_DEPLOY_BUNDLE }}
-          DRIVE_FOLDER_ID: 1iUWxPQ3zQeLAI1kLBdqhbBPtHwt9MirS
+          DRIVE_FOLDER_ID: sharedWithMe
         run: |
           set -euo pipefail
           test -n "$DEPLOY_BUNDLE"
