@@ -1,5 +1,5 @@
 name: Promote Authorized Clean ILMB Batches
-# authorized final corrected-batch promotion: 2026-08-30T10:48Z
+# authorized ChEBI identity-batch promotion: 2026-08-30T15:02Z
 
 on:
   push:
