@@ -50,8 +50,20 @@ jobs:
           done < "$list_file"
           rm -f "$list_file"
           test -n "$candidate" || { echo "No compatible private app API backup found"; exit 1; }
-          mkdir -p "$(dirname "$target")"
+          target_dir="$(dirname "$target")"
+          source_dir="$(dirname "$candidate")"
+          mkdir -p "$target_dir"
           install -m 600 "$candidate" "$target"
+          for source in "$source_dir"/*.php; do
+            test -f "$source" || continue
+            name="$(basename "$source")"
+            destination="$target_dir/$name"
+            if ! test -e "$destination"; then
+              php -l "$source"
+              install -m 600 "$source" "$destination"
+              echo "RESTORED_SUPPORT_FILE=$name"
+            fi
+          done
           php -l "$target"
           echo "API_STATUS=restored"
           REMOTE
