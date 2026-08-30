@@ -1,0 +1,36 @@
+name: Audit lab migration runtime
+on:
+  push:
+    branches: [main]
+    paths: [.github/workflows/audit-lab-migration-runtime.yml]
+permissions: {contents: read}
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Prepare SSH
+        env: {DEPLOY_BUNDLE: "${{ secrets.HOSTINGER_DEPLOY_BUNDLE }}"}
+        run: |
+          set -euo pipefail
+          mkdir -p "$HOME/.ssh"
+          printf '%s' "$DEPLOY_BUNDLE" | base64 --decode >/tmp/d.json
+          jq -r '.key' /tmp/d.json >"$HOME/.ssh/id_ed25519"
+          chmod 600 "$HOME/.ssh/id_ed25519"
+          echo "H=$(jq -r '.host' /tmp/d.json)" >>"$GITHUB_ENV"
+          echo "P=$(jq -r '.port' /tmp/d.json)" >>"$GITHUB_ENV"
+          echo "U=$(jq -r '.user' /tmp/d.json)" >>"$GITHUB_ENV"
+          ssh-keyscan -p "$(jq -r '.port' /tmp/d.json)" "$(jq -r '.host' /tmp/d.json)" >>"$HOME/.ssh/known_hosts"
+      - name: Read-only runtime audit
+        run: |
+          ssh -i "$HOME/.ssh/id_ed25519" -p "$P" "$U@$H" 'bash -s' <<'REMOTE'
+          set -euo pipefail
+          echo "LAB_PROCESSES"
+          ps -u "$USER" -o pid,etime,stat,cmd | grep -E 'run-lab-correlation|lab-correlation-.*/run.sh' | grep -v grep || true
+          php -r '
+          $c=require $argv[1];
+          if(isset($c["database"])&&is_array($c["database"]))$c=$c["database"];
+          $db=$c["db"]??$c["name"];
+          $pdo=new PDO("mysql:host=".$c["host"].";port=".($c["port"]??3306).";dbname=".$db.";charset=utf8mb4",$c["user"],$c["pass"]??$c["password"],[PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION]);
+          foreach($pdo->query("SELECT ID,USER,DB,COMMAND,TIME,STATE,LEFT(INFO,240) INFO FROM information_schema.PROCESSLIST WHERE DB=".$pdo->quote($db)." ORDER BY TIME DESC") as $r) echo json_encode($r,JSON_UNESCAPED_SLASHES)."\n";
+          ' "$HOME/domains/ilovemybody.in/ilmb-config.php"
+          REMOTE
