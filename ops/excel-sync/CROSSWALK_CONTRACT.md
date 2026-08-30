@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This layer connects existing ILMB identities without copying or renaming source facts. It covers chemical–test–food–nutrient–medicine–body, cell, protein, pathway and phenotype mappings.
+This layer connects existing ILMB identities without copying or renaming source facts. It covers chemical–test–food–nutrient–medicine–body, cell, protein, pathway, phenotype, unit and specimen mappings.
 
 ## Directional row contract
 
@@ -19,6 +19,7 @@ A mapping is eligible for calculations only when:
 3. both endpoint identifiers resolve in their authoritative source release
 4. evidence source and version are present
 5. the mapping has passed the existing two-person batch approval and promotion control
+6. both endpoints exist as active records in `ilmb_crosswalk_endpoint` for the stated authoritative source and release
 
 Broader, narrower, related and candidate mappings remain searchable but cannot silently enter calculations.
 
@@ -39,3 +40,7 @@ Optional columns: evidence_locator, confidence.
 3. A different approver promotes it.
 4. ilmb-sync crosswalk-rebuild validates and materializes promoted mappings.
 5. ilmb-sync crosswalk-audit reports totals and computation eligibility.
+
+## Endpoint registry
+
+`ilmb_crosswalk_endpoint` is the calculation boundary. A workbook may preserve draft, candidate or approved mapping claims, but no row becomes computation-eligible until both `(system_id, entity_type, external_id)` endpoints are registered as active against a named source and version. Rebuilding crosswalks recalculates this gate; workbook confidence cannot bypass it.

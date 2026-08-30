@@ -28,6 +28,19 @@ class CrosswalkTests(unittest.TestCase):
         self.assertEqual(row.source_entity_type, "CHEMICAL")
         self.assertEqual(row.mapping_id, stable_hash("CHEBI", "CHEBI:17234", "MEASURES", "LOINC", "2345-7"))
 
+    def test_unit_and_specimen_endpoints_are_supported(self):
+        payload = valid_payload()
+        payload["source_system"] = "UCUM"
+        payload["source_entity_type"] = "UNIT"
+        payload["source_id"] = "mg/dL"
+        payload["predicate"] = "SAME_AS"
+        payload["target_system"] = "ILMB"
+        payload["target_entity_type"] = "UNIT"
+        payload["target_id"] = "UNIT-001"
+        row = normalize_crosswalk(payload)
+        self.assertEqual(row.source_entity_type, "UNIT")
+        self.assertEqual(row.target_entity_type, "UNIT")
+
     def test_candidate_mapping_is_not_computation_eligible(self):
         payload = valid_payload(); payload["match_type"] = "CANDIDATE"
         self.assertFalse(normalize_crosswalk(payload).computation_eligible)
