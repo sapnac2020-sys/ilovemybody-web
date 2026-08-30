@@ -1,0 +1,121 @@
+name: Run ILMB Excel and ChEBI Sync
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/run-excel-sync-schedule.yml
+  schedule:
+    - cron: '*/15 * * * *'
+    - cron: '20 4 20 * *'
+  workflow_dispatch:
+    inputs:
+      task:
+        description: Sync task to run
+        required: true
+        default: excel
+        type: choice
+        options:
+          - excel
+          - chebi
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ilmb-data-sync
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    name: Run automatic data sync
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+
+    steps:
+      - name: Prepare Hostinger SSH
+        shell: bash
+        env:
+          DEPLOY_BUNDLE: ${{ secrets.HOSTINGER_DEPLOY_BUNDLE }}
+        run: |
+          set -euo pipefail
+          test -n "$DEPLOY_BUNDLE"
+          mkdir -p "$HOME/.ssh"
+          chmod 700 "$HOME/.ssh"
+          printf '%s' "$DEPLOY_BUNDLE" | base64 --decode > "$RUNNER_TEMP/deploy.json"
+          jq -e '.host and .port and .user and .key' "$RUNNER_TEMP/deploy.json" >/dev/null
+          jq -r '.key' "$RUNNER_TEMP/deploy.json" > "$HOME/.ssh/id_ed25519"
+          chmod 600 "$HOME/.ssh/id_ed25519"
+          echo "DEPLOY_HOST=$(jq -r '.host' "$RUNNER_TEMP/deploy.json")" >> "$GITHUB_ENV"
+          echo "DEPLOY_PORT=$(jq -r '.port' "$RUNNER_TEMP/deploy.json")" >> "$GITHUB_ENV"
+          echo "DEPLOY_USER=$(jq -r '.user' "$RUNNER_TEMP/deploy.json")" >> "$GITHUB_ENV"
+
+      - name: Select sync task
+        shell: bash
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          EVENT_SCHEDULE: ${{ github.event.schedule }}
+          MANUAL_TASK: ${{ inputs.task }}
+        run: |
+          set -euo pipefail
+          task=excel
+          if test "$EVENT_NAME" = workflow_dispatch; then
+            task="$MANUAL_TASK"
+          elif test "$EVENT_SCHEDULE" = '20 4 20 * *'; then
+            task=chebi
+          fi
+          case "$task" in
+            excel|chebi) ;;
+            *) echo "::error::Unsupported sync task: $task"; exit 1 ;;
+          esac
+          echo "SYNC_TASK=$task" >> "$GITHUB_ENV"
+
+      - name: Run sync on Hostinger
+        shell: bash
+        run: |
+          set -euo pipefail
+          ssh_args=(
+            -o IdentitiesOnly=yes
+            -o BatchMode=yes
+            -o StrictHostKeyChecking=accept-new
+            -o ConnectTimeout=30
+            -i "$HOME/.ssh/id_ed25519"
+            -p "$DEPLOY_PORT"
+          )
+          for attempt in 1 2 3 4 5; do
+            if ssh "${ssh_args[@]}" "$DEPLOY_USER@$DEPLOY_HOST" "SYNC_TASK='$SYNC_TASK' bash -s" <<'REMOTE'
+          set -euo pipefail
+          ROOT="$HOME/private/ilmb-excel-sync"
+          CURRENT="$ROOT/current"
+          test -L "$CURRENT" || test -d "$CURRENT"
+          test -s "$CURRENT/ilmb-sync.env"
+          test -x "$CURRENT/.venv/bin/ilmb-sync"
+          mkdir -p "$ROOT/logs"
+          set -a
+          . "$CURRENT/ilmb-sync.env"
+          set +a
+          case "$SYNC_TASK" in
+            excel)
+              "$CURRENT/.venv/bin/ilmb-sync" scan 2>&1 | tee -a "$ROOT/logs/sync.log"
+              ;;
+            chebi)
+              release="$(date -u +%Y-%m-%d)"
+              "$CURRENT/.venv/bin/ilmb-sync" chebi-fetch --release "$release" 2>&1 | tee -a "$ROOT/logs/chebi-sync.log"
+              ;;
+            *)
+              echo "Unsupported task: $SYNC_TASK" >&2
+              exit 2
+              ;;
+          esac
+          REMOTE
+            then
+              exit 0
+            fi
+            if test "$attempt" -eq 5; then
+              echo "::error::Hostinger sync failed after 5 attempts."
+              exit 1
+            fi
+            echo "Hostinger connection attempt $attempt failed; retrying in 20 seconds."
+            sleep 20
+          done
