@@ -14,7 +14,7 @@ class Database:
     def __init__(self, *, host: str, port: int, name: str, user: str, password: str):
         self.params = dict(host=host, port=port, database=name, user=user, password=password,
                            charset="utf8mb4", autocommit=False, cursorclass=pymysql.cursors.DictCursor,
-                           connect_timeout=10, read_timeout=60, write_timeout=60)
+                           connect_timeout=10, read_timeout=1800, write_timeout=1800)
 
     def connect(self):
         return pymysql.connect(**self.params)
@@ -95,8 +95,14 @@ class Database:
                 conn.rollback(); raise
 
     def promote(self, batch_id: str, approver: str) -> int:
+        """Promote one approved batch atomically with set-based SQL.
+
+        The stage table is already the immutable, validated source for a batch.
+        Set-based history and upsert statements preserve the same versioning
+        contract as row-by-row promotion while remaining operational for
+        million-row reference datasets.
+        """
         now = utcnow()
-        count = 0
         with self.connect() as conn:
             try:
                 with conn.cursor() as cur:
@@ -106,34 +112,41 @@ class Database:
                         raise ValueError("Batch must be APPROVED")
                     if batch["decision_by"] == approver:
                         raise ValueError("Two-person control: promoter must differ from reviewer")
-                    cur.execute("SELECT * FROM ilmb_sync_stage_row WHERE batch_id=%s ORDER BY sheet_name,source_key", (batch_id,))
-                    for row in cur.fetchall():
-                        cid = stable_hash(row["system_id"], row["sheet_name"], row["source_key"])
-                        cur.execute("""SELECT canonical_id,system_id,sheet_name,source_key,payload_json,row_hash,
-                                           source_batch_id,version_no,active,effective_at
-                                      FROM ilmb_canonical_record WHERE canonical_id=%s FOR UPDATE""", (cid,))
-                        old = cur.fetchone()
-                        version = (old["version_no"] + 1) if old else 1
-                        if old:
-                            cur.execute("""INSERT INTO ilmb_canonical_record_history
-                              (canonical_id,system_id,sheet_name,source_key,payload_json,row_hash,source_batch_id,
-                               version_no,active,effective_at,replaced_at,replaced_by_batch_id)
-                              VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)""",
-                              (old["canonical_id"],old["system_id"],old["sheet_name"],old["source_key"],
-                               old["payload_json"],old["row_hash"],old["source_batch_id"],old["version_no"],
-                               old["active"],old["effective_at"],now,batch_id))
-                        cur.execute("""INSERT INTO ilmb_canonical_record
-                          (canonical_id,system_id,sheet_name,source_key,payload_json,row_hash,source_batch_id,version_no,active,effective_at)
-                          VALUES (%s,%s,%s,%s,%s,%s,%s,%s,1,%s)
-                          ON DUPLICATE KEY UPDATE payload_json=VALUES(payload_json),row_hash=VALUES(row_hash),
-                          source_batch_id=VALUES(source_batch_id),version_no=VALUES(version_no),active=1,effective_at=VALUES(effective_at)""",
-                          (cid,row["system_id"],row["sheet_name"],row["source_key"],row["payload_json"],row["row_hash"],batch_id,version,now))
-                        count += 1
-                    cur.execute("UPDATE ilmb_sync_batch SET status='PROMOTED',promoted_at=%s WHERE batch_id=%s", (now,batch_id))
+
+                    cur.execute("SELECT COUNT(*) AS n FROM ilmb_sync_stage_row WHERE batch_id=%s", (batch_id,))
+                    count = cur.fetchone()["n"]
+
+                    cur.execute("""INSERT INTO ilmb_canonical_record_history
+                      (canonical_id,system_id,sheet_name,source_key,payload_json,row_hash,source_batch_id,
+                       version_no,active,effective_at,replaced_at,replaced_by_batch_id)
+                      SELECT c.canonical_id,c.system_id,c.sheet_name,c.source_key,c.payload_json,c.row_hash,
+                             c.source_batch_id,c.version_no,c.active,c.effective_at,%s,%s
+                        FROM ilmb_canonical_record c
+                        JOIN ilmb_sync_stage_row s
+                          ON c.canonical_id=SHA2(CONCAT_WS(CHAR(31),s.system_id,s.sheet_name,s.source_key),256)
+                       WHERE s.batch_id=%s""", (now, batch_id, batch_id))
+
+                    cur.execute("""INSERT INTO ilmb_canonical_record
+                      (canonical_id,system_id,sheet_name,source_key,payload_json,row_hash,source_batch_id,
+                       version_no,active,effective_at)
+                      SELECT SHA2(CONCAT_WS(CHAR(31),system_id,sheet_name,source_key),256),
+                             system_id,sheet_name,source_key,payload_json,row_hash,%s,1,1,%s
+                        FROM ilmb_sync_stage_row
+                       WHERE batch_id=%s
+                      ON DUPLICATE KEY UPDATE
+                       payload_json=VALUES(payload_json),row_hash=VALUES(row_hash),
+                       source_batch_id=VALUES(source_batch_id),
+                       version_no=ilmb_canonical_record.version_no+1,
+                       active=1,effective_at=VALUES(effective_at)""",
+                      (batch_id, now, batch_id))
+
+                    cur.execute("UPDATE ilmb_sync_batch SET status='PROMOTED',promoted_at=%s WHERE batch_id=%s",
+                                (now, batch_id))
                     self._audit(cur, approver, "BATCH_PROMOTED", batch_id, {"row_count": count})
                 conn.commit()
             except Exception:
-                conn.rollback(); raise
+                conn.rollback()
+                raise
         return count
 
     def reconcile(self, batch_id: str) -> dict[str, Any]:
