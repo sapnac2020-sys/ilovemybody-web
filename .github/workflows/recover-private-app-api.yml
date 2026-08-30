@@ -1,0 +1,64 @@
+name: Recover private app API
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/recover-private-app-api.yml
+
+jobs:
+  recover:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Prepare SSH identity
+        env:
+          DEPLOY_BUNDLE: ${{ secrets.HOSTINGER_DEPLOY_BUNDLE }}
+        run: |
+          set -euo pipefail
+          test -n "$DEPLOY_BUNDLE"
+          mkdir -p "$HOME/.ssh"
+          printf '%s' "$DEPLOY_BUNDLE" | base64 --decode > /tmp/ilb-deploy.json
+          jq -e '.host and .port and .user and .key' /tmp/ilb-deploy.json >/dev/null
+          jq -r '.key' /tmp/ilb-deploy.json > "$HOME/.ssh/id_ed25519"
+          chmod 600 "$HOME/.ssh/id_ed25519"
+          echo "DEPLOY_HOST=$(jq -r '.host' /tmp/ilb-deploy.json)" >> "$GITHUB_ENV"
+          echo "DEPLOY_PORT=$(jq -r '.port' /tmp/ilb-deploy.json)" >> "$GITHUB_ENV"
+          echo "DEPLOY_USER=$(jq -r '.user' /tmp/ilb-deploy.json)" >> "$GITHUB_ENV"
+          ssh-keyscan -p "$(jq -r '.port' /tmp/ilb-deploy.json)" "$(jq -r '.host' /tmp/ilb-deploy.json)" >> "$HOME/.ssh/known_hosts"
+
+      - name: Restore compatible private API
+        run: |
+          ssh -i "$HOME/.ssh/id_ed25519" -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" 'bash -s' <<'REMOTE'
+          set -euo pipefail
+          target="$HOME/domains/ilovemybody.in/public_html/app/api.php"
+          if test -s "$target"; then
+            php -l "$target"
+            echo "API_STATUS=already-present"
+            exit 0
+          fi
+          candidate=""
+          while IFS= read -r file; do
+            if grep -q "bootstrap" "$file" && grep -q "login" "$file" && grep -q "upload" "$file"; then
+              candidate="$file"
+              break
+            fi
+          done < <(find "$HOME/backups" "$HOME/domains/ilovemybody.in" -type f -name api.php ! -path "$target" -printf '%T@ %p\n' 2>/dev/null | sort -nr | cut -d' ' -f2-)
+          test -n "$candidate" || { echo "No compatible private app API backup found"; exit 1; }
+          mkdir -p "$(dirname "$target")"
+          install -m 600 "$candidate" "$target"
+          php -l "$target"
+          echo "API_STATUS=restored"
+          REMOTE
+
+      - name: Verify JSON response
+        run: |
+          set -euo pipefail
+          body="$(mktemp)"
+          status="$(curl -sS --compressed --retry 5 --retry-delay 3 --max-time 30 -o "$body" -w '%{http_code}' 'https://ilovemybody.in/app/api.php?action=bootstrap')"
+          test "$status" = "200" -o "$status" = "401"
+          jq -e 'type == "object"' "$body" >/dev/null
+          echo "API_HTTP_STATUS=$status"
+          echo "PRIVATE_APP_API=healthy"
