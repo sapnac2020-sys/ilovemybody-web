@@ -109,9 +109,19 @@ class Database:
                     cur.execute("SELECT * FROM ilmb_sync_stage_row WHERE batch_id=%s ORDER BY sheet_name,source_key", (batch_id,))
                     for row in cur.fetchall():
                         cid = stable_hash(row["system_id"], row["sheet_name"], row["source_key"])
-                        cur.execute("SELECT version_no FROM ilmb_canonical_record WHERE canonical_id=%s FOR UPDATE", (cid,))
+                        cur.execute("""SELECT canonical_id,system_id,sheet_name,source_key,payload_json,row_hash,
+                                           source_batch_id,version_no,active,effective_at
+                                      FROM ilmb_canonical_record WHERE canonical_id=%s FOR UPDATE""", (cid,))
                         old = cur.fetchone()
                         version = (old["version_no"] + 1) if old else 1
+                        if old:
+                            cur.execute("""INSERT INTO ilmb_canonical_record_history
+                              (canonical_id,system_id,sheet_name,source_key,payload_json,row_hash,source_batch_id,
+                               version_no,active,effective_at,replaced_at,replaced_by_batch_id)
+                              VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)""",
+                              (old["canonical_id"],old["system_id"],old["sheet_name"],old["source_key"],
+                               old["payload_json"],old["row_hash"],old["source_batch_id"],old["version_no"],
+                               old["active"],old["effective_at"],now,batch_id))
                         cur.execute("""INSERT INTO ilmb_canonical_record
                           (canonical_id,system_id,sheet_name,source_key,payload_json,row_hash,source_batch_id,version_no,active,effective_at)
                           VALUES (%s,%s,%s,%s,%s,%s,%s,%s,1,%s)
@@ -125,6 +135,41 @@ class Database:
             except Exception:
                 conn.rollback(); raise
         return count
+
+    def reconcile(self, batch_id: str) -> dict[str, Any]:
+        with self.connect() as conn:
+            with conn.cursor() as cur:
+                cur.execute("SELECT status,row_count,content_hash FROM ilmb_sync_batch WHERE batch_id=%s", (batch_id,))
+                batch = cur.fetchone()
+                if not batch:
+                    raise ValueError("Batch does not exist")
+                cur.execute("SELECT COUNT(*) AS n FROM ilmb_sync_stage_row WHERE batch_id=%s", (batch_id,))
+                staged = cur.fetchone()["n"]
+                cur.execute("SELECT COUNT(*) AS n FROM ilmb_canonical_record WHERE source_batch_id=%s AND active=1", (batch_id,))
+                canonical = cur.fetchone()["n"]
+                cur.execute("""SELECT COUNT(*) AS n
+                                 FROM ilmb_sync_stage_row s
+                                 LEFT JOIN ilmb_canonical_record c
+                                   ON c.canonical_id=SHA2(CONCAT_WS(CHAR(31),s.system_id,s.sheet_name,s.source_key),256)
+                                  AND c.row_hash=s.row_hash AND c.source_batch_id=s.batch_id AND c.active=1
+                                WHERE s.batch_id=%s AND c.canonical_id IS NULL""", (batch_id,))
+                mismatched = cur.fetchone()["n"]
+        reconciled = (
+            batch["status"] == "PROMOTED"
+            and batch["row_count"] == staged
+            and staged == canonical
+            and mismatched == 0
+        )
+        return {
+            "batch_id": batch_id,
+            "status": batch["status"],
+            "declared_rows": batch["row_count"],
+            "staged_rows": staged,
+            "canonical_rows": canonical,
+            "mismatched_rows": mismatched,
+            "content_hash": batch["content_hash"],
+            "reconciled": reconciled,
+        }
 
     def list_batches(self) -> list[dict[str, Any]]:
         with self.connect() as conn:

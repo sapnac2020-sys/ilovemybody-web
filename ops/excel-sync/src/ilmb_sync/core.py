@@ -123,16 +123,29 @@ class WorkbookValidator:
                 continue
             if include_sheets and ws.title not in include_sheets:
                 continue
-            values = ws.iter_rows(values_only=True)
-            header_row = None
-            header_num = 0
-            for idx, candidate in enumerate(values, start=1):
-                nonblank = [v for v in candidate if v is not None and str(v).strip()]
-                if len(nonblank) >= 2:
-                    header_row, header_num = candidate, idx
-                    break
-            if header_row is None:
-                continue
+            configured_header = rule.get("header_row")
+            if configured_header is not None:
+                header_num = int(configured_header)
+                if header_num < 1:
+                    issues.append(ValidationIssue("ERROR", "INVALID_HEADER_ROW", "Configured header_row must be at least 1", ws.title))
+                    continue
+                header_row = next(ws.iter_rows(min_row=header_num, max_row=header_num, values_only=True), None)
+                values = ws.iter_rows(min_row=header_num + 1, values_only=True)
+                nonblank = [v for v in (header_row or ()) if v is not None and str(v).strip()]
+                if len(nonblank) < 2:
+                    issues.append(ValidationIssue("ERROR", "HEADER_ROW_NOT_FOUND", f"Configured header row {header_num} has fewer than two nonblank cells", ws.title, header_num))
+                    continue
+            else:
+                values = ws.iter_rows(values_only=True)
+                header_row = None
+                header_num = 0
+                for idx, candidate in enumerate(values, start=1):
+                    nonblank = [v for v in candidate if v is not None and str(v).strip()]
+                    if len(nonblank) >= 2:
+                        header_row, header_num = candidate, idx
+                        break
+                if header_row is None:
+                    continue
             headers = self._headers(header_row, ws.title, issues, header_num)
             if not headers:
                 continue

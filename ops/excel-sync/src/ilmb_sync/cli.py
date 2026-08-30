@@ -52,9 +52,13 @@ def cmd_doctor(_):
 
 
 def cmd_migrate(args):
-    path = Path(args.sql or ROOT / "migrations" / "001_sync_control.sql")
-    get_db().migrate(path)
-    print(f"Applied: {path}")
+    paths = [Path(args.sql)] if args.sql else sorted((ROOT / "migrations").glob("*.sql"))
+    if not paths:
+        raise RuntimeError("No migration files found")
+    db = get_db()
+    for path in paths:
+        db.migrate(path)
+        print(f"Applied: {path}")
 
 
 def cmd_validate(args):
@@ -106,6 +110,13 @@ def cmd_promote(args):
     count = get_db().promote(args.batch_id, args.approver); print(f"PROMOTED {args.batch_id}: {count} rows")
 
 
+def cmd_reconcile(args):
+    result = get_db().reconcile(args.batch_id)
+    print(json.dumps(result, indent=2, default=str))
+    if not result["reconciled"]:
+        raise SystemExit(2)
+
+
 def parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(prog="ilmb-sync")
     sub = p.add_subparsers(dest="command", required=True)
@@ -117,6 +128,7 @@ def parser() -> argparse.ArgumentParser:
     a = sub.add_parser("approve"); a.add_argument("batch_id"); a.add_argument("--reviewer", required=True); a.add_argument("--reason"); a.set_defaults(func=cmd_approve)
     r = sub.add_parser("reject"); r.add_argument("batch_id"); r.add_argument("--reviewer", required=True); r.add_argument("--reason", required=True); r.set_defaults(func=cmd_reject)
     pr = sub.add_parser("promote"); pr.add_argument("batch_id"); pr.add_argument("--approver", required=True); pr.set_defaults(func=cmd_promote)
+    rc = sub.add_parser("reconcile"); rc.add_argument("batch_id"); rc.set_defaults(func=cmd_reconcile)
     return p
 
 
