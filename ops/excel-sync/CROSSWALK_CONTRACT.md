@@ -28,7 +28,7 @@ Registered filename: ILMB_Crosswalks_*.xlsx
 
 Required sheet: Crosswalks
 
-Required columns: mapping_id, source_system, source_entity_type, source_id, predicate, target_system, target_entity_type, target_id, match_type, status, evidence_source, evidence_version.
+Required columns: source_system, source_entity_type, source_id, predicate, target_system, target_entity_type, target_id, match_type, status, evidence_source, evidence_version. mapping_id is optional; when omitted, ILMB generates the deterministic SHA-256 identity. When supplied, it must match.
 
 Optional columns: evidence_locator, confidence.
 
