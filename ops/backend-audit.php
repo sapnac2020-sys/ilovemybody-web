@@ -345,7 +345,40 @@ $identifierColumnsStmt = $pdo->prepare(
        FROM information_schema.columns
       WHERE table_schema = ?
         AND (
-          column_name REGEXP '(^|_)(id|code|accession)
+          column_name REGEXP '(^|_)(id|code|accession)'
+          OR column_name REGEXP '(^|_)(chebi|loinc|rxnorm|ucum|uberon|hpo|go|reactome)(_|$)'
+        )
+      ORDER BY table_name, ordinal_position"
+);
+$identifierColumnsStmt->execute([$schema]);
+foreach ($identifierColumnsStmt->fetchAll() as $row) {
+    $table = (string)$row['table_name'];
+    $matchesModule = false;
+    foreach ($modulePatterns as $pattern) {
+        if (preg_match($pattern, $table)) { $matchesModule = true; break; }
+    }
+    if (!$matchesModule) continue;
+    $column = (string)$row['column_name'];
+    $quotedTable = '`' . str_replace('`', '``', $table) . '`';
+    $quotedColumn = '`' . str_replace('`', '``', $column) . '`';
+    $coverageSql = 'SELECT COUNT(*) AS total_rows, ' .
+        'SUM(' . $quotedColumn . " IS NOT NULL AND CAST(" . $quotedColumn . " AS CHAR) <> '') AS populated_rows, " .
+        'COUNT(DISTINCT CASE WHEN ' . $quotedColumn . " IS NOT NULL AND CAST(" . $quotedColumn . " AS CHAR) <> '' " .
+        'THEN ' . $quotedColumn . ' END) AS distinct_values FROM ' . $quotedTable;
+    $coverage = $pdo->query($coverageSql)->fetch();
+    $identifierCoverage[] = [
+        'table_name' => $table,
+        'column_name' => $column,
+        'data_type' => (string)$row['data_type'],
+        'is_nullable' => (string)$row['is_nullable'],
+        'column_key' => (string)$row['column_key'],
+        'total_rows' => (int)$coverage['total_rows'],
+        'populated_rows' => (int)$coverage['populated_rows'],
+        'distinct_values' => (int)$coverage['distinct_values'],
+    ];
+}
+
+$canonicalControlCounts = [];
 foreach (['ilmb_sync_batch','ilmb_sync_file','ilmb_sync_stage_row','ilmb_sync_validation_error',
           'ilmb_sync_audit','ilmb_canonical_record','ilmb_canonical_record_history','ilb_source_release'] as $table) {
     if (!in_array($table, $tableNames, true)) { $canonicalControlCounts[$table] = null; continue; }
