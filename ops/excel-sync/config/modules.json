@@ -1,5 +1,5 @@
 {
-  "version": 9,
+  "version": 10,
   "defaults": {
     "header_row": 1,
     "blank_row_ends_table": false,
@@ -1477,25 +1477,106 @@
         "Source_Manifest"
       ],
       "sheet_keys": {
-        "Entities": ["chebi_id"],
-        "Ontology_Identity_Stubs": ["chebi_id", "alternative_id"],
-        "Synonyms": ["compound_id", "ordinal"],
-        "Relationships": ["id"],
-        "Relationship_Types": ["id"],
-        "Chemical_Data": ["id"],
-        "Core_Structures": ["id"],
-        "Molfile_Chunks": ["chebi_id", "chunk_ordinal"],
-        "Structure_Registry": ["id"],
-        "WURCS": ["id"],
-        "Database_Accessions": ["id"],
-        "Secondary_IDs": ["id"],
-        "Compound_Origins": ["id"],
-        "Curator_Comments": ["id"],
-        "Sources": ["id"],
-        "Statuses": ["id"],
-        "Relation_Types": ["id"],
-        "Ontology_Header": ["tag", "ordinal"],
-        "Source_Manifest": ["file"]
+        "Entities": [
+          "chebi_id"
+        ],
+        "Ontology_Identity_Stubs": [
+          "chebi_id",
+          "alternative_id"
+        ],
+        "Synonyms": [
+          "compound_id",
+          "ordinal"
+        ],
+        "Relationships": [
+          "id"
+        ],
+        "Relationship_Types": [
+          "id"
+        ],
+        "Chemical_Data": [
+          "id"
+        ],
+        "Core_Structures": [
+          "id"
+        ],
+        "Molfile_Chunks": [
+          "chebi_id",
+          "chunk_ordinal"
+        ],
+        "Structure_Registry": [
+          "id"
+        ],
+        "WURCS": [
+          "id"
+        ],
+        "Database_Accessions": [
+          "id"
+        ],
+        "Secondary_IDs": [
+          "id"
+        ],
+        "Compound_Origins": [
+          "id"
+        ],
+        "Curator_Comments": [
+          "id"
+        ],
+        "Sources": [
+          "id"
+        ],
+        "Statuses": [
+          "id"
+        ],
+        "Relation_Types": [
+          "id"
+        ],
+        "Ontology_Header": [
+          "tag",
+          "ordinal"
+        ],
+        "Source_Manifest": [
+          "file"
+        ]
+      }
+    },
+    {
+      "pattern": "ILMB_Crosswalks_*.xlsx",
+      "system_id": "REF-ILMB-CROSSWALK",
+      "mode": "configured_sheets",
+      "include_sheets": [
+        "Crosswalks"
+      ],
+      "sheet_keys": {
+        "Crosswalks": [
+          "source_system",
+          "source_id",
+          "predicate",
+          "target_system",
+          "target_id"
+        ]
+      },
+      "row_gates": {
+        "Crosswalks": {
+          "required": [
+            "source_system",
+            "source_entity_type",
+            "source_id",
+            "predicate",
+            "target_system",
+            "target_entity_type",
+            "target_id",
+            "match_type",
+            "status",
+            "evidence_source",
+            "evidence_version"
+          ]
+        }
+      },
+      "numeric_fields": {
+        "Crosswalks": [
+          "confidence"
+        ]
       }
     }
   ]
