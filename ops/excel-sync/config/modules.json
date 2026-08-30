@@ -1,5 +1,5 @@
 {
-  "version": 10,
+  "version": 11,
   "defaults": {
     "header_row": 1,
     "blank_row_ends_table": false,
@@ -1576,6 +1576,66 @@
       "numeric_fields": {
         "Crosswalks": [
           "confidence"
+        ]
+      }
+    },
+    {
+      "pattern": "ILMB_Neuroscience_Authoritative_Collection_*.xlsx",
+      "system_id": "REF-NEUROSCIENCE",
+      "mode": "configured_sheets",
+      "include_sheets": [
+        "01_Neuroanatomy",
+        "02_Neural_Cells",
+        "03_Neural_GO",
+        "04_Neuro_Phenotypes",
+        "05_Relations",
+        "06_External_Mappings"
+      ],
+      "sheet_keys": {
+        "01_Neuroanatomy": [
+          "source_system",
+          "source_id"
+        ],
+        "02_Neural_Cells": [
+          "source_system",
+          "source_id"
+        ],
+        "03_Neural_GO": [
+          "source_system",
+          "source_id"
+        ],
+        "04_Neuro_Phenotypes": [
+          "source_system",
+          "source_id"
+        ],
+        "05_Relations": [
+          "source_system",
+          "source_id",
+          "predicate",
+          "target_id",
+          "raw_value"
+        ],
+        "06_External_Mappings": [
+          "source_system",
+          "source_id",
+          "mapping_record"
+        ]
+      }
+    },
+    {
+      "pattern": "ILMB_Quantum_Biophysics_Foundation_*.xlsx",
+      "system_id": "REF-QUANTUM-BIOPHYSICS",
+      "mode": "configured_sheets",
+      "include_sheets": [
+        "01_CODATA_Constants",
+        "02_Biophysics_Domains"
+      ],
+      "sheet_keys": {
+        "01_CODATA_Constants": [
+          "quantity"
+        ],
+        "02_Biophysics_Domains": [
+          "domain_id"
         ]
       }
     }
