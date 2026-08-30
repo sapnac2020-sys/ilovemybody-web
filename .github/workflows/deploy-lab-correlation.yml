@@ -56,7 +56,7 @@ jobs:
           printf '%s\n' "$rc" >"$work/exit-code"
           RUNNER
           chmod 700 "$work/run.sh"
-          nohup "$work/run.sh" "$work" </dev/null >"$work/nohup.log" 2>&1 &
+          nohup bash "$work/run.sh" "$work" </dev/null >"$work/nohup.log" 2>&1 &
           REMOTE
           remote_work="/tmp/lab-correlation-${GITHUB_RUN_ID}"
           for attempt in $(seq 1 120); do
