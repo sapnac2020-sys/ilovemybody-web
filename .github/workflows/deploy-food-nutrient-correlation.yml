@@ -1,0 +1,84 @@
+name: Deploy food nutrient correlation
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - backend/phase_52_food_nutrient_correlation.sql
+      - ops/run-food-nutrient-migration.php
+      - app/food-nutrient.php
+      - app/food-nutrient-proof.html
+      - .github/workflows/deploy-food-nutrient-correlation.yml
+
+jobs:
+  migrate-deploy-verify:
+    runs-on: ubuntu-latest
+    permissions: {contents: read}
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          php -l ops/run-food-nutrient-migration.php
+          php -l app/food-nutrient.php
+      - name: Prepare SSH
+        env: {DEPLOY_BUNDLE: "${{ secrets.HOSTINGER_DEPLOY_BUNDLE }}"}
+        run: |
+          set -euo pipefail
+          mkdir -p "$HOME/.ssh"
+          printf '%s' "$DEPLOY_BUNDLE" | base64 --decode >/tmp/d.json
+          jq -r '.key' /tmp/d.json >"$HOME/.ssh/id_ed25519"; chmod 600 "$HOME/.ssh/id_ed25519"
+          echo "DEPLOY_HOST=$(jq -r '.host' /tmp/d.json)" >>"$GITHUB_ENV"
+          echo "DEPLOY_PORT=$(jq -r '.port' /tmp/d.json)" >>"$GITHUB_ENV"
+          echo "DEPLOY_USER=$(jq -r '.user' /tmp/d.json)" >>"$GITHUB_ENV"
+          ssh-keyscan -p "$(jq -r '.port' /tmp/d.json)" "$(jq -r '.host' /tmp/d.json)" >>"$HOME/.ssh/known_hosts"
+      - name: Migrate and deploy
+        run: |
+          set -euo pipefail
+          tar -czf /tmp/food-nutrient.tgz backend/phase_52_food_nutrient_correlation.sql ops/run-food-nutrient-migration.php app/food-nutrient.php app/food-nutrient-proof.html
+          scp -i "$HOME/.ssh/id_ed25519" -P "$DEPLOY_PORT" /tmp/food-nutrient.tgz "$DEPLOY_USER@$DEPLOY_HOST:/tmp/food-nutrient-${GITHUB_RUN_ID}.tgz"
+          ssh -i "$HOME/.ssh/id_ed25519" -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" "RUN_ID='${GITHUB_RUN_ID}' bash -s" <<'REMOTE'
+          set -euo pipefail
+          work="/tmp/food-nutrient-$RUN_ID"
+          rm -rf "$work"
+          mkdir -p "$work"
+          tar -xzf "/tmp/food-nutrient-$RUN_ID.tgz" -C "$work"
+          cat >"$work/run.sh" <<'RUNNER'
+          #!/usr/bin/env bash
+          set +e
+          work="$1"
+          php "$work/ops/run-food-nutrient-migration.php" "$HOME/domains/ilovemybody.in/ilmb-config.php" "$work/backend/phase_52_food_nutrient_correlation.sql" >"$work/migration.log" 2>&1
+          rc=$?
+          if test "$rc" -eq 0; then
+            target="$HOME/domains/ilovemybody.in/public_html/app"
+            install -m 600 "$work/app/food-nutrient.php" "$target/food-nutrient.php"
+            install -m 644 "$work/app/food-nutrient-proof.html" "$target/food-nutrient-proof.html"
+          fi
+          printf '%s\n' "$rc" >"$work/exit-code"
+          RUNNER
+          chmod 700 "$work/run.sh"
+          nohup bash "$work/run.sh" "$work" </dev/null >"$work/nohup.log" 2>&1 &
+          REMOTE
+          remote_work="/tmp/food-nutrient-${GITHUB_RUN_ID}"
+          for attempt in $(seq 1 120); do
+            state="$(ssh -i "$HOME/.ssh/id_ed25519" -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" "if test -f '$remote_work/exit-code'; then cat '$remote_work/exit-code'; else echo RUNNING; fi")"
+            if test "$state" != RUNNING; then
+              ssh -i "$HOME/.ssh/id_ed25519" -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" "cat '$remote_work/migration.log'; rm -rf '$remote_work' '/tmp/food-nutrient-${GITHUB_RUN_ID}.tgz'"
+              test "$state" = 0
+              exit 0
+            fi
+            sleep 15
+          done
+          echo "::error::Remote migration did not finish within 30 minutes."
+          exit 1
+      - name: Verify golden proof on Hostinger origin
+        run: |
+          set -euo pipefail
+          ssh -i "$HOME/.ssh/id_ed25519" -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" 'bash -s' <<'REMOTE' > /tmp/proof.json
+          php -r '
+          parse_str("food=ifct_a001&nutrient=al&portion_g=30",$_GET);
+          include $argv[1];
+          ' "$HOME/domains/ilovemybody.in/public_html/app/food-nutrient.php"
+          REMOTE
+          jq -e '.ok==true and .mode=="non_patient_food_nutrient_proof" and .patient_data_read==false and .patient_data_written==false and .identity.food.id=="ifct_a001" and .identity.nutrient.id=="al" and .composition.amount==3320 and .composition.unit=="ug" and .composition.basis_quantity==100 and .composition.basis_unit=="g" and .calculation.status=="calculated" and .calculation.amount==996 and .calculation.unit=="ug" and .chebi_link.status=="blocked_missing_authoritative_mapping"' /tmp/proof.json >/dev/null
+          ssh -i "$HOME/.ssh/id_ed25519" -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" 'grep -q "Food → nutrient proof" "$HOME/domains/ilovemybody.in/public_html/app/food-nutrient-proof.html"'
+          echo "GOLDEN_PROOF=passed"
