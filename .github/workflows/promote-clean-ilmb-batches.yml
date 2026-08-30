@@ -1,0 +1,146 @@
+name: Promote Authorized Clean ILMB Batches
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/promote-clean-ilmb-batches.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ilmb-production-promotion
+  cancel-in-progress: false
+
+jobs:
+  promote:
+    name: Validate, promote and reconcile clean batches
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+
+    steps:
+      - name: Prepare Hostinger SSH
+        shell: bash
+        env:
+          DEPLOY_BUNDLE: ${{ secrets.HOSTINGER_DEPLOY_BUNDLE }}
+        run: |
+          set -euo pipefail
+          test -n "$DEPLOY_BUNDLE"
+          mkdir -p "$HOME/.ssh"
+          chmod 700 "$HOME/.ssh"
+          printf '%s' "$DEPLOY_BUNDLE" | base64 --decode > "$RUNNER_TEMP/deploy.json"
+          jq -e '.host and .port and .user and .key' "$RUNNER_TEMP/deploy.json" >/dev/null
+          jq -r '.key' "$RUNNER_TEMP/deploy.json" > "$HOME/.ssh/id_ed25519"
+          chmod 600 "$HOME/.ssh/id_ed25519"
+          echo "DEPLOY_HOST=$(jq -r '.host' "$RUNNER_TEMP/deploy.json")" >> "$GITHUB_ENV"
+          echo "DEPLOY_PORT=$(jq -r '.port' "$RUNNER_TEMP/deploy.json")" >> "$GITHUB_ENV"
+          echo "DEPLOY_USER=$(jq -r '.user' "$RUNNER_TEMP/deploy.json")" >> "$GITHUB_ENV"
+
+      - name: Promote only clean, resolved staged batches
+        shell: bash
+        run: |
+          set -euo pipefail
+          ssh_args=(
+            -o IdentitiesOnly=yes
+            -o BatchMode=yes
+            -o StrictHostKeyChecking=accept-new
+            -o ConnectTimeout=30
+            -i "$HOME/.ssh/id_ed25519"
+            -p "$DEPLOY_PORT"
+          )
+          ssh "${ssh_args[@]}" "$DEPLOY_USER@$DEPLOY_HOST" 'bash -s' <<'REMOTE'
+          set -euo pipefail
+          ROOT="$HOME/private/ilmb-excel-sync"
+          CURRENT="$ROOT/current"
+          test -s "$CURRENT/ilmb-sync.env"
+          test -x "$CURRENT/.venv/bin/python"
+          set -a
+          . "$CURRENT/ilmb-sync.env"
+          set +a
+          "$CURRENT/.venv/bin/python" - <<'PY'
+          import json
+          from ilmb_sync.cli import get_db
+
+          REVIEWER = "Sapna Chaturvedi - explicit authorization 2026-08-30"
+          APPROVER = "Codex production operator"
+          REASON = (
+              "User authorized validation, approval and promotion of clean staged ILMB batches; "
+              "rejected and unresolved data must not be promoted."
+          )
+
+          db = get_db()
+          with db.connect() as conn:
+              with conn.cursor() as cur:
+                  cur.execute(
+                      """SELECT batch_id,file_name,system_id,status,row_count,error_count,created_at
+                           FROM ilmb_sync_batch
+                          WHERE status IN ('STAGED','APPROVED')
+                          ORDER BY CASE WHEN system_id='REF-ILMB-CROSSWALK' THEN 2 ELSE 1 END,
+                                   created_at,batch_id"""
+                  )
+                  batches = list(cur.fetchall())
+                  plan = []
+                  for batch in batches:
+                      cur.execute(
+                          """SELECT COUNT(*) AS n
+                               FROM ilmb_sync_stage_row
+                              WHERE batch_id=%s
+                                AND (
+                                  LOWER(sheet_name) LIKE '%%unresolved%%'
+                                  OR LOWER(COALESCE(JSON_UNQUOTE(JSON_EXTRACT(payload_json,'$.status')),'')) IN
+                                     ('unresolved','rejected')
+                                  OR LOWER(COALESCE(JSON_UNQUOTE(JSON_EXTRACT(payload_json,'$.row_status')),'')) IN
+                                     ('unresolved','rejected')
+                                  OR LOWER(COALESCE(JSON_UNQUOTE(JSON_EXTRACT(payload_json,'$.evidence_status')),'')) IN
+                                     ('unresolved','rejected')
+                                )""",
+                          (batch["batch_id"],),
+                      )
+                      unresolved = cur.fetchone()["n"]
+                      eligible = batch["error_count"] == 0 and unresolved == 0
+                      plan.append({
+                          "batch_id": batch["batch_id"],
+                          "file_name": batch["file_name"],
+                          "system_id": batch["system_id"],
+                          "status": batch["status"],
+                          "row_count": batch["row_count"],
+                          "error_count": batch["error_count"],
+                          "unresolved_rows": unresolved,
+                          "eligible": eligible,
+                      })
+
+          print("PREFLIGHT")
+          print(json.dumps(plan, indent=2, default=str))
+
+          results = []
+          for item in plan:
+              if not item["eligible"]:
+                  results.append({**item, "result": "EXCLUDED"})
+                  continue
+              if item["status"] == "STAGED":
+                  db.decide(item["batch_id"], REVIEWER, True, REASON)
+              promoted = db.promote(item["batch_id"], APPROVER)
+              reconciliation = db.reconcile(item["batch_id"])
+              if not reconciliation["reconciled"]:
+                  raise RuntimeError("Reconciliation failed for " + item["batch_id"])
+              results.append({
+                  "batch_id": item["batch_id"],
+                  "file_name": item["file_name"],
+                  "system_id": item["system_id"],
+                  "result": "PROMOTED",
+                  "promoted_rows": promoted,
+                  "reconciliation": reconciliation,
+              })
+
+          crosswalk_promoted = any(
+              x.get("system_id") == "REF-ILMB-CROSSWALK" and x.get("result") == "PROMOTED"
+              for x in results
+          )
+          crosswalk = db.rebuild_crosswalks() if crosswalk_promoted else None
+          print("RESULTS")
+          print(json.dumps({"batches": results, "crosswalk": crosswalk}, indent=2, default=str))
+          PY
+          REMOTE
