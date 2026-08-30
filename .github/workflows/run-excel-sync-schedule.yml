@@ -1,5 +1,5 @@
 name: Run ILMB Excel and ChEBI Sync
-# authorized intake trigger: 2026-08-30T09:20Z
+# authorized intake trigger: 2026-08-30T10:04Z
 
 on:
   push:
