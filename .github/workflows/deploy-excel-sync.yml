@@ -32,19 +32,14 @@ jobs:
           test -s ops/excel-sync/migrations/001_sync_control.sql
           test -s ops/excel-sync/migrations/002_canonical_history.sql
 
-      - name: Require deployment secrets
+      - name: Require deployment configuration
         env:
           DEPLOY_BUNDLE: ${{ secrets.HOSTINGER_DEPLOY_BUNDLE }}
-          GOOGLE_KEY: ${{ secrets.ILMB_GOOGLE_SERVICE_ACCOUNT_JSON }}
           DRIVE_FOLDER_ID: 1iUWxPQ3zQeLAI1kLBdqhbBPtHwt9MirS
         run: |
           set -euo pipefail
           test -n "$DEPLOY_BUNDLE"
-          test -n "$GOOGLE_KEY"
           test -n "$DRIVE_FOLDER_ID"
-          printf '%s' "$GOOGLE_KEY" > "$RUNNER_TEMP/google-service-account.json"
-          jq -e '.type == "service_account" and .client_email == "ilmb-excel-sync@ilovemybody-sync.iam.gserviceaccount.com" and .private_key' "$RUNNER_TEMP/google-service-account.json" >/dev/null
-          chmod 600 "$RUNNER_TEMP/google-service-account.json"
           printf '%s' "$DRIVE_FOLDER_ID" > "$RUNNER_TEMP/drive-folder-id"
 
       - name: Prepare SSH identity
@@ -69,7 +64,6 @@ jobs:
           package="$RUNNER_TEMP/excel-sync-package"
           mkdir -p "$package"
           cp -a ops/excel-sync/. "$package/"
-          install -m 600 "$RUNNER_TEMP/google-service-account.json" "$package/google-service-account.json"
           install -m 600 "$RUNNER_TEMP/drive-folder-id" "$package/drive-folder-id"
           tar -C "$package" -czf - . | ssh -i "$HOME/.ssh/ilmb_excel_sync" -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" \
             "mkdir -p \"\$HOME/private/ilmb-excel-sync/releases/$GITHUB_SHA\" && tar -xzf - -C \"\$HOME/private/ilmb-excel-sync/releases/$GITHUB_SHA\""
@@ -83,8 +77,18 @@ jobs:
           RELEASE="$ROOT/releases/$RELEASE_SHA"
           CURRENT="$ROOT/current"
           CONFIG="$HOME/domains/ilovemybody.in/ilmb-config.php"
+          KEY_SOURCE="$(find "$HOME/domains/ilovemybody.in/private" -maxdepth 5 -type f -name 'ilovemybody-sync-*.json' -print -quit)"
           test -s "$CONFIG"
-          test -s "$RELEASE/google-service-account.json"
+          test -n "$KEY_SOURCE"
+          test -s "$KEY_SOURCE"
+          python3 - "$KEY_SOURCE" <<'PY'
+          import json, pathlib, sys
+          payload=json.loads(pathlib.Path(sys.argv[1]).read_text())
+          assert payload.get('type') == 'service_account'
+          assert payload.get('client_email') == 'ilmb-excel-sync@ilovemybody-sync.iam.gserviceaccount.com'
+          assert payload.get('private_key')
+          PY
+          install -m 600 "$KEY_SOURCE" "$RELEASE/google-service-account.json"
           test -s "$RELEASE/drive-folder-id"
           python3 -m venv "$RELEASE/.venv"
           "$RELEASE/.venv/bin/pip" install --disable-pip-version-check --no-cache-dir "$RELEASE"
