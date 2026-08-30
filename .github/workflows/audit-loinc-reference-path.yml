@@ -1,0 +1,45 @@
+name: Audit LOINC specimen unit reference path
+on:
+  push:
+    branches: [main]
+    paths: [.github/workflows/audit-loinc-reference-path.yml]
+permissions: {contents: read}
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Prepare SSH
+        env: {DEPLOY_BUNDLE: "${{ secrets.HOSTINGER_DEPLOY_BUNDLE }}"}
+        run: |
+          set -euo pipefail
+          mkdir -p "$HOME/.ssh"
+          printf '%s' "$DEPLOY_BUNDLE" | base64 --decode >/tmp/d.json
+          jq -r '.key' /tmp/d.json >"$HOME/.ssh/id_ed25519"
+          chmod 600 "$HOME/.ssh/id_ed25519"
+          echo "H=$(jq -r '.host' /tmp/d.json)" >>"$GITHUB_ENV"
+          echo "P=$(jq -r '.port' /tmp/d.json)" >>"$GITHUB_ENV"
+          echo "U=$(jq -r '.user' /tmp/d.json)" >>"$GITHUB_ENV"
+          ssh-keyscan -p "$(jq -r '.port' /tmp/d.json)" "$(jq -r '.host' /tmp/d.json)" >>"$HOME/.ssh/known_hosts"
+      - name: Read-only governed lab foundation audit
+        run: |
+          ssh -i "$HOME/.ssh/id_ed25519" -p "$P" "$U@$H" 'bash -s' <<'REMOTE'
+          set -euo pipefail
+          php -d display_errors=1 -r '
+          $c=require $argv[1]; if(isset($c["database"])&&is_array($c["database"]))$c=$c["database"];
+          $db=$c["db"]??$c["name"];
+          $pdo=new PDO("mysql:host=".$c["host"].";port=".($c["port"]??3306).";dbname=".$db.";charset=utf8mb4",$c["user"],$c["pass"]??$c["password"],[PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION,PDO::ATTR_DEFAULT_FETCH_MODE=>PDO::FETCH_ASSOC]);
+          $tables=["ilb_internal_lab_reference_interval","ilb_internal_lab_result_observation","ilb_observation","ilb_formula","ilb_marker_formula_map","ilmb_canonical_record","ilmb_entity_crosswalk"];
+          foreach($tables as $t){
+            echo "TABLE ".$t."\n";
+            $q=$pdo->prepare("SELECT COLUMN_NAME,COLUMN_TYPE,IS_NULLABLE,COLUMN_KEY FROM information_schema.COLUMNS WHERE TABLE_SCHEMA=? AND TABLE_NAME=? ORDER BY ORDINAL_POSITION");
+            $q->execute([$db,$t]); echo json_encode($q->fetchAll(),JSON_UNESCAPED_SLASHES)."\n";
+          }
+          foreach(["ilb_internal_lab_reference_interval","ilb_formula","ilb_marker_formula_map"] as $t){
+            try{$n=$pdo->query("SELECT COUNT(*) FROM ".$t)->fetchColumn();echo "COUNT ".$t." ".$n."\n";}catch(Throwable $e){echo "COUNT ".$t." ERROR\n";}
+          }
+          $q=$pdo->query("SELECT source_key,JSON_UNQUOTE(JSON_EXTRACT(payload_json,\"$.LOINC_NUM\")) loinc_num,JSON_UNQUOTE(JSON_EXTRACT(payload_json,\"$.LONG_COMMON_NAME\")) name,JSON_UNQUOTE(JSON_EXTRACT(payload_json,\"$.SYSTEM\")) specimen,JSON_UNQUOTE(JSON_EXTRACT(payload_json,\"$.PROPERTY\")) property_name,JSON_UNQUOTE(JSON_EXTRACT(payload_json,\"$.SCALE_TYP\")) scale_type,JSON_UNQUOTE(JSON_EXTRACT(payload_json,\"$.EXAMPLE_UCUM_UNITS\")) example_ucum,JSON_UNQUOTE(JSON_EXTRACT(payload_json,\"$.EXAMPLE_UNITS\")) example_units FROM ilmb_canonical_record WHERE system_id=\"SYS-001\" AND sheet_name=\"LOINC_Master\" AND active=1 AND source_key IN (\"2344-0\",\"2345-7\") ORDER BY source_key");
+          echo "LOINC_EXAMPLES\n".json_encode($q->fetchAll(),JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES)."\n";
+          $q=$pdo->query("SELECT JSON_UNQUOTE(JSON_EXTRACT(payload_json,\"$.SYSTEM\")) specimen,COUNT(*) n FROM ilmb_canonical_record WHERE system_id=\"SYS-001\" AND sheet_name=\"LOINC_Master\" AND active=1 GROUP BY specimen ORDER BY n DESC LIMIT 20");
+          echo "TOP_SPECIMENS\n".json_encode($q->fetchAll(),JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES)."\n";
+          ' "$HOME/domains/ilovemybody.in/ilmb-config.php"
+          REMOTE
