@@ -112,6 +112,27 @@ class ValidatorTests(unittest.TestCase):
         self.assertEqual([r.source_key for r in result.rows], ["ifct_a001::protein", "ifct_a001::fat"])
         self.assertNotIn("99_DATA_MANIFEST", result.sheet_counts)
 
+    def test_configured_header_row_is_used_exactly(self):
+        path = Path(self.temp.name) / "modules.json"
+        path.write_text(json.dumps({"modules": [{
+            "pattern": "ILMB_Test_*.xlsx", "system_id": "TEST",
+            "header_row": 4, "include_sheets": ["Data"],
+            "sheet_keys": {"Data": ["record_id"]}
+        }]}))
+        validator = WorkbookValidator(ModuleRegistry(path))
+        wb = Workbook(); ws = wb.active; ws.title = "Data"
+        ws.append(["Release", "2026-08"])
+        ws.append(["Source", "Controlled pilot"])
+        ws.append([])
+        ws.append(["record_id", "name"])
+        ws.append(["T-001", "Pilot row"])
+        out = io.BytesIO(); wb.save(out)
+        result = validator.validate_bytes("ILMB_Test_Pilot.xlsx", out.getvalue())
+        self.assertTrue(result.valid)
+        self.assertEqual(len(result.rows), 1)
+        self.assertEqual(result.rows[0].source_key, "T-001")
+        self.assertEqual(result.rows[0].source_row, 5)
+
     def test_row_quality_gates_exclude_missing_and_negative_measurements(self):
         path = Path(self.temp.name) / "modules.json"
         path.write_text(json.dumps({"modules": [{
