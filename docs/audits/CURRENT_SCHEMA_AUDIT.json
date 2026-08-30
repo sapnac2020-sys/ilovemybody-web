@@ -1,10 +1,10 @@
 {
-    "audit_version": "2026-08-30.4",
-    "generated_at_utc": "2026-08-30T07:22:17+00:00",
+    "audit_version": "2026-08-30.5",
+    "generated_at_utc": "2026-08-30T07:51:42+00:00",
     "schema": "u756742628_ilovemybody",
     "summary": {
-        "all_tables_and_views": 1309,
-        "base_tables": 1006,
+        "all_tables_and_views": 1310,
+        "base_tables": 1007,
         "views": 303,
         "foreign_key_columns": 521,
         "required_tables_checked": 102,
@@ -8346,20 +8346,28 @@
             "update_time": null
         },
         {
+            "table_name": "ilmb_crosswalk_endpoint",
+            "table_type": "BASE TABLE",
+            "engine": "InnoDB",
+            "table_rows": 0,
+            "create_time": "2026-08-30 07:45:52",
+            "update_time": null
+        },
+        {
             "table_name": "ilmb_entity_crosswalk",
             "table_type": "BASE TABLE",
             "engine": "InnoDB",
             "table_rows": 0,
-            "create_time": "2026-08-30 07:05:53",
-            "update_time": null
+            "create_time": "2026-08-30 07:45:52",
+            "update_time": "2026-08-30 07:45:52"
         },
         {
             "table_name": "ilmb_entity_crosswalk_history",
             "table_type": "BASE TABLE",
             "engine": "InnoDB",
             "table_rows": 0,
-            "create_time": "2026-08-30 07:05:53",
-            "update_time": null
+            "create_time": "2026-08-30 07:45:52",
+            "update_time": "2026-08-30 07:45:52"
         },
         {
             "table_name": "ilmb_sync_audit",
@@ -14860,12 +14868,16 @@
             "column_count": 13
         },
         {
+            "table_name": "ilmb_crosswalk_endpoint",
+            "column_count": 8
+        },
+        {
             "table_name": "ilmb_entity_crosswalk",
-            "column_count": 19
+            "column_count": 21
         },
         {
             "table_name": "ilmb_entity_crosswalk_history",
-            "column_count": 22
+            "column_count": 24
         },
         {
             "table_name": "ilmb_sync_audit",
@@ -22072,6 +22084,12 @@
             "primary_key_columns": "1",
             "unique_key_columns": "0",
             "indexed_columns": "4"
+        },
+        {
+            "table_name": "ilmb_crosswalk_endpoint",
+            "primary_key_columns": "3",
+            "unique_key_columns": "0",
+            "indexed_columns": "1"
         },
         {
             "table_name": "ilmb_entity_crosswalk",
@@ -36503,5 +36521,22 @@
             "populated_rows": 216,
             "distinct_values": 29
         }
-    ]
+    ],
+    "crosswalk_readiness": {
+        "tables_present": true,
+        "mapping_totals": {
+            "total_mappings": 0,
+            "exact_mappings": null,
+            "approved_mappings": null,
+            "source_resolved": null,
+            "target_resolved": null,
+            "computation_eligible": null
+        },
+        "endpoint_totals": [],
+        "local_ucum": {
+            "unit_rows": 60,
+            "populated_ucum": "60",
+            "distinct_ucum": 60
+        }
+    }
 }
