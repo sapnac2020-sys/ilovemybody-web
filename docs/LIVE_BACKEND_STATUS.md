@@ -3,10 +3,9 @@
 - Database: `u756742628_ilovemybody`
 - Migration: phases 47, 48, 49 and 50
 - Verification: `workflow_failed_before_migration`
-- Workflow run: `33141361218` (attempt `2`)
-- Source commit: `2c2b3721ea46e6172531e3b25f1a8711168790fc`
-- Verified at (UTC): `2026-08-28T04:18:50Z`
+- Workflow run: `33308065049` (attempt `1`)
+- Source commit: `07535c25d6113f72ee2c3a67c5359027646398a5`
+- Verified at (UTC): `2026-08-30T11:06:03Z`
 
 ```text
-Migration command was not reached.
 ```
