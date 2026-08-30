@@ -99,11 +99,17 @@ jobs:
           ROOT="$HOME/private/ilmb-excel-sync"
           RELEASE="$ROOT/releases/$RELEASE_SHA"
           CURRENT="$ROOT/current"
-          CONFIG="$HOME/domains/ilovemybody.in/ilmb-config.php"
-          KEY_SOURCE="$(find "$HOME/domains/ilovemybody.in/private" -maxdepth 5 -type f -name 'ilovemybody-sync-*.json' -print -quit)"
-          test -s "$CONFIG"
-          test -n "$KEY_SOURCE"
-          test -s "$KEY_SOURCE"
+          CONFIG="$(find "$HOME/domains/ilovemybody.in" -maxdepth 5 -type f -name 'ilmb-config.php' -print -quit)"
+          KEY_SOURCE="$(find "$HOME/domains/ilovemybody.in/private" "$HOME/private" -maxdepth 6 -type f -name 'ilovemybody-sync-*.json' -print -quit 2>/dev/null)"
+          if test -z "$CONFIG" || ! test -s "$CONFIG"; then
+            echo "::error::Hostinger database configuration ilmb-config.php was not found under the ILMB domain."
+            exit 1
+          fi
+          if test -z "$KEY_SOURCE" || ! test -s "$KEY_SOURCE"; then
+            echo "::error::Google service-account JSON was not found in either approved private Hostinger location."
+            exit 1
+          fi
+          echo "Hostinger private prerequisites located."
           python3 - "$KEY_SOURCE" <<'PY'
           import json, pathlib, sys
           payload=json.loads(pathlib.Path(sys.argv[1]).read_text())
