@@ -6,10 +6,6 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Iterable
 
-from google.oauth2 import service_account
-from googleapiclient.discovery import build
-from googleapiclient.http import MediaIoBaseDownload
-
 
 SCOPES = ["https://www.googleapis.com/auth/drive.readonly"]
 
@@ -24,6 +20,9 @@ class DriveFile:
 
 class DriveReader:
     def __init__(self, key_file: str):
+        from google.oauth2 import service_account
+        from googleapiclient.discovery import build
+
         creds = service_account.Credentials.from_service_account_file(key_file, scopes=SCOPES)
         self.service = build("drive", "v3", credentials=creds, cache_discovery=False)
 
@@ -53,6 +52,8 @@ class DriveReader:
                 break
 
     def download(self, file_id: str) -> bytes:
+        from googleapiclient.http import MediaIoBaseDownload
+
         out = io.BytesIO()
         downloader = MediaIoBaseDownload(out, self.service.files().get_media(fileId=file_id, supportsAllDrives=True))
         done = False
