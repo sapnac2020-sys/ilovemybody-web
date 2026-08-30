@@ -30,6 +30,6 @@ jobs:
         run: |
           set -euo pipefail
           scp -i "$HOME/.ssh/id_ed25519" -P "$DEPLOY_PORT" app/medicine-inventory.php "$DEPLOY_USER@$DEPLOY_HOST:/tmp/medicine-inventory.php"
-          ssh -i "$HOME/.ssh/id_ed25519" -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" 'install -m 600 /tmp/medicine-inventory.php "$HOME/domains/ilovemybody.in/public_html/app/medicine-inventory.php"; rm -f /tmp/medicine-inventory.php; php -r '''include $argv[1];''' "$HOME/domains/ilovemybody.in/public_html/app/medicine-inventory.php"' > /tmp/inventory.json
+          ssh -i "$HOME/.ssh/id_ed25519" -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" 'target="$HOME/domains/ilovemybody.in/public_html/app/medicine-inventory.php"; install -m 600 /tmp/medicine-inventory.php "$target"; rm -f /tmp/medicine-inventory.php; php "$target"' > /tmp/inventory.json
           jq -e '.ok==true and .mode=="read_only_medicine_inventory" and .patient_data_read==false and .patient_data_written==false' /tmp/inventory.json >/dev/null
           echo "MEDICINE_INVENTORY=deployed"
