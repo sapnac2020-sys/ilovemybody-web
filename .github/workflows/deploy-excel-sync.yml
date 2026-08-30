@@ -54,7 +54,7 @@ jobs:
           jq -r '.key' "$RUNNER_TEMP/deploy.json" > "$HOME/.ssh/id_ed25519"
           chmod 600 "$HOME/.ssh/id_ed25519"
           expected_key='ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIO1ErG+7d1bH0UjhSDJa2JlKqsfESGDASO75XBpRsLb+'
-          derived_key="$(ssh-keygen -y -f "$HOME/.ssh/id_ed25519")"
+          derived_key="$(ssh-keygen -y -f "$HOME/.ssh/id_ed25519" | awk '{print $1 " " $2}')"
           if test "$derived_key" != "$expected_key"; then
             echo "::error::HOSTINGER_DEPLOY_BUNDLE does not match the public key authorized in Hostinger."
             echo "Authorize this safe public key in Hostinger: $derived_key ilmb-excel-sync-github-actions"
