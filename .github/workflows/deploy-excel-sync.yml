@@ -109,14 +109,15 @@ jobs:
           ln -sfn "$RELEASE" "$CURRENT"
           mkdir -p "$ROOT/logs"
           cron_line="*/15 * * * * set -a; . $CURRENT/ilmb-sync.env; set +a; $CURRENT/.venv/bin/ilmb-sync scan >> $ROOT/logs/sync.log 2>&1 # ILMB_EXCEL_SYNC"
-          printf '%s\n' "$cron_line" > "$ROOT/cron-line.txt"
+          chebi_cron_line="20 4 20 * * set -a; . $CURRENT/ilmb-sync.env; set +a; $CURRENT/.venv/bin/ilmb-sync chebi-fetch --release \$(date -u +\%Y-\%m-\%d) >> $ROOT/logs/chebi-sync.log 2>&1 # ILMB_CHEBI_SYNC"
+          printf '%s\n%s\n' "$cron_line" "$chebi_cron_line" > "$ROOT/cron-line.txt"
           if command -v crontab >/dev/null 2>&1; then
-            (crontab -l 2>/dev/null | grep -v 'ILMB_EXCEL_SYNC' || true; printf '%s\n' "$cron_line") | crontab -
-            crontab -l | grep 'ILMB_EXCEL_SYNC'
+            (crontab -l 2>/dev/null | grep -v 'ILMB_EXCEL_SYNC' | grep -v 'ILMB_CHEBI_SYNC' || true; printf '%s\n%s\n' "$cron_line" "$chebi_cron_line") | crontab -
+            crontab -l | grep -E 'ILMB_(EXCEL|CHEBI)_SYNC'
             echo "SCHEDULED=crontab" > "$ROOT/schedule-status.txt"
           else
-            echo "NOTE: no crontab binary on this host. Add this line manually via hPanel -> Advanced -> Cron Jobs:"
-            echo "$cron_line"
+            echo "NOTE: no crontab binary on this host. Add these lines manually via hPanel -> Advanced -> Cron Jobs:"
+            printf '%s\n%s\n' "$cron_line" "$chebi_cron_line"
             echo "SCHEDULED=manual-required" > "$ROOT/schedule-status.txt"
           fi
           REMOTE
