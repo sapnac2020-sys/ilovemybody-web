@@ -1,6 +1,6 @@
 {
     "audit_version": "2026-07-24.3",
-    "generated_at_utc": "2026-08-30T06:53:47+00:00",
+    "generated_at_utc": "2026-08-30T07:03:21+00:00",
     "schema": "u756742628_ilovemybody",
     "summary": {
         "all_tables_and_views": 1307,
@@ -29392,5 +29392,3636 @@
             "resolution_rule": "Review candidate duplicates, select a canonical reference, repoint dependent links, then set lifecycle status to duplicate or superseded."
         }
     ],
-    "legacy_frontend_leakage": []
+    "legacy_frontend_leakage": [],
+    "module_inventory_exact": {
+        "chebi": {
+            "base_tables": 0,
+            "views": 0,
+            "exact_rows": 0,
+            "nonempty_base_tables": 0,
+            "empty_base_tables": 0,
+            "tables": []
+        },
+        "loinc": {
+            "base_tables": 0,
+            "views": 0,
+            "exact_rows": 0,
+            "nonempty_base_tables": 0,
+            "empty_base_tables": 0,
+            "tables": []
+        },
+        "human_body": {
+            "base_tables": 84,
+            "views": 26,
+            "exact_rows": 61916,
+            "nonempty_base_tables": 75,
+            "empty_base_tables": 9,
+            "tables": [
+                {
+                    "table_name": "anatomy_items",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 130
+                },
+                {
+                    "table_name": "anatomy_mind_body_mappings",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 294
+                },
+                {
+                    "table_name": "ilb_anatomical_coordinate_evidence_master",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 0
+                },
+                {
+                    "table_name": "ilb_anatomical_coordinate_extraction_queue",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 0
+                },
+                {
+                    "table_name": "ilb_anatomical_coordinate_intake_checkpoint",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 1
+                },
+                {
+                    "table_name": "ilb_anatomical_coordinate_model_master",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 1
+                },
+                {
+                    "table_name": "ilb_anatomical_coordinate_source_intake",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 0
+                },
+                {
+                    "table_name": "ilb_anatomical_coordinate_source_scope",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 1
+                },
+                {
+                    "table_name": "ilb_anatomical_coordinate_source_validation",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 0
+                },
+                {
+                    "table_name": "ilb_anatomical_coordinate_transform",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 0
+                },
+                {
+                    "table_name": "ilb_anatomical_coordinate_validation",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 0
+                },
+                {
+                    "table_name": "ilb_anatomical_coordinate_value",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 0
+                },
+                {
+                    "table_name": "ilb_anatomical_landmark_master",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 0
+                },
+                {
+                    "table_name": "ilb_anatomical_map_equilibrium_link",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 317
+                },
+                {
+                    "table_name": "ilb_anatomical_map_node",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 151
+                },
+                {
+                    "table_name": "ilb_anatomical_path_intersection",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 0
+                },
+                {
+                    "table_name": "ilb_anatomy_composite_ref",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 42
+                },
+                {
+                    "table_name": "ilb_axis_ph_anatomical_intersection",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 3747
+                },
+                {
+                    "table_name": "ilb_brain_ph_anatomical_intersection",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 1550
+                },
+                {
+                    "table_name": "ilb_cardiovascular_anatomy_reference_master",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 15
+                },
+                {
+                    "table_name": "ilb_cell",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 8
+                },
+                {
+                    "table_name": "ilb_cell_requirement",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 104
+                },
+                {
+                    "table_name": "ilb_cell_substrate",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 86
+                },
+                {
+                    "table_name": "ilb_cell_type",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 48
+                },
+                {
+                    "table_name": "ilb_c_dimension_organ",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 23
+                },
+                {
+                    "table_name": "ilb_digestive_anatomy_reference_master",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 17
+                },
+                {
+                    "table_name": "ilb_endocrine_anatomy_reference_master",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 12
+                },
+                {
+                    "table_name": "ilb_environment_ph_anatomical_intersection",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 10446
+                },
+                {
+                    "table_name": "ilb_enzyme",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 20
+                },
+                {
+                    "table_name": "ilb_faculty_hormone",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 6
+                },
+                {
+                    "table_name": "ilb_feeling_hormone",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 43
+                },
+                {
+                    "table_name": "ilb_functional_tissue_unit",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 31
+                },
+                {
+                    "table_name": "ilb_glucose_hormone_web",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 8
+                },
+                {
+                    "table_name": "ilb_gut_ph_anatomical_intersection",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 13727
+                },
+                {
+                    "table_name": "ilb_hormone",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 74
+                },
+                {
+                    "table_name": "ilb_hormone_axis",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 59
+                },
+                {
+                    "table_name": "ilb_hormone_control",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 6
+                },
+                {
+                    "table_name": "ilb_hormone_dietary_lever",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 4
+                },
+                {
+                    "table_name": "ilb_hormone_electrical_edge",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 6
+                },
+                {
+                    "table_name": "ilb_hormone_gap",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 43
+                },
+                {
+                    "table_name": "ilb_hormone_key_alias",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 2
+                },
+                {
+                    "table_name": "ilb_hormone_kinetics",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 41
+                },
+                {
+                    "table_name": "ilb_hormone_nutrient",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 53
+                },
+                {
+                    "table_name": "ilb_hormone_organ_bridge",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 26
+                },
+                {
+                    "table_name": "ilb_hormone_ph_edge",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 61
+                },
+                {
+                    "table_name": "ilb_hormone_science",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 25
+                },
+                {
+                    "table_name": "ilb_hormone_source_organ",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 66
+                },
+                {
+                    "table_name": "ilb_hormone_split_control",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 2
+                },
+                {
+                    "table_name": "ilb_hormone_state",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 4
+                },
+                {
+                    "table_name": "ilb_hormone_target",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 43
+                },
+                {
+                    "table_name": "ilb_hormone_target_organ",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 145
+                },
+                {
+                    "table_name": "ilb_integumentary_anatomy_reference_master",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 15
+                },
+                {
+                    "table_name": "ilb_marker_energy_hormone",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 2
+                },
+                {
+                    "table_name": "ilb_marker_hormone",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 118
+                },
+                {
+                    "table_name": "ilb_marker_hormone_direction",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 5
+                },
+                {
+                    "table_name": "ilb_molecule_radius",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 4
+                },
+                {
+                    "table_name": "ilb_need_hormone",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 41
+                },
+                {
+                    "table_name": "ilb_nervous_system_anatomy_reference_master",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 28
+                },
+                {
+                    "table_name": "ilb_oral_dental_anatomy_reference_master",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 19
+                },
+                {
+                    "table_name": "ilb_organ_anatomical_site",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 7
+                },
+                {
+                    "table_name": "ilb_organ_dimension_resolution",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 51
+                },
+                {
+                    "table_name": "ilb_organ_electrogenic_mechanism",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 4
+                },
+                {
+                    "table_name": "ilb_organ_key_alias",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 86
+                },
+                {
+                    "table_name": "ilb_organ_nutrient",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 101
+                },
+                {
+                    "table_name": "ilb_organ_ph_anatomical_intersection",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 25362
+                },
+                {
+                    "table_name": "ilb_organ_ph_environment",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 12
+                },
+                {
+                    "table_name": "ilb_organ_ph_path_intersection",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 609
+                },
+                {
+                    "table_name": "ilb_organ_ph_path_master",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 198
+                },
+                {
+                    "table_name": "ilb_organ_ph_path_point",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 2772
+                },
+                {
+                    "table_name": "ilb_organ_ph_scenario",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 204
+                },
+                {
+                    "table_name": "ilb_organ_ph_surface_crossing",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 392
+                },
+                {
+                    "table_name": "ilb_organ_system",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 34
+                },
+                {
+                    "table_name": "ilb_ph_edge_organ",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 20
+                },
+                {
+                    "table_name": "ilb_ph_organ_compartment",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 18
+                },
+                {
+                    "table_name": "ilb_ph_path_anatomical_intersection",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 128
+                },
+                {
+                    "table_name": "ilb_ph_reference_anatomy_evidence",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 8
+                },
+                {
+                    "table_name": "ilb_reproductive_anatomy_reference_master",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 18
+                },
+                {
+                    "table_name": "ilb_throat_neck_anatomy_reference_master",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 19
+                },
+                {
+                    "table_name": "ilb_tissue_compartment",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 45
+                },
+                {
+                    "table_name": "ilb_tissue_electrical",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 40
+                },
+                {
+                    "table_name": "ilb_tissue_metabolic_rate",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 37
+                },
+                {
+                    "table_name": "ilb_vertical_endpoint_anatomy_candidate",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 4
+                },
+                {
+                    "table_name": "organs",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 23
+                },
+                {
+                    "table_name": "organ_nutrients",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 4
+                },
+                {
+                    "table_name": "vw_ilb_cell",
+                    "table_type": "VIEW",
+                    "exact_rows": null
+                },
+                {
+                    "table_name": "vw_ilb_cell_need",
+                    "table_type": "VIEW",
+                    "exact_rows": null
+                },
+                {
+                    "table_name": "vw_ilb_cell_state",
+                    "table_type": "VIEW",
+                    "exact_rows": null
+                },
+                {
+                    "table_name": "vw_ilb_cell_state_now",
+                    "table_type": "VIEW",
+                    "exact_rows": null
+                },
+                {
+                    "table_name": "vw_ilb_cell_supply",
+                    "table_type": "VIEW",
+                    "exact_rows": null
+                },
+                {
+                    "table_name": "vw_ilb_cell_supply_now",
+                    "table_type": "VIEW",
+                    "exact_rows": null
+                },
+                {
+                    "table_name": "vw_ilb_comparison_by_hormone",
+                    "table_type": "VIEW",
+                    "exact_rows": null
+                },
+                {
+                    "table_name": "vw_ilb_comparison_by_organ",
+                    "table_type": "VIEW",
+                    "exact_rows": null
+                },
+                {
+                    "table_name": "vw_ilb_emotion_hormone_state",
+                    "table_type": "VIEW",
+                    "exact_rows": null
+                },
+                {
+                    "table_name": "vw_ilb_emotion_target_organ",
+                    "table_type": "VIEW",
+                    "exact_rows": null
+                },
+                {
+                    "table_name": "vw_ilb_energy_hormone_split",
+                    "table_type": "VIEW",
+                    "exact_rows": null
+                },
+                {
+                    "table_name": "vw_ilb_hormone_connectome",
+                    "table_type": "VIEW",
+                    "exact_rows": null
+                },
+                {
+                    "table_name": "vw_ilb_ideal_hormone",
+                    "table_type": "VIEW",
+                    "exact_rows": null
+                },
+                {
+                    "table_name": "vw_ilb_organ_conserved_need",
+                    "table_type": "VIEW",
+                    "exact_rows": null
+                },
+                {
+                    "table_name": "vw_ilb_organ_opportunity_threat",
+                    "table_type": "VIEW",
+                    "exact_rows": null
+                },
+                {
+                    "table_name": "vw_ilb_organ_swot",
+                    "table_type": "VIEW",
+                    "exact_rows": null
+                },
+                {
+                    "table_name": "vw_ilb_organ_system",
+                    "table_type": "VIEW",
+                    "exact_rows": null
+                },
+                {
+                    "table_name": "vw_ilb_organ_three_systems",
+                    "table_type": "VIEW",
+                    "exact_rows": null
+                },
+                {
+                    "table_name": "vw_ilb_patient_organ_need",
+                    "table_type": "VIEW",
+                    "exact_rows": null
+                },
+                {
+                    "table_name": "vw_ilb_patient_organ_report",
+                    "table_type": "VIEW",
+                    "exact_rows": null
+                },
+                {
+                    "table_name": "vw_ilb_patient_organ_score",
+                    "table_type": "VIEW",
+                    "exact_rows": null
+                },
+                {
+                    "table_name": "vw_ilb_patient_organ_signal",
+                    "table_type": "VIEW",
+                    "exact_rows": null
+                },
+                {
+                    "table_name": "vw_ilb_ph_organ_voltage",
+                    "table_type": "VIEW",
+                    "exact_rows": null
+                },
+                {
+                    "table_name": "vw_ilb_tissue_closure",
+                    "table_type": "VIEW",
+                    "exact_rows": null
+                },
+                {
+                    "table_name": "v_ilb_report_hormone_feed",
+                    "table_type": "VIEW",
+                    "exact_rows": null
+                },
+                {
+                    "table_name": "v_ilb_report_hormone_read",
+                    "table_type": "VIEW",
+                    "exact_rows": null
+                }
+            ]
+        },
+        "nutrition": {
+            "base_tables": 34,
+            "views": 8,
+            "exact_rows": 20030,
+            "nonempty_base_tables": 15,
+            "empty_base_tables": 19,
+            "tables": [
+                {
+                    "table_name": "ilb_ayurveda_food_attribute",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 0
+                },
+                {
+                    "table_name": "ilb_ayurveda_food_profile",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 0
+                },
+                {
+                    "table_name": "ilb_food_analysis_candidate",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 0
+                },
+                {
+                    "table_name": "ilb_food_analysis_input_photo",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 0
+                },
+                {
+                    "table_name": "ilb_food_analysis_run",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 0
+                },
+                {
+                    "table_name": "ilb_food_capture_photo",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 0
+                },
+                {
+                    "table_name": "ilb_food_capture_session",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 0
+                },
+                {
+                    "table_name": "ilb_food_component_measurement",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 1
+                },
+                {
+                    "table_name": "ilb_food_consumption_adjustment",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 0
+                },
+                {
+                    "table_name": "ilb_food_event_component",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 0
+                },
+                {
+                    "table_name": "ilb_food_event_component_detail",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 0
+                },
+                {
+                    "table_name": "ilb_food_event_confirmation",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 0
+                },
+                {
+                    "table_name": "ilb_food_event_context",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 0
+                },
+                {
+                    "table_name": "ilb_food_event_gut_response",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 0
+                },
+                {
+                    "table_name": "ilb_food_event_revision",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 0
+                },
+                {
+                    "table_name": "ilb_food_item",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 2
+                },
+                {
+                    "table_name": "ilb_food_media_consent_event",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 0
+                },
+                {
+                    "table_name": "ilb_food_nutrient_derivation",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 0
+                },
+                {
+                    "table_name": "ilb_food_nutrient_observation",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 19462
+                },
+                {
+                    "table_name": "ilb_food_ui_option",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 42
+                },
+                {
+                    "table_name": "ilb_hormone_nutrient",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 53
+                },
+                {
+                    "table_name": "ilb_ifct_component_class",
+                    "table_type": "VIEW",
+                    "exact_rows": null
+                },
+                {
+                    "table_name": "ilb_internal_sugar_foods",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 0
+                },
+                {
+                    "table_name": "ilb_internal_sugar_food_composition",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 0
+                },
+                {
+                    "table_name": "ilb_internal_sugar_food_exposures",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 0
+                },
+                {
+                    "table_name": "ilb_nutrient_catalog",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 24
+                },
+                {
+                    "table_name": "ilb_nutrient_fate",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 28
+                },
+                {
+                    "table_name": "ilb_nutrient_requirement",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 57
+                },
+                {
+                    "table_name": "ilb_nutrient_requirement_basis",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 219
+                },
+                {
+                    "table_name": "ilb_nutrient_share",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 18
+                },
+                {
+                    "table_name": "ilb_nutrient_source_map",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 13
+                },
+                {
+                    "table_name": "ilb_organ_nutrient",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 101
+                },
+                {
+                    "table_name": "ilb_snapshot_food_event",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 1
+                },
+                {
+                    "table_name": "nutrients",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 5
+                },
+                {
+                    "table_name": "organ_nutrients",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 4
+                },
+                {
+                    "table_name": "vw_ilb_energy_to_nutrient",
+                    "table_type": "VIEW",
+                    "exact_rows": null
+                },
+                {
+                    "table_name": "vw_ilb_ideal_nutrient_weight",
+                    "table_type": "VIEW",
+                    "exact_rows": null
+                },
+                {
+                    "table_name": "v_ilb_ayurveda_food_classification",
+                    "table_type": "VIEW",
+                    "exact_rows": null
+                },
+                {
+                    "table_name": "v_ilb_confirmed_food_capture",
+                    "table_type": "VIEW",
+                    "exact_rows": null
+                },
+                {
+                    "table_name": "v_ilb_food_acid_load",
+                    "table_type": "VIEW",
+                    "exact_rows": null
+                },
+                {
+                    "table_name": "v_ilb_food_gut_brain_action_timeline",
+                    "table_type": "VIEW",
+                    "exact_rows": null
+                },
+                {
+                    "table_name": "v_ilb_food_media_consent",
+                    "table_type": "VIEW",
+                    "exact_rows": null
+                }
+            ]
+        },
+        "medicines": {
+            "base_tables": 17,
+            "views": 4,
+            "exact_rows": 573,
+            "nonempty_base_tables": 12,
+            "empty_base_tables": 5,
+            "tables": [
+                {
+                    "table_name": "ilb_drug",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 14
+                },
+                {
+                    "table_name": "ilb_drug_identifier",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 4
+                },
+                {
+                    "table_name": "ilb_drug_label_reference",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 8
+                },
+                {
+                    "table_name": "ilb_drug_lab_rule",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 0
+                },
+                {
+                    "table_name": "ilb_drug_marker_connection",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 10
+                },
+                {
+                    "table_name": "ilb_drug_property",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 34
+                },
+                {
+                    "table_name": "ilb_gene_drug_pair",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 64
+                },
+                {
+                    "table_name": "ilb_internal_sugar_medications",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 0
+                },
+                {
+                    "table_name": "ilb_internal_sugar_medication_exposures",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 0
+                },
+                {
+                    "table_name": "ilb_medication_context_interaction",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 11
+                },
+                {
+                    "table_name": "ilb_medicine_mechanism",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 10
+                },
+                {
+                    "table_name": "ilb_medicine_report_document",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 0
+                },
+                {
+                    "table_name": "ilb_medicine_report_ingredient",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 9
+                },
+                {
+                    "table_name": "ilb_pharma_medicine",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 384
+                },
+                {
+                    "table_name": "ilb_snapshot_medicine_event",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 0
+                },
+                {
+                    "table_name": "ilb_subject_medication",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 17
+                },
+                {
+                    "table_name": "ilb_subject_medicine_report",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 8
+                },
+                {
+                    "table_name": "v_ilb_active_medication_monitoring",
+                    "table_type": "VIEW",
+                    "exact_rows": null
+                },
+                {
+                    "table_name": "v_ilb_case_medicine_sources",
+                    "table_type": "VIEW",
+                    "exact_rows": null
+                },
+                {
+                    "table_name": "v_ilb_medication_monitoring_gaps",
+                    "table_type": "VIEW",
+                    "exact_rows": null
+                },
+                {
+                    "table_name": "v_ilb_records_medicine_context",
+                    "table_type": "VIEW",
+                    "exact_rows": null
+                }
+            ]
+        },
+        "units_ranges": {
+            "base_tables": 8,
+            "views": 1,
+            "exact_rows": 201,
+            "nonempty_base_tables": 7,
+            "empty_base_tables": 1,
+            "tables": [
+                {
+                    "table_name": "claim_unit",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 25
+                },
+                {
+                    "table_name": "ilb_functional_tissue_unit",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 31
+                },
+                {
+                    "table_name": "ilb_internal_lab_reference_interval",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 37
+                },
+                {
+                    "table_name": "ilb_internal_sugar_reference_ranges",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 0
+                },
+                {
+                    "table_name": "ilb_marker_unit_map",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 36
+                },
+                {
+                    "table_name": "ilb_unit",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 60
+                },
+                {
+                    "table_name": "ilb_unit_alias",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 11
+                },
+                {
+                    "table_name": "ilb_unit_conversion_requirement",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 1
+                },
+                {
+                    "table_name": "vw_ilb_organ_opportunity_threat",
+                    "table_type": "VIEW",
+                    "exact_rows": null
+                }
+            ]
+        },
+        "formulas": {
+            "base_tables": 32,
+            "views": 6,
+            "exact_rows": 3381,
+            "nonempty_base_tables": 29,
+            "empty_base_tables": 3,
+            "tables": [
+                {
+                    "table_name": "ilb_ayurveda_formulation",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 200
+                },
+                {
+                    "table_name": "ilb_blocked_formula",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 12
+                },
+                {
+                    "table_name": "ilb_case_formula_definition",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 12
+                },
+                {
+                    "table_name": "ilb_case_formula_input",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 18
+                },
+                {
+                    "table_name": "ilb_case_formula_result",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 0
+                },
+                {
+                    "table_name": "ilb_clinical_formulation",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 0
+                },
+                {
+                    "table_name": "ilb_derived_formula",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 225
+                },
+                {
+                    "table_name": "ilb_formula",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 232
+                },
+                {
+                    "table_name": "ilb_formula_adjudication",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 365
+                },
+                {
+                    "table_name": "ilb_formula_conflict",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 2
+                },
+                {
+                    "table_name": "ilb_formula_crosscheck",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 1
+                },
+                {
+                    "table_name": "ilb_formula_domain",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 15
+                },
+                {
+                    "table_name": "ilb_formula_freeze",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 586
+                },
+                {
+                    "table_name": "ilb_formula_partial",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 27
+                },
+                {
+                    "table_name": "ilb_formula_recheck",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 225
+                },
+                {
+                    "table_name": "ilb_formula_reference",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 5
+                },
+                {
+                    "table_name": "ilb_formula_registry",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 362
+                },
+                {
+                    "table_name": "ilb_formula_subject_run",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 19
+                },
+                {
+                    "table_name": "ilb_formula_test",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 34
+                },
+                {
+                    "table_name": "ilb_formula_verdict",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 234
+                },
+                {
+                    "table_name": "ilb_formula_verification",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 586
+                },
+                {
+                    "table_name": "ilb_ideal_formula",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 1
+                },
+                {
+                    "table_name": "ilb_internal_case_equilibrium_formula_input",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 6
+                },
+                {
+                    "table_name": "ilb_internal_case_equilibrium_formula_replaceability_v",
+                    "table_type": "VIEW",
+                    "exact_rows": null
+                },
+                {
+                    "table_name": "ilb_internal_case_equilibrium_formula_result",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 1
+                },
+                {
+                    "table_name": "ilb_internal_case_present_formula_term",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 8
+                },
+                {
+                    "table_name": "ilb_internal_equilibrium_formula_master",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 2
+                },
+                {
+                    "table_name": "ilb_internal_equilibrium_formula_weight",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 6
+                },
+                {
+                    "table_name": "ilb_marker_formula_map",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 14
+                },
+                {
+                    "table_name": "ilb_master_formula",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 20
+                },
+                {
+                    "table_name": "ilb_personal_formula_definition",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 20
+                },
+                {
+                    "table_name": "ilb_psych_safety_formulation",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 0
+                },
+                {
+                    "table_name": "ilb_unani_formulation",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 143
+                },
+                {
+                    "table_name": "v_ilb_formula_freeze_status",
+                    "table_type": "VIEW",
+                    "exact_rows": null
+                },
+                {
+                    "table_name": "v_ilb_formula_input_readiness",
+                    "table_type": "VIEW",
+                    "exact_rows": null
+                },
+                {
+                    "table_name": "v_ilb_formula_readiness",
+                    "table_type": "VIEW",
+                    "exact_rows": null
+                },
+                {
+                    "table_name": "v_ilb_formula_source_catalog",
+                    "table_type": "VIEW",
+                    "exact_rows": null
+                },
+                {
+                    "table_name": "v_ilb_subject_formula_readiness_v2",
+                    "table_type": "VIEW",
+                    "exact_rows": null
+                }
+            ]
+        },
+        "patients": {
+            "base_tables": 42,
+            "views": 33,
+            "exact_rows": 1378,
+            "nonempty_base_tables": 32,
+            "empty_base_tables": 10,
+            "tables": [
+                {
+                    "table_name": "ilb_claim_subject",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 126
+                },
+                {
+                    "table_name": "ilb_food_component_measurement",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 1
+                },
+                {
+                    "table_name": "ilb_formula_subject_run",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 19
+                },
+                {
+                    "table_name": "ilb_grid_measurement_job",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 4
+                },
+                {
+                    "table_name": "ilb_internal_lab_measurement_timeline_v",
+                    "table_type": "VIEW",
+                    "exact_rows": null
+                },
+                {
+                    "table_name": "ilb_internal_report_measurement_definition",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 23
+                },
+                {
+                    "table_name": "ilb_internal_sugar_measurements",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 0
+                },
+                {
+                    "table_name": "ilb_internal_sugar_measurement_contexts",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 0
+                },
+                {
+                    "table_name": "ilb_internal_sugar_subjects",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 0
+                },
+                {
+                    "table_name": "ilb_lab_episode_document",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 2
+                },
+                {
+                    "table_name": "ilb_measurement_correction",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 13
+                },
+                {
+                    "table_name": "ilb_measurement_exclusion",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 15
+                },
+                {
+                    "table_name": "ilb_measurement_import_map",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 38
+                },
+                {
+                    "table_name": "ilb_measurement_priority",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 6
+                },
+                {
+                    "table_name": "ilb_measurement_protocol",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 1
+                },
+                {
+                    "table_name": "ilb_measurement_protocol_step",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 8
+                },
+                {
+                    "table_name": "ilb_oxygen_measurement_type_master",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 9
+                },
+                {
+                    "table_name": "ilb_patient_journey",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 0
+                },
+                {
+                    "table_name": "ilb_patient_report_section",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 6
+                },
+                {
+                    "table_name": "ilb_subject",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 19
+                },
+                {
+                    "table_name": "ilb_subject_appearance",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 0
+                },
+                {
+                    "table_name": "ilb_subject_area",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 13
+                },
+                {
+                    "table_name": "ilb_subject_area_map",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 215
+                },
+                {
+                    "table_name": "ilb_subject_body_claim",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 5
+                },
+                {
+                    "table_name": "ilb_subject_communication_preference",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 0
+                },
+                {
+                    "table_name": "ilb_subject_condition_report",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 19
+                },
+                {
+                    "table_name": "ilb_subject_consent_event",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 9
+                },
+                {
+                    "table_name": "ilb_subject_document",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 52
+                },
+                {
+                    "table_name": "ilb_subject_frontend_alias",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 3
+                },
+                {
+                    "table_name": "ilb_subject_goal",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 0
+                },
+                {
+                    "table_name": "ilb_subject_lab_episode",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 2
+                },
+                {
+                    "table_name": "ilb_subject_marker_baseline",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 2
+                },
+                {
+                    "table_name": "ilb_subject_measurement",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 730
+                },
+                {
+                    "table_name": "ilb_subject_medication",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 17
+                },
+                {
+                    "table_name": "ilb_subject_medicine_report",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 8
+                },
+                {
+                    "table_name": "ilb_subject_need_state",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 0
+                },
+                {
+                    "table_name": "ilb_subject_pathway",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 0
+                },
+                {
+                    "table_name": "ilb_subject_preference",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 1
+                },
+                {
+                    "table_name": "ilb_subject_private_identifier",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 2
+                },
+                {
+                    "table_name": "ilb_subject_private_identity",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 5
+                },
+                {
+                    "table_name": "ilb_subject_profile",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 3
+                },
+                {
+                    "table_name": "ilb_subject_serving_vessel",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 0
+                },
+                {
+                    "table_name": "ilb_subject_ui_preference",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 2
+                },
+                {
+                    "table_name": "vw_ilb_identity_subject",
+                    "table_type": "VIEW",
+                    "exact_rows": null
+                },
+                {
+                    "table_name": "vw_ilb_measurement_violation",
+                    "table_type": "VIEW",
+                    "exact_rows": null
+                },
+                {
+                    "table_name": "vw_ilb_next_measurement",
+                    "table_type": "VIEW",
+                    "exact_rows": null
+                },
+                {
+                    "table_name": "vw_ilb_object_subject_area",
+                    "table_type": "VIEW",
+                    "exact_rows": null
+                },
+                {
+                    "table_name": "vw_ilb_patient_centre_score",
+                    "table_type": "VIEW",
+                    "exact_rows": null
+                },
+                {
+                    "table_name": "vw_ilb_patient_marker_deviation",
+                    "table_type": "VIEW",
+                    "exact_rows": null
+                },
+                {
+                    "table_name": "vw_ilb_patient_need_dynamic",
+                    "table_type": "VIEW",
+                    "exact_rows": null
+                },
+                {
+                    "table_name": "vw_ilb_patient_organ_need",
+                    "table_type": "VIEW",
+                    "exact_rows": null
+                },
+                {
+                    "table_name": "vw_ilb_patient_organ_report",
+                    "table_type": "VIEW",
+                    "exact_rows": null
+                },
+                {
+                    "table_name": "vw_ilb_patient_organ_score",
+                    "table_type": "VIEW",
+                    "exact_rows": null
+                },
+                {
+                    "table_name": "vw_ilb_patient_organ_signal",
+                    "table_type": "VIEW",
+                    "exact_rows": null
+                },
+                {
+                    "table_name": "vw_ilb_subject_area_gap",
+                    "table_type": "VIEW",
+                    "exact_rows": null
+                },
+                {
+                    "table_name": "vw_ilb_subject_boundary_ledger",
+                    "table_type": "VIEW",
+                    "exact_rows": null
+                },
+                {
+                    "table_name": "vw_ilb_subject_breathing",
+                    "table_type": "VIEW",
+                    "exact_rows": null
+                },
+                {
+                    "table_name": "vw_ilb_subject_frame",
+                    "table_type": "VIEW",
+                    "exact_rows": null
+                },
+                {
+                    "table_name": "vw_ilb_subject_geometry",
+                    "table_type": "VIEW",
+                    "exact_rows": null
+                },
+                {
+                    "table_name": "vw_ilb_subject_glucose_day_spread",
+                    "table_type": "VIEW",
+                    "exact_rows": null
+                },
+                {
+                    "table_name": "vw_ilb_subject_ideal_requirement",
+                    "table_type": "VIEW",
+                    "exact_rows": null
+                },
+                {
+                    "table_name": "vw_ilb_subject_marker_latest",
+                    "table_type": "VIEW",
+                    "exact_rows": null
+                },
+                {
+                    "table_name": "vw_ilb_subject_need_now",
+                    "table_type": "VIEW",
+                    "exact_rows": null
+                },
+                {
+                    "table_name": "vw_ilb_subject_need_summary",
+                    "table_type": "VIEW",
+                    "exact_rows": null
+                },
+                {
+                    "table_name": "vw_ilb_subject_regimen",
+                    "table_type": "VIEW",
+                    "exact_rows": null
+                },
+                {
+                    "table_name": "vw_ilb_subject_two_readings",
+                    "table_type": "VIEW",
+                    "exact_rows": null
+                },
+                {
+                    "table_name": "v_ilb_case_checkpoint_measurements",
+                    "table_type": "VIEW",
+                    "exact_rows": null
+                },
+                {
+                    "table_name": "v_ilb_patient_dashboard",
+                    "table_type": "VIEW",
+                    "exact_rows": null
+                },
+                {
+                    "table_name": "v_ilb_records_measurement",
+                    "table_type": "VIEW",
+                    "exact_rows": null
+                },
+                {
+                    "table_name": "v_ilb_subject_formula_readiness_v2",
+                    "table_type": "VIEW",
+                    "exact_rows": null
+                },
+                {
+                    "table_name": "v_ilb_subject_loop_readiness",
+                    "table_type": "VIEW",
+                    "exact_rows": null
+                },
+                {
+                    "table_name": "v_ilb_subject_marker_latest",
+                    "table_type": "VIEW",
+                    "exact_rows": null
+                },
+                {
+                    "table_name": "v_ilb_subject_protocol_gaps",
+                    "table_type": "VIEW",
+                    "exact_rows": null
+                },
+                {
+                    "table_name": "v_ilb_subject_protocol_gap_status",
+                    "table_type": "VIEW",
+                    "exact_rows": null
+                },
+                {
+                    "table_name": "v_ilb_subject_signature",
+                    "table_type": "VIEW",
+                    "exact_rows": null
+                }
+            ]
+        },
+        "ingestion": {
+            "base_tables": 8,
+            "views": 0,
+            "exact_rows": 134,
+            "nonempty_base_tables": 3,
+            "empty_base_tables": 5,
+            "tables": [
+                {
+                    "table_name": "ilb_import_audit_log",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 10
+                },
+                {
+                    "table_name": "ilb_import_batch",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 1
+                },
+                {
+                    "table_name": "ilb_import_row",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 123
+                },
+                {
+                    "table_name": "ilmb_sync_audit",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 0
+                },
+                {
+                    "table_name": "ilmb_sync_batch",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 0
+                },
+                {
+                    "table_name": "ilmb_sync_file",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 0
+                },
+                {
+                    "table_name": "ilmb_sync_stage_row",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 0
+                },
+                {
+                    "table_name": "ilmb_sync_validation_error",
+                    "table_type": "BASE TABLE",
+                    "exact_rows": 0
+                }
+            ]
+        }
+    },
+    "provenance_coverage": [
+        {
+            "table_name": "anatomy_items",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 2
+        },
+        {
+            "table_name": "anatomy_mind_body_mappings",
+            "source_columns": 1,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 2
+        },
+        {
+            "table_name": "claim_unit",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_anatomical_coordinate_evidence_master",
+            "source_columns": 1,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 2
+        },
+        {
+            "table_name": "ilb_anatomical_coordinate_extraction_queue",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 2
+        },
+        {
+            "table_name": "ilb_anatomical_coordinate_intake_checkpoint",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_anatomical_coordinate_model_master",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 2
+        },
+        {
+            "table_name": "ilb_anatomical_coordinate_source_intake",
+            "source_columns": 1,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 2
+        },
+        {
+            "table_name": "ilb_anatomical_coordinate_source_scope",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 2
+        },
+        {
+            "table_name": "ilb_anatomical_coordinate_source_validation",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_anatomical_coordinate_transform",
+            "source_columns": 1,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 2
+        },
+        {
+            "table_name": "ilb_anatomical_coordinate_validation",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_anatomical_coordinate_value",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 2
+        },
+        {
+            "table_name": "ilb_anatomical_landmark_master",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 2
+        },
+        {
+            "table_name": "ilb_anatomical_map_equilibrium_link",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 2
+        },
+        {
+            "table_name": "ilb_anatomical_map_node",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 2
+        },
+        {
+            "table_name": "ilb_anatomical_path_intersection",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 1
+        },
+        {
+            "table_name": "ilb_anatomy_composite_ref",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_axis_ph_anatomical_intersection",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 1
+        },
+        {
+            "table_name": "ilb_ayurveda_food_attribute",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_ayurveda_food_profile",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_ayurveda_formulation",
+            "source_columns": 0,
+            "release_columns": 1,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_blocked_formula",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_brain_ph_anatomical_intersection",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 1
+        },
+        {
+            "table_name": "ilb_cardiovascular_anatomy_reference_master",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 2
+        },
+        {
+            "table_name": "ilb_case_formula_definition",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_case_formula_input",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_case_formula_result",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_cell",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_cell_requirement",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_cell_substrate",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_cell_type",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_claim_subject",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_clinical_formulation",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_c_dimension_organ",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 1
+        },
+        {
+            "table_name": "ilb_derived_formula",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_digestive_anatomy_reference_master",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 2
+        },
+        {
+            "table_name": "ilb_drug",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_drug_identifier",
+            "source_columns": 1,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_drug_label_reference",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_drug_lab_rule",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_drug_marker_connection",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_drug_property",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_endocrine_anatomy_reference_master",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 2
+        },
+        {
+            "table_name": "ilb_environment_ph_anatomical_intersection",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 1
+        },
+        {
+            "table_name": "ilb_enzyme",
+            "source_columns": 1,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_faculty_hormone",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_feeling_hormone",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_food_analysis_candidate",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_food_analysis_input_photo",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_food_analysis_run",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_food_capture_photo",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 1
+        },
+        {
+            "table_name": "ilb_food_capture_session",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 2
+        },
+        {
+            "table_name": "ilb_food_component_measurement",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_food_consumption_adjustment",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 1
+        },
+        {
+            "table_name": "ilb_food_event_component",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_food_event_component_detail",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_food_event_confirmation",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_food_event_context",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 1
+        },
+        {
+            "table_name": "ilb_food_event_gut_response",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_food_event_revision",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_food_item",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_food_media_consent_event",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_food_nutrient_derivation",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_food_nutrient_observation",
+            "source_columns": 1,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_food_ui_option",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_formula",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_formula_adjudication",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_formula_conflict",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_formula_crosscheck",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 1
+        },
+        {
+            "table_name": "ilb_formula_domain",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_formula_freeze",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_formula_partial",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_formula_recheck",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_formula_reference",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_formula_registry",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_formula_subject_run",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_formula_test",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_formula_verdict",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_formula_verification",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_functional_tissue_unit",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 1
+        },
+        {
+            "table_name": "ilb_gene_drug_pair",
+            "source_columns": 1,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_glucose_hormone_web",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_grid_measurement_job",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_gut_ph_anatomical_intersection",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 2
+        },
+        {
+            "table_name": "ilb_hormone",
+            "source_columns": 1,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_hormone_axis",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_hormone_control",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_hormone_dietary_lever",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_hormone_electrical_edge",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_hormone_gap",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_hormone_key_alias",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_hormone_kinetics",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_hormone_nutrient",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_hormone_organ_bridge",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_hormone_ph_edge",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_hormone_science",
+            "source_columns": 1,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_hormone_source_organ",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 2
+        },
+        {
+            "table_name": "ilb_hormone_split_control",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_hormone_state",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_hormone_target",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_hormone_target_organ",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 1
+        },
+        {
+            "table_name": "ilb_ideal_formula",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_ifct_component_class",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_import_audit_log",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_import_batch",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_import_row",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 1
+        },
+        {
+            "table_name": "ilb_integumentary_anatomy_reference_master",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 2
+        },
+        {
+            "table_name": "ilb_internal_case_equilibrium_formula_input",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 2
+        },
+        {
+            "table_name": "ilb_internal_case_equilibrium_formula_replaceability_v",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_internal_case_equilibrium_formula_result",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 2
+        },
+        {
+            "table_name": "ilb_internal_case_present_formula_term",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 2
+        },
+        {
+            "table_name": "ilb_internal_equilibrium_formula_master",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 2
+        },
+        {
+            "table_name": "ilb_internal_equilibrium_formula_weight",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 2
+        },
+        {
+            "table_name": "ilb_internal_lab_measurement_timeline_v",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_internal_lab_reference_interval",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 2
+        },
+        {
+            "table_name": "ilb_internal_report_measurement_definition",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 2
+        },
+        {
+            "table_name": "ilb_internal_sugar_foods",
+            "source_columns": 1,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_internal_sugar_food_composition",
+            "source_columns": 1,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_internal_sugar_food_exposures",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_internal_sugar_measurements",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_internal_sugar_measurement_contexts",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_internal_sugar_medications",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_internal_sugar_medication_exposures",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_internal_sugar_reference_ranges",
+            "source_columns": 1,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_internal_sugar_subjects",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 1
+        },
+        {
+            "table_name": "ilb_lab_episode_document",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_marker_energy_hormone",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_marker_formula_map",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_marker_hormone",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_marker_hormone_direction",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_marker_unit_map",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_master_formula",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_measurement_correction",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_measurement_exclusion",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_measurement_import_map",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_measurement_priority",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_measurement_protocol",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 1
+        },
+        {
+            "table_name": "ilb_measurement_protocol_step",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_medication_context_interaction",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_medicine_mechanism",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_medicine_report_document",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_medicine_report_ingredient",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_molecule_radius",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_need_hormone",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_nervous_system_anatomy_reference_master",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 2
+        },
+        {
+            "table_name": "ilb_nutrient_catalog",
+            "source_columns": 1,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_nutrient_fate",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_nutrient_requirement",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_nutrient_requirement_basis",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_nutrient_share",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_nutrient_source_map",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_oral_dental_anatomy_reference_master",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 2
+        },
+        {
+            "table_name": "ilb_organ_anatomical_site",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 2
+        },
+        {
+            "table_name": "ilb_organ_dimension_resolution",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_organ_electrogenic_mechanism",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_organ_key_alias",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 1
+        },
+        {
+            "table_name": "ilb_organ_nutrient",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_organ_ph_anatomical_intersection",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 1
+        },
+        {
+            "table_name": "ilb_organ_ph_environment",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_organ_ph_path_intersection",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 1
+        },
+        {
+            "table_name": "ilb_organ_ph_path_master",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 2
+        },
+        {
+            "table_name": "ilb_organ_ph_path_point",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 1
+        },
+        {
+            "table_name": "ilb_organ_ph_scenario",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 2
+        },
+        {
+            "table_name": "ilb_organ_ph_surface_crossing",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 1
+        },
+        {
+            "table_name": "ilb_organ_system",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_oxygen_measurement_type_master",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_patient_journey",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_patient_report_section",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_personal_formula_definition",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_pharma_medicine",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_ph_edge_organ",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_ph_organ_compartment",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_ph_path_anatomical_intersection",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 1
+        },
+        {
+            "table_name": "ilb_ph_reference_anatomy_evidence",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 2
+        },
+        {
+            "table_name": "ilb_psych_safety_formulation",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_reproductive_anatomy_reference_master",
+            "source_columns": 1,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 2
+        },
+        {
+            "table_name": "ilb_snapshot_food_event",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_snapshot_medicine_event",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_subject",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 1
+        },
+        {
+            "table_name": "ilb_subject_appearance",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 1
+        },
+        {
+            "table_name": "ilb_subject_area",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_subject_area_map",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_subject_body_claim",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_subject_communication_preference",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 1
+        },
+        {
+            "table_name": "ilb_subject_condition_report",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_subject_consent_event",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_subject_document",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 1
+        },
+        {
+            "table_name": "ilb_subject_frontend_alias",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_subject_goal",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 1
+        },
+        {
+            "table_name": "ilb_subject_lab_episode",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_subject_marker_baseline",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 1
+        },
+        {
+            "table_name": "ilb_subject_measurement",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_subject_medication",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_subject_medicine_report",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_subject_need_state",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_subject_pathway",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_subject_preference",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 1
+        },
+        {
+            "table_name": "ilb_subject_private_identifier",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_subject_private_identity",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 2
+        },
+        {
+            "table_name": "ilb_subject_profile",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 1
+        },
+        {
+            "table_name": "ilb_subject_serving_vessel",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_subject_ui_preference",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 1
+        },
+        {
+            "table_name": "ilb_throat_neck_anatomy_reference_master",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 2
+        },
+        {
+            "table_name": "ilb_tissue_compartment",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_tissue_electrical",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_tissue_metabolic_rate",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_unani_formulation",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_unit",
+            "source_columns": 1,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_unit_alias",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_unit_conversion_requirement",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilb_vertical_endpoint_anatomy_candidate",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 2
+        },
+        {
+            "table_name": "ilmb_sync_audit",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilmb_sync_batch",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 1,
+            "timestamp_columns": 1
+        },
+        {
+            "table_name": "ilmb_sync_file",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilmb_sync_stage_row",
+            "source_columns": 1,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "ilmb_sync_validation_error",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 1
+        },
+        {
+            "table_name": "nutrients",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 1
+        },
+        {
+            "table_name": "organs",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 1
+        },
+        {
+            "table_name": "organ_nutrients",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "vw_ilb_cell",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "vw_ilb_cell_need",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "vw_ilb_cell_state",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "vw_ilb_cell_state_now",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "vw_ilb_cell_supply",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "vw_ilb_cell_supply_now",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "vw_ilb_comparison_by_hormone",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "vw_ilb_comparison_by_organ",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "vw_ilb_emotion_hormone_state",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "vw_ilb_emotion_target_organ",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "vw_ilb_energy_hormone_split",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "vw_ilb_energy_to_nutrient",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "vw_ilb_hormone_connectome",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "vw_ilb_ideal_hormone",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "vw_ilb_ideal_nutrient_weight",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "vw_ilb_identity_subject",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "vw_ilb_measurement_violation",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "vw_ilb_next_measurement",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "vw_ilb_object_subject_area",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "vw_ilb_organ_conserved_need",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "vw_ilb_organ_opportunity_threat",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "vw_ilb_organ_swot",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "vw_ilb_organ_system",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "vw_ilb_organ_three_systems",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "vw_ilb_patient_centre_score",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "vw_ilb_patient_marker_deviation",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "vw_ilb_patient_need_dynamic",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "vw_ilb_patient_organ_need",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "vw_ilb_patient_organ_report",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "vw_ilb_patient_organ_score",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "vw_ilb_patient_organ_signal",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "vw_ilb_ph_organ_voltage",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "vw_ilb_subject_area_gap",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "vw_ilb_subject_boundary_ledger",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "vw_ilb_subject_breathing",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "vw_ilb_subject_frame",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "vw_ilb_subject_geometry",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "vw_ilb_subject_glucose_day_spread",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "vw_ilb_subject_ideal_requirement",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "vw_ilb_subject_marker_latest",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "vw_ilb_subject_need_now",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "vw_ilb_subject_need_summary",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "vw_ilb_subject_regimen",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "vw_ilb_subject_two_readings",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "vw_ilb_tissue_closure",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "v_ilb_active_medication_monitoring",
+            "source_columns": 1,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "v_ilb_ayurveda_food_classification",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "v_ilb_case_checkpoint_measurements",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "v_ilb_case_medicine_sources",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "v_ilb_confirmed_food_capture",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "v_ilb_food_acid_load",
+            "source_columns": 1,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "v_ilb_food_gut_brain_action_timeline",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "v_ilb_food_media_consent",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "v_ilb_formula_freeze_status",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "v_ilb_formula_input_readiness",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "v_ilb_formula_readiness",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "v_ilb_formula_source_catalog",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "v_ilb_medication_monitoring_gaps",
+            "source_columns": 1,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "v_ilb_patient_dashboard",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "v_ilb_records_measurement",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "v_ilb_records_medicine_context",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "v_ilb_report_hormone_feed",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "v_ilb_report_hormone_read",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "v_ilb_subject_formula_readiness_v2",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "v_ilb_subject_loop_readiness",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "v_ilb_subject_marker_latest",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 1
+        },
+        {
+            "table_name": "v_ilb_subject_protocol_gaps",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "v_ilb_subject_protocol_gap_status",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        },
+        {
+            "table_name": "v_ilb_subject_signature",
+            "source_columns": 0,
+            "release_columns": 0,
+            "checksum_columns": 0,
+            "timestamp_columns": 0
+        }
+    ],
+    "canonical_control_counts": {
+        "ilmb_sync_batch": 0,
+        "ilmb_sync_file": 0,
+        "ilmb_sync_stage_row": 0,
+        "ilmb_sync_validation_error": 0,
+        "ilmb_sync_audit": 0,
+        "ilmb_canonical_record": 0,
+        "ilmb_canonical_record_history": 0,
+        "ilb_source_release": 0
+    }
 }
