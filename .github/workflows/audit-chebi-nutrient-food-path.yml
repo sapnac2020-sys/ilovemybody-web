@@ -30,6 +30,10 @@ jobs:
           echo "CANONICAL_LOCATIONS\n".json_encode($q->fetchAll(),JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES)."\n";
           $q=$pdo->query("SELECT system_id,file_name,status,row_count,error_count FROM ilmb_sync_batch WHERE UPPER(file_name) REGEXP \"NUTR|FOOD|IFCT|USDA\" ORDER BY created_at DESC");
           echo "BATCHES\n".json_encode($q->fetchAll(),JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES)."\n";
+          foreach(["10_IFCT_FOODS","11_IFCT_COMPONENTS","12_IFCT_VALUES","20_USDA_NUTRIENTS","21_FOUNDATION_FOODS","30_SR_LEGACY_FOODS","40_FNDDS_FOODS"] as $sheet){
+            $q=$pdo->prepare("SELECT source_key,payload_json FROM ilmb_canonical_record WHERE system_id=\"SYS-003\" AND sheet_name=? AND active=1 LIMIT 3");
+            $q->execute([$sheet]);echo "SAMPLE ".$sheet."\n".json_encode($q->fetchAll(),JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES)."\n";
+          }
           $q=$pdo->query("SELECT source_system,source_entity_type,predicate,target_system,target_entity_type,match_type,status,computation_eligible,COUNT(*) n FROM ilmb_entity_crosswalk WHERE UPPER(source_system) REGEXP \"CHEBI|NUTR|FOOD|IFCT|USDA\" OR UPPER(target_system) REGEXP \"CHEBI|NUTR|FOOD|IFCT|USDA\" OR UPPER(source_entity_type) REGEXP \"NUTR|FOOD|CHEM\" OR UPPER(target_entity_type) REGEXP \"NUTR|FOOD|CHEM\" GROUP BY source_system,source_entity_type,predicate,target_system,target_entity_type,match_type,status,computation_eligible ORDER BY n DESC");
           echo "CROSSWALKS\n".json_encode($q->fetchAll(),JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES)."\n";
           ' "$HOME/domains/ilovemybody.in/ilmb-config.php"
