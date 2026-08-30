@@ -10,7 +10,7 @@ if($db!==EXPECTED_DATABASE) throw new RuntimeException('Unexpected database');
 $pdo=new PDO("mysql:host={$host};port={$port};dbname={$db};charset=utf8mb4",$user,$pass,[PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION,PDO::MYSQL_ATTR_MULTI_STATEMENTS=>true,PDO::ATTR_DEFAULT_FETCH_MODE=>PDO::FETCH_ASSOC]);
 $sql=file_get_contents($sqlPath);$st=$pdo->prepare($sql);$st->execute();do{if($st->columnCount())$st->fetchAll();}while($st->nextRowset());$st->closeCursor();
 $row=$pdo->query("SELECT COUNT(*) total,SUM(computation_eligible=1) eligible,SUM(source_endpoint_resolved=0 OR target_endpoint_resolved=0) unresolved FROM ilmb_entity_crosswalk WHERE source_system='LOINC' AND target_system='CHEBI' AND predicate='MEASURES'")->fetch();
-$view=(int)$pdo->query("SELECT COUNT(*) FROM v_ilmb_loinc_chebi_compute")->fetchColumn();
+$view=(int)$pdo->query("SELECT EXISTS(SELECT 1 FROM v_ilmb_loinc_chebi_compute LIMIT 1)")->fetchColumn();
 $rule=(int)$pdo->query("SELECT COUNT(*) FROM ilb_lab_correlation_rule WHERE rule_key='lab_reference_position' AND version_label='1.0' AND status='active'")->fetchColumn();
 $out=['crosswalk'=>$row,'view_rows'=>$view,'active_rules'=>$rule,'patient_rows_read'=>0,'patient_rows_modified'=>0,'ready'=>$view>0&&$rule===1&&(int)$row['eligible']>0];
 echo json_encode($out,JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES),PHP_EOL;
