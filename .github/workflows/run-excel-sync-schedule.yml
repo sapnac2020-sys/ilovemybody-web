@@ -60,7 +60,9 @@ jobs:
         run: |
           set -euo pipefail
           task=excel
-          if test "$EVENT_NAME" = workflow_dispatch; then
+          if test "$EVENT_NAME" = push; then
+            task=chebi
+          elif test "$EVENT_NAME" = workflow_dispatch; then
             task="$MANUAL_TASK"
           elif test "$EVENT_SCHEDULE" = '20 4 20 * *'; then
             task=chebi
