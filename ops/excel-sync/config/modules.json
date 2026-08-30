@@ -1,5 +1,5 @@
 {
-  "version": 11,
+  "version": 12,
   "defaults": {
     "header_row": 1,
     "blank_row_ends_table": false,
@@ -1577,6 +1577,140 @@
         "Crosswalks": [
           "confidence"
         ]
+      }
+    },
+    {
+      "pattern": "ILMB_Values_Emotion_Behaviour_Memory_Mental_Health_Collection_*.xlsx",
+      "system_id": "REF-MENTAL-HEALTH",
+      "mode": "configured_sheets",
+      "include_sheets": [
+        "01_RDoC_Constructs",
+        "03_GO_Memory_Behaviour",
+        "04_HPO_Mental_Health",
+        "05_Neural_Cells",
+        "06_Neuroanatomy_Context",
+        "07_NLEM_Medicines",
+        "08_Collection_Modules",
+        "11_Sources",
+        "12_Unresolved"
+      ],
+      "sheet_keys": {
+        "01_RDoC_Constructs": [
+          "internal_id"
+        ],
+        "03_GO_Memory_Behaviour": [
+          "source_system",
+          "source_id"
+        ],
+        "04_HPO_Mental_Health": [
+          "source_system",
+          "source_id"
+        ],
+        "05_Neural_Cells": [
+          "source_system",
+          "source_id"
+        ],
+        "06_Neuroanatomy_Context": [
+          "source_system",
+          "source_id"
+        ],
+        "07_NLEM_Medicines": [
+          "Medicine_ID"
+        ],
+        "08_Collection_Modules": [
+          "module",
+          "record_type"
+        ],
+        "11_Sources": [
+          "source_id"
+        ],
+        "12_Unresolved": [
+          "unresolved_id"
+        ]
+      },
+      "row_gates": {
+        "01_RDoC_Constructs": {
+          "required": [
+            "internal_id",
+            "domain",
+            "construct",
+            "source_system",
+            "source_release",
+            "evidence_source",
+            "status"
+          ]
+        },
+        "03_GO_Memory_Behaviour": {
+          "required": [
+            "source_system",
+            "source_id",
+            "preferred_name",
+            "source_release",
+            "source_name"
+          ]
+        },
+        "04_HPO_Mental_Health": {
+          "required": [
+            "source_system",
+            "source_id",
+            "preferred_name",
+            "source_release",
+            "source_name"
+          ]
+        },
+        "05_Neural_Cells": {
+          "required": [
+            "source_system",
+            "source_id",
+            "preferred_name",
+            "source_release",
+            "source_name"
+          ]
+        },
+        "06_Neuroanatomy_Context": {
+          "required": [
+            "source_system",
+            "source_id",
+            "preferred_name",
+            "source_release",
+            "source_name"
+          ]
+        },
+        "07_NLEM_Medicines": {
+          "required": [
+            "Medicine_ID",
+            "Generic_Name",
+            "source_release",
+            "evidence_status"
+          ]
+        },
+        "08_Collection_Modules": {
+          "required": [
+            "module",
+            "record_type",
+            "row_status",
+            "rule"
+          ]
+        },
+        "11_Sources": {
+          "required": [
+            "source_id",
+            "source_name",
+            "release_version",
+            "source_url",
+            "status"
+          ]
+        },
+        "12_Unresolved": {
+          "required": [
+            "unresolved_id",
+            "module",
+            "source_value",
+            "reason",
+            "status",
+            "resolution_requirement"
+          ]
+        }
       }
     },
     {
