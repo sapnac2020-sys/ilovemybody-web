@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import io
+import re
 from dataclasses import dataclass
 from datetime import datetime
 from typing import Iterable
@@ -26,9 +27,17 @@ class DriveReader:
         creds = service_account.Credentials.from_service_account_file(key_file, scopes=SCOPES)
         self.service = build("drive", "v3", credentials=creds, cache_discovery=False)
 
+    @staticmethod
+    def discovery_query(folder_id: str) -> str:
+        if folder_id == "sharedWithMe":
+            return "sharedWithMe = true and trashed = false"
+        if not re.fullmatch(r"[A-Za-z0-9_-]+", folder_id):
+            raise ValueError("Invalid Google Drive folder ID")
+        return f"'{folder_id}' in parents and trashed = false"
+
     def list_excel(self, folder_id: str) -> Iterable[DriveFile]:
         token = None
-        query = f"'{folder_id}' in parents and trashed = false"
+        query = self.discovery_query(folder_id)
         while True:
             response = self.service.files().list(
                 q=query, fields="nextPageToken,files(id,name,modifiedTime,size,mimeType)",
