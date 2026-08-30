@@ -54,3 +54,15 @@ Use Viewer permission for one-way Drive → DB sync. Use Editor only if the serv
 - `ilmb-sync reconcile <batch-id>` verifies promoted row counts and hashes.
 
 See `DEPLOYMENT_CHECKLIST.md` for the final live cutover.
+
+## ChEBI bulk release and API connector
+
+ChEBI uses a hybrid contract: official monthly bulk files are the reproducible source of truth, while the public API supports targeted lookups and candidate resolution.
+
+```bash
+ilmb-sync chebi-fetch --release 2026-08-14
+ilmb-sync chebi-validate "$ILMB_WORK_DIR/chebi/releases/2026-08-14/manifest.json"
+ilmb-sync chebi-api /public/<documented-endpoint>/ --param key=value
+```
+
+The fetch command writes immutable source files plus a row-count and SHA-256 manifest. ChEBI Excel partitions are registered as `REF-CHEBI` and still require normal staging, review, promotion and reconciliation. See `CHEBI_CANONICAL_CONTRACT.md`.
