@@ -158,6 +158,14 @@ def cmd_chebi_api(args):
     print(json.dumps(result, indent=2, ensure_ascii=False))
 
 
+def cmd_crosswalk_rebuild(_):
+    print(json.dumps(get_db().rebuild_crosswalks(), indent=2, default=str))
+
+
+def cmd_crosswalk_audit(_):
+    print(json.dumps(get_db().crosswalk_audit(), indent=2, default=str))
+
+
 def parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(prog="ilmb-sync")
     sub = p.add_subparsers(dest="command", required=True)
@@ -182,6 +190,8 @@ def parser() -> argparse.ArgumentParser:
     ca.add_argument("--param", action="append", default=[], help="Query parameter in key=value form")
     ca.add_argument("--work-dir"); ca.add_argument("--no-cache", action="store_true")
     ca.add_argument("--timeout", type=int, default=30); ca.set_defaults(func=cmd_chebi_api)
+    sub.add_parser("crosswalk-rebuild", help="Validate and materialize promoted ILMB crosswalk rows").set_defaults(func=cmd_crosswalk_rebuild)
+    sub.add_parser("crosswalk-audit", help="Report crosswalk coverage and computation eligibility").set_defaults(func=cmd_crosswalk_audit)
     return p
 
 
