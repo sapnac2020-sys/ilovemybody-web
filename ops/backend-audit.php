@@ -386,8 +386,43 @@ foreach (['ilmb_sync_batch','ilmb_sync_file','ilmb_sync_stage_row','ilmb_sync_va
     $canonicalControlCounts[$table] = (int)$pdo->query("SELECT COUNT(*) FROM {$quoted}")->fetchColumn();
 }
 
+$crosswalkReadiness = [
+    'tables_present' => false,
+    'mapping_totals' => null,
+    'endpoint_totals' => [],
+    'local_ucum' => null,
+];
+if (in_array('ilmb_entity_crosswalk', $tableNames, true)
+    && in_array('ilmb_crosswalk_endpoint', $tableNames, true)) {
+    $crosswalkReadiness['tables_present'] = true;
+    $crosswalkReadiness['mapping_totals'] = $pdo->query(
+        "SELECT COUNT(*) AS total_mappings,
+                SUM(match_type='EXACT') AS exact_mappings,
+                SUM(status='APPROVED') AS approved_mappings,
+                SUM(source_endpoint_resolved=1) AS source_resolved,
+                SUM(target_endpoint_resolved=1) AS target_resolved,
+                SUM(computation_eligible=1) AS computation_eligible
+           FROM ilmb_entity_crosswalk"
+    )->fetch();
+    $crosswalkReadiness['endpoint_totals'] = $pdo->query(
+        "SELECT system_id, entity_type, COUNT(*) AS endpoint_count,
+                SUM(active=1) AS active_count
+           FROM ilmb_crosswalk_endpoint
+          GROUP BY system_id, entity_type
+          ORDER BY system_id, entity_type"
+    )->fetchAll();
+}
+if (in_array('ilb_unit', $tableNames, true)) {
+    $crosswalkReadiness['local_ucum'] = $pdo->query(
+        "SELECT COUNT(*) AS unit_rows,
+                SUM(ucum_code IS NOT NULL AND ucum_code <> '') AS populated_ucum,
+                COUNT(DISTINCT CASE WHEN ucum_code IS NOT NULL AND ucum_code <> ''
+                                    THEN ucum_code END) AS distinct_ucum
+           FROM ilb_unit"
+    )->fetch();
+}
 $audit = [
-    'audit_version' => '2026-08-30.4',
+    'audit_version' => '2026-08-30.5',
     'generated_at_utc' => gmdate('c'),
     'schema' => $schema,
     'summary' => [
@@ -420,6 +455,7 @@ $audit = [
     'provenance_coverage' => $provenanceCoverage,
     'canonical_control_counts' => $canonicalControlCounts,
     'identifier_coverage' => $identifierCoverage,
+    'crosswalk_readiness' => $crosswalkReadiness,
 ];
 
 echo json_encode($audit, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . PHP_EOL;
