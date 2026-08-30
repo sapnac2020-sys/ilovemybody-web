@@ -161,7 +161,16 @@ jobs:
           os.chmod(release/'ilmb-sync.env',0o600)
           PY
           set -a; . "$RELEASE/ilmb-sync.env"; set +a
-          "$RELEASE/.venv/bin/ilmb-sync" migrate
+          migration_count=0
+          for sql_file in "$RELEASE"/migrations/*.sql; do
+            test -f "$sql_file" || continue
+            "$RELEASE/.venv/bin/ilmb-sync" migrate --sql "$sql_file"
+            migration_count=$((migration_count + 1))
+          done
+          if test "$migration_count" -eq 0; then
+            echo "::error::No SQL migration files were deployed with the connector."
+            exit 1
+          fi
           "$RELEASE/.venv/bin/ilmb-sync" doctor
           "$RELEASE/.venv/bin/ilmb-sync" scan --dry-run > "$RELEASE/first-dry-run.json"
           ln -sfn "$RELEASE" "$CURRENT"
