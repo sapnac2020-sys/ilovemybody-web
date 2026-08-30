@@ -1,4 +1,5 @@
 name: Deploy ILMB Excel Drive Sync
+# deployment retrigger after Hostinger key renewal: 2026-08-30
 
 on:
   workflow_dispatch:
