@@ -1,0 +1,36 @@
+name: Deploy ChEBI production reconciliation
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - app/chebi-reconciliation.php
+      - app/chebi-reconciliation.html
+      - .github/workflows/deploy-chebi-reconciliation.yml
+
+jobs:
+  deploy-verify:
+    runs-on: ubuntu-latest
+    permissions: {contents: read}
+    steps:
+      - uses: actions/checkout@v4
+      - run: php -l app/chebi-reconciliation.php
+      - name: Prepare SSH
+        env: {DEPLOY_BUNDLE: "${{ secrets.HOSTINGER_DEPLOY_BUNDLE }}"}
+        run: |
+          set -euo pipefail
+          mkdir -p "$HOME/.ssh"
+          printf '%s' "$DEPLOY_BUNDLE" | base64 --decode >/tmp/d.json
+          jq -r '.key' /tmp/d.json >"$HOME/.ssh/id_ed25519"; chmod 600 "$HOME/.ssh/id_ed25519"
+          echo "DEPLOY_HOST=$(jq -r '.host' /tmp/d.json)" >>"$GITHUB_ENV"
+          echo "DEPLOY_PORT=$(jq -r '.port' /tmp/d.json)" >>"$GITHUB_ENV"
+          echo "DEPLOY_USER=$(jq -r '.user' /tmp/d.json)" >>"$GITHUB_ENV"
+          ssh-keyscan -p "$(jq -r '.port' /tmp/d.json)" "$(jq -r '.host' /tmp/d.json)" >>"$HOME/.ssh/known_hosts"
+      - name: Deploy and verify
+        run: |
+          set -euo pipefail
+          scp -i "$HOME/.ssh/id_ed25519" -P "$DEPLOY_PORT" app/chebi-reconciliation.php app/chebi-reconciliation.html "$DEPLOY_USER@$DEPLOY_HOST:/tmp/"
+          ssh -i "$HOME/.ssh/id_ed25519" -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" 'target="$HOME/domains/ilovemybody.in/public_html/app"; install -m 600 /tmp/chebi-reconciliation.php "$target/chebi-reconciliation.php"; install -m 644 /tmp/chebi-reconciliation.html "$target/chebi-reconciliation.html"; rm -f /tmp/chebi-reconciliation.php /tmp/chebi-reconciliation.html; php "$target/chebi-reconciliation.php"' > /tmp/chebi.json
+          jq -e '.ok==true and .mode=="read_only_non_patient_chebi_reconciliation" and .patient_data_read==false and .patient_data_written==false' /tmp/chebi.json >/dev/null
+          echo "CHEBI_RECONCILIATION=deployed"
