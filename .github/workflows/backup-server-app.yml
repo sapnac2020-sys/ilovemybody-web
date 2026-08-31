@@ -1,0 +1,67 @@
+name: Backup server app source to GitHub
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/backup-server-app.yml
+  workflow_dispatch:
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Connect to Hostinger using existing deployment access
+        env:
+          DEPLOY_BUNDLE: ${{ secrets.HOSTINGER_DEPLOY_BUNDLE }}
+        run: |
+          set -euo pipefail
+          test -n "$DEPLOY_BUNDLE"
+          mkdir -p "$HOME/.ssh"
+          printf '%s' "$DEPLOY_BUNDLE" | base64 --decode > /tmp/ilb-deploy.json
+          jq -e '.host and .port and .user and .key' /tmp/ilb-deploy.json >/dev/null
+          jq -r '.key' /tmp/ilb-deploy.json > "$HOME/.ssh/id_ed25519"
+          chmod 600 "$HOME/.ssh/id_ed25519"
+          echo "DEPLOY_HOST=$(jq -r '.host' /tmp/ilb-deploy.json)" >> "$GITHUB_ENV"
+          echo "DEPLOY_PORT=$(jq -r '.port' /tmp/ilb-deploy.json)" >> "$GITHUB_ENV"
+          echo "DEPLOY_USER=$(jq -r '.user' /tmp/ilb-deploy.json)" >> "$GITHUB_ENV"
+          ssh-keyscan -p "$(jq -r '.port' /tmp/ilb-deploy.json)" "$(jq -r '.host' /tmp/ilb-deploy.json)" >> "$HOME/.ssh/known_hosts"
+
+      - name: Retrieve server-only app source
+        run: |
+          set -euo pipefail
+          ssh -i "$HOME/.ssh/id_ed25519" -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" 'bash -s' > /tmp/server-app.tgz <<'REMOTE'
+          set -euo pipefail
+          root="$HOME/domains/ilovemybody.in/public_html"
+          test -d "$root/app"
+          cd "$root"
+          find app -type f \
+            \( -name '*.php' -o -name '*.js' -o -name '*.css' -o -name '*.html' -o -name '*.json' \) \
+            ! -name '.env' ! -name '*.pem' ! -name '*.key' ! -name 'config.php' ! -name 'database.php' \
+            -print0 | tar --null --files-from=- --no-recursion -czf -
+          REMOTE
+          tar -tzf /tmp/server-app.tgz
+          tar -xzf /tmp/server-app.tgz
+          test -f app/signal.php
+          test -f app/reading.php
+          test -f app/my-signals.php
+          test -f app/admin.php
+
+      - name: Commit recovered source
+        run: |
+          set -euo pipefail
+          git add -- app
+          if git diff --cached --quiet; then
+            echo "No server-only app source changes found."
+            exit 0
+          fi
+          git config user.name "ILMB server backup"
+          git config user.email "hello@ilovemybody.in"
+          git commit -m "Back up server app source"
+          git push origin HEAD:main
