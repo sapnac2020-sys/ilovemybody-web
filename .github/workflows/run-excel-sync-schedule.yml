@@ -1,5 +1,5 @@
 name: Run ILMB Excel and ChEBI Sync
-# authorized intake trigger: 2026-08-30T13:02Z — ChEBI entities shared with service account
+# authorized intake trigger: 2026-08-31T05:20Z — nine ChEBI synonym parts uploaded to production intake
 
 on:
   push:
