@@ -1,0 +1,45 @@
+name: Deploy clinical service catalogue
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - backend/phase_54_clinical_service_catalog.sql
+      - ops/run-clinical-service-catalogue-migration.php
+      - .github/workflows/deploy-clinical-service-catalogue.yml
+
+concurrency:
+  group: ilmb-production-clinical-services
+  cancel-in-progress: false
+
+jobs:
+  migrate-deploy-verify:
+    runs-on: ubuntu-latest
+    permissions: {contents: read}
+    steps:
+      - uses: actions/checkout@v4
+      - run: php -l ops/run-clinical-service-catalogue-migration.php
+      - name: Prepare SSH
+        env: {DEPLOY_BUNDLE: "${{ secrets.HOSTINGER_DEPLOY_BUNDLE }}"}
+        run: |
+          set -euo pipefail
+          mkdir -p "$HOME/.ssh"
+          printf '%s' "$DEPLOY_BUNDLE" | base64 --decode >/tmp/d.json
+          jq -r '.key' /tmp/d.json >"$HOME/.ssh/id_ed25519"; chmod 600 "$HOME/.ssh/id_ed25519"
+          echo "DEPLOY_HOST=$(jq -r '.host' /tmp/d.json)" >>"$GITHUB_ENV"
+          echo "DEPLOY_PORT=$(jq -r '.port' /tmp/d.json)" >>"$GITHUB_ENV"
+          echo "DEPLOY_USER=$(jq -r '.user' /tmp/d.json)" >>"$GITHUB_ENV"
+          ssh-keyscan -p "$(jq -r '.port' /tmp/d.json)" "$(jq -r '.host' /tmp/d.json)" >>"$HOME/.ssh/known_hosts"
+      - name: Migrate and verify
+        run: |
+          set -euo pipefail
+          tar -czf /tmp/clinical-services.tgz backend/phase_54_clinical_service_catalog.sql ops/run-clinical-service-catalogue-migration.php
+          scp -i "$HOME/.ssh/id_ed25519" -P "$DEPLOY_PORT" /tmp/clinical-services.tgz "$DEPLOY_USER@$DEPLOY_HOST:/tmp/clinical-services-${GITHUB_RUN_ID}.tgz"
+          ssh -i "$HOME/.ssh/id_ed25519" -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" "RUN_ID='${GITHUB_RUN_ID}' bash -s" <<'REMOTE'
+          set -euo pipefail
+          work="/tmp/clinical-services-$RUN_ID"; rm -rf "$work"; mkdir -p "$work"
+          tar -xzf "/tmp/clinical-services-$RUN_ID.tgz" -C "$work"
+          php "$work/ops/run-clinical-service-catalogue-migration.php" "$HOME/domains/ilovemybody.in/ilmb-config.php" "$work/backend/phase_54_clinical_service_catalog.sql"
+          rm -rf "$work" "/tmp/clinical-services-$RUN_ID.tgz"
+          REMOTE
