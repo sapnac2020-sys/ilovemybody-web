@@ -72,6 +72,8 @@ jobs:
       - name: Verify metformin identity proof
         run: |
           set -euo pipefail
-          ssh -i "$HOME/.ssh/id_ed25519" -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" 'php -r '''parse_str("drug=metformin",$_GET); include $argv[1];''' "$HOME/domains/ilovemybody.in/public_html/app/medicine-identity.php"' > /tmp/proof.json
+          ssh -i "$HOME/.ssh/id_ed25519" -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" 'bash -s' <<'REMOTE' > /tmp/proof.json
+          php -r 'parse_str("drug=metformin", $_GET); include $argv[1];' "$HOME/domains/ilovemybody.in/public_html/app/medicine-identity.php"
+          REMOTE
           jq -e '.ok==true and .mode=="non_patient_medicine_identity_proof" and .patient_data_read==false and .patient_data_written==false and .drug.id=="metformin" and .rxnorm.status=="exact_approved" and .rxnorm.id=="6809" and .mechanism.computation_eligible==false and .nlem_link.status=="blocked_missing_authoritative_crosswalk" and .chebi_link.status=="blocked_missing_authoritative_crosswalk"' /tmp/proof.json >/dev/null
           echo "MEDICINE_IDENTITY_PROOF=passed"
