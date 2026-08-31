@@ -68,8 +68,25 @@ jobs:
           set +a
           RELEASE_DIR="$ILMB_WORK_DIR/chebi/releases/2026-08-14"
           MANIFEST="$RELEASE_DIR/manifest.json"
-          test -s "$MANIFEST" || { echo "::error::Frozen 2026-08-14 source manifest is missing; refusing mutable refetch."; exit 1; }
+          if ! test -s "$MANIFEST"; then
+            echo "Frozen source cache missing; fetching the official ChEBI bulk source under strict recorded-total gates."
+            "$CURRENT/.venv/bin/ilmb-sync" chebi-fetch --release 2026-08-14 --timeout 300 \
+              > "$HOME/private/ilmb-chebi-recovery/source-fetch.json"
+          fi
           "$CURRENT/.venv/bin/ilmb-sync" chebi-validate "$MANIFEST" > "$HOME/private/ilmb-chebi-recovery/source-validation.json"
+          "$CURRENT/.venv/bin/python" - "$HOME/private/ilmb-chebi-recovery/source-validation.json" <<'PY'
+          import json, sys
+          p=json.load(open(sys.argv[1], encoding="utf-8"))
+          assert p["complete"] is True
+          expected={"chemical_data":202351,"comments":4414,"compound_origins":81324,
+                    "database_accession":422748,"relation":408817,"relation_type":11,
+                    "secondary_ids":19421,"source":93,"status":3,
+                    "structure_registry":215365,"structures":201362,"wurcs":11441}
+          got={x["name"]:x.get("row_count") for x in p["files"]}
+          bad={k:(got.get(k),v) for k,v in expected.items() if got.get(k)!=v}
+          if bad: raise SystemExit("Recorded ChEBI Release 254 row gates failed: "+repr(bad))
+          print("RECORDED_RELEASE_254_SOURCE_GATES=PASS")
+          PY
           python_bin="$CURRENT/.venv/bin/python"
           "$python_bin" -c 'import openpyxl'
           OUT="$HOME/private/ilmb-chebi-recovery/remaining-80-release-2026-08-14"
