@@ -1,0 +1,95 @@
+name: Recover missing ChEBI Excel workbooks
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - ops/excel-sync/scripts/regenerate_chebi_excel.py
+      - .github/workflows/recover-chebi-workbooks.yml
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ilmb-chebi-workbook-recovery
+  cancel-in-progress: false
+
+jobs:
+  recover:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate generator
+        run: |
+          set -euo pipefail
+          python -m py_compile ops/excel-sync/scripts/regenerate_chebi_excel.py
+          grep -q '"parts": 42' ops/excel-sync/scripts/regenerate_chebi_excel.py
+          grep -q 'len(registry) != 80' ops/excel-sync/scripts/regenerate_chebi_excel.py
+
+      - name: Prepare Hostinger SSH
+        env:
+          DEPLOY_BUNDLE: ${{ secrets.HOSTINGER_DEPLOY_BUNDLE }}
+        run: |
+          set -euo pipefail
+          test -n "$DEPLOY_BUNDLE"
+          mkdir -p "$HOME/.ssh"
+          chmod 700 "$HOME/.ssh"
+          printf '%s' "$DEPLOY_BUNDLE" | base64 --decode > "$RUNNER_TEMP/deploy.json"
+          jq -e '.host and .port and .user and .key' "$RUNNER_TEMP/deploy.json" >/dev/null
+          jq -r '.key' "$RUNNER_TEMP/deploy.json" > "$HOME/.ssh/id_ed25519"
+          chmod 600 "$HOME/.ssh/id_ed25519"
+          echo "DEPLOY_HOST=$(jq -r '.host' "$RUNNER_TEMP/deploy.json")" >> "$GITHUB_ENV"
+          echo "DEPLOY_PORT=$(jq -r '.port' "$RUNNER_TEMP/deploy.json")" >> "$GITHUB_ENV"
+          echo "DEPLOY_USER=$(jq -r '.user' "$RUNNER_TEMP/deploy.json")" >> "$GITHUB_ENV"
+
+      - name: Install generator privately
+        run: |
+          set -euo pipefail
+          ssh_args=(-o IdentitiesOnly=yes -o BatchMode=yes -o StrictHostKeyChecking=accept-new -i "$HOME/.ssh/id_ed25519" -p "$DEPLOY_PORT")
+          ssh "${ssh_args[@]}" "$DEPLOY_USER@$DEPLOY_HOST" 'mkdir -p "$HOME/private/ilmb-chebi-recovery"'
+          scp "${ssh_args[@]}" ops/excel-sync/scripts/regenerate_chebi_excel.py             "$DEPLOY_USER@$DEPLOY_HOST:private/ilmb-chebi-recovery/regenerate_chebi_excel.py"
+
+      - name: Validate frozen release and regenerate 80 files
+        run: |
+          set -euo pipefail
+          ssh_args=(-o IdentitiesOnly=yes -o BatchMode=yes -o StrictHostKeyChecking=accept-new -i "$HOME/.ssh/id_ed25519" -p "$DEPLOY_PORT")
+          ssh "${ssh_args[@]}" "$DEPLOY_USER@$DEPLOY_HOST" 'bash -s' <<'REMOTE'
+          set -euo pipefail
+          ROOT="$HOME/private/ilmb-excel-sync"
+          CURRENT="$ROOT/current"
+          test -s "$CURRENT/ilmb-sync.env"
+          set -a
+          . "$CURRENT/ilmb-sync.env"
+          set +a
+          RELEASE_DIR="$ILMB_WORK_DIR/chebi/releases/2026-08-14"
+          MANIFEST="$RELEASE_DIR/manifest.json"
+          test -s "$MANIFEST" || { echo "::error::Frozen 2026-08-14 source manifest is missing; refusing mutable refetch."; exit 1; }
+          "$CURRENT/.venv/bin/ilmb-sync" chebi-validate "$MANIFEST" > "$HOME/private/ilmb-chebi-recovery/source-validation.json"
+          python_bin="$CURRENT/.venv/bin/python"
+          "$python_bin" -c 'import openpyxl'
+          OUT="$HOME/private/ilmb-chebi-recovery/remaining-80-release-2026-08-14"
+          mkdir -p "$OUT"
+          "$python_bin" "$HOME/private/ilmb-chebi-recovery/regenerate_chebi_excel.py"             --release-dir "$RELEASE_DIR" --output-dir "$OUT"             | tee "$HOME/private/ilmb-chebi-recovery/recovery-result.json"
+          test "$(find "$OUT" -maxdepth 1 -name 'ILMB_ChEBI_*.xlsx' | wc -l)" -eq 80
+          test -s "$OUT/ILMB_ChEBI_Remaining_80_Release_2026-08-14.zip"
+          test -s "$OUT/ILMB_ChEBI_Remaining_80_Manifest.json"
+          REMOTE
+
+      - name: Retrieve verification manifests
+        run: |
+          set -euo pipefail
+          ssh_args=(-o IdentitiesOnly=yes -o BatchMode=yes -o StrictHostKeyChecking=accept-new -i "$HOME/.ssh/id_ed25519" -p "$DEPLOY_PORT")
+          mkdir -p recovery-verification
+          scp "${ssh_args[@]}"             "$DEPLOY_USER@$DEPLOY_HOST:private/ilmb-chebi-recovery/source-validation.json"             recovery-verification/
+          scp "${ssh_args[@]}"             "$DEPLOY_USER@$DEPLOY_HOST:private/ilmb-chebi-recovery/recovery-result.json"             recovery-verification/
+          scp "${ssh_args[@]}"             "$DEPLOY_USER@$DEPLOY_HOST:private/ilmb-chebi-recovery/remaining-80-release-2026-08-14/ILMB_ChEBI_Remaining_80_Manifest.json"             recovery-verification/
+          jq -e '.ok==true and .file_count==80 and .row_count==1768704'             recovery-verification/recovery-result.json
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: chebi-recovery-verification
+          path: recovery-verification/
+          retention-days: 90
