@@ -44,7 +44,7 @@ jobs:
           find app -type f \
             \( -name '*.php' -o -name '*.js' -o -name '*.css' -o -name '*.html' -o -name '*.json' \) \
             ! -name '.env' ! -name '*.pem' ! -name '*.key' ! -name 'config.php' ! -name 'database.php' \
-            -print0 | tar --null --files-from=- --no-recursion -czf -
+            -print0 | tar --null --files-from=- -czf -
           REMOTE
           tar -tzf /tmp/server-app.tgz
           tar -xzf /tmp/server-app.tgz
