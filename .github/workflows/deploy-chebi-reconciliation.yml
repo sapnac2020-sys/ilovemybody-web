@@ -1,4 +1,5 @@
 name: Deploy ChEBI production reconciliation
+# production totals refresh: 2026-08-31 after synonym and source promotion
 
 on:
   workflow_dispatch:
