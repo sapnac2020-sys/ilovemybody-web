@@ -49,13 +49,15 @@ jobs:
         run: |
           set -euo pipefail
           ssh_args=(-o IdentitiesOnly=yes -o BatchMode=yes -o StrictHostKeyChecking=accept-new -i "$HOME/.ssh/id_ed25519" -p "$DEPLOY_PORT")
+          scp_args=(-o IdentitiesOnly=yes -o BatchMode=yes -o StrictHostKeyChecking=accept-new -i "$HOME/.ssh/id_ed25519" -P "$DEPLOY_PORT")
           ssh "${ssh_args[@]}" "$DEPLOY_USER@$DEPLOY_HOST" 'mkdir -p "$HOME/private/ilmb-chebi-recovery"'
-          scp "${ssh_args[@]}" ops/excel-sync/scripts/regenerate_chebi_excel.py             "$DEPLOY_USER@$DEPLOY_HOST:private/ilmb-chebi-recovery/regenerate_chebi_excel.py"
+          scp "${scp_args[@]}" ops/excel-sync/scripts/regenerate_chebi_excel.py             "$DEPLOY_USER@$DEPLOY_HOST:private/ilmb-chebi-recovery/regenerate_chebi_excel.py"
 
       - name: Validate frozen release and regenerate 80 files
         run: |
           set -euo pipefail
           ssh_args=(-o IdentitiesOnly=yes -o BatchMode=yes -o StrictHostKeyChecking=accept-new -i "$HOME/.ssh/id_ed25519" -p "$DEPLOY_PORT")
+          scp_args=(-o IdentitiesOnly=yes -o BatchMode=yes -o StrictHostKeyChecking=accept-new -i "$HOME/.ssh/id_ed25519" -P "$DEPLOY_PORT")
           ssh "${ssh_args[@]}" "$DEPLOY_USER@$DEPLOY_HOST" 'bash -s' <<'REMOTE'
           set -euo pipefail
           ROOT="$HOME/private/ilmb-excel-sync"
@@ -82,10 +84,11 @@ jobs:
         run: |
           set -euo pipefail
           ssh_args=(-o IdentitiesOnly=yes -o BatchMode=yes -o StrictHostKeyChecking=accept-new -i "$HOME/.ssh/id_ed25519" -p "$DEPLOY_PORT")
+          scp_args=(-o IdentitiesOnly=yes -o BatchMode=yes -o StrictHostKeyChecking=accept-new -i "$HOME/.ssh/id_ed25519" -P "$DEPLOY_PORT")
           mkdir -p recovery-verification
-          scp "${ssh_args[@]}"             "$DEPLOY_USER@$DEPLOY_HOST:private/ilmb-chebi-recovery/source-validation.json"             recovery-verification/
-          scp "${ssh_args[@]}"             "$DEPLOY_USER@$DEPLOY_HOST:private/ilmb-chebi-recovery/recovery-result.json"             recovery-verification/
-          scp "${ssh_args[@]}"             "$DEPLOY_USER@$DEPLOY_HOST:private/ilmb-chebi-recovery/remaining-80-release-2026-08-14/ILMB_ChEBI_Remaining_80_Manifest.json"             recovery-verification/
+          scp "${scp_args[@]}"             "$DEPLOY_USER@$DEPLOY_HOST:private/ilmb-chebi-recovery/source-validation.json"             recovery-verification/
+          scp "${scp_args[@]}"             "$DEPLOY_USER@$DEPLOY_HOST:private/ilmb-chebi-recovery/recovery-result.json"             recovery-verification/
+          scp "${scp_args[@]}"             "$DEPLOY_USER@$DEPLOY_HOST:private/ilmb-chebi-recovery/remaining-80-release-2026-08-14/ILMB_ChEBI_Remaining_80_Manifest.json"             recovery-verification/
           jq -e '.ok==true and .file_count==80 and .row_count==1768704'             recovery-verification/recovery-result.json
 
       - uses: actions/upload-artifact@v4
