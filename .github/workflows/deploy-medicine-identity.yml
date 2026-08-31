@@ -1,5 +1,9 @@
 name: Deploy medicine identity path
 
+concurrency:
+  group: ilmb-production-correlation-migrations
+  cancel-in-progress: false
+
 on:
   workflow_dispatch:
   push:
