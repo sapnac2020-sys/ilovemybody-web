@@ -1,0 +1,44 @@
+name: Audit ILMB test atlas schema
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/audit-test-atlas-schema.yml
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    permissions: {contents: read}
+    steps:
+      - name: Prepare SSH
+        env: {DEPLOY_BUNDLE: "${{ secrets.HOSTINGER_DEPLOY_BUNDLE }}"}
+        run: |
+          set -euo pipefail
+          mkdir -p "$HOME/.ssh"
+          printf '%s' "$DEPLOY_BUNDLE" | base64 --decode >/tmp/d.json
+          jq -r '.key' /tmp/d.json >"$HOME/.ssh/id_ed25519"; chmod 600 "$HOME/.ssh/id_ed25519"
+          echo "DEPLOY_HOST=$(jq -r '.host' /tmp/d.json)" >>"$GITHUB_ENV"
+          echo "DEPLOY_PORT=$(jq -r '.port' /tmp/d.json)" >>"$GITHUB_ENV"
+          echo "DEPLOY_USER=$(jq -r '.user' /tmp/d.json)" >>"$GITHUB_ENV"
+          ssh-keyscan -p "$(jq -r '.port' /tmp/d.json)" "$(jq -r '.host' /tmp/d.json)" >>"$HOME/.ssh/known_hosts"
+      - name: Read test atlas schema only
+        run: |
+          set -euo pipefail
+          ssh -i "$HOME/.ssh/id_ed25519" -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" 'bash -s' <<'REMOTE'
+          set -euo pipefail
+          php -r '
+          $c=require $argv[1]; if(isset($c["database"])) $c=$c["database"];
+          $pdo=new PDO("mysql:host=".$c["host"].";port=".($c["port"]??3306).";dbname=".($c["db"]??$c["name"]).";charset=utf8mb4",$c["user"],$c["pass"]??$c["password"],[PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION]);
+          $tables=$pdo->query("SELECT table_name FROM information_schema.tables WHERE table_schema=DATABASE() AND table_name LIKE '''ilb%test%atlas%''' ORDER BY table_name")->fetchAll(PDO::FETCH_COLUMN);
+          $out=[];
+          foreach($tables as $t){
+            $cols=$pdo->prepare("SELECT column_name,data_type,is_nullable,column_key FROM information_schema.columns WHERE table_schema=DATABASE() AND table_name=? ORDER BY ordinal_position");
+            $cols->execute([$t]);
+            $count=(int)$pdo->query("SELECT COUNT(*) FROM `$t`")->fetchColumn();
+            $out[$t]=["rows"=>$count,"columns"=>$cols->fetchAll(PDO::FETCH_ASSOC)];
+          }
+          echo json_encode($out,JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES),PHP_EOL;
+          ' "$HOME/domains/ilovemybody.in/ilmb-config.php"
+          REMOTE
