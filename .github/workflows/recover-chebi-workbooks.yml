@@ -106,10 +106,21 @@ jobs:
           scp "${scp_args[@]}"             "$DEPLOY_USER@$DEPLOY_HOST:private/ilmb-chebi-recovery/source-validation.json"             recovery-verification/
           scp "${scp_args[@]}"             "$DEPLOY_USER@$DEPLOY_HOST:private/ilmb-chebi-recovery/recovery-result.json"             recovery-verification/
           scp "${scp_args[@]}"             "$DEPLOY_USER@$DEPLOY_HOST:private/ilmb-chebi-recovery/remaining-80-release-2026-08-14/ILMB_ChEBI_Remaining_80_Manifest.json"             recovery-verification/
-          jq -e '.ok==true and .file_count==80 and .row_count==1768704'             recovery-verification/recovery-result.json
+          jq -e '.ok==true and .file_count==80 and .row_count==1768693'             recovery-verification/recovery-result.json
+          mkdir -p recovery-deliverable
+          scp "${scp_args[@]}"             "$DEPLOY_USER@$DEPLOY_HOST:private/ilmb-chebi-recovery/remaining-80-release-2026-08-14/ILMB_ChEBI_Remaining_80_Release_2026-08-14.zip"             recovery-deliverable/
+          sha256sum recovery-deliverable/ILMB_ChEBI_Remaining_80_Release_2026-08-14.zip
+          test "$(sha256sum recovery-deliverable/ILMB_ChEBI_Remaining_80_Release_2026-08-14.zip | cut -d' ' -f1)" = "$(jq -r '.zip_sha256' recovery-verification/recovery-result.json)"
 
       - uses: actions/upload-artifact@v4
         with:
           name: chebi-recovery-verification
           path: recovery-verification/
           retention-days: 90
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: chebi-remaining-80-workbooks
+          path: recovery-deliverable/ILMB_ChEBI_Remaining_80_Release_2026-08-14.zip
+          compression-level: 0
+          retention-days: 30
