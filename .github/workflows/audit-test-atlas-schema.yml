@@ -28,17 +28,18 @@ jobs:
           set -euo pipefail
           ssh -i "$HOME/.ssh/id_ed25519" -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" 'bash -s' <<'REMOTE'
           set -euo pipefail
-          php -r '
+          php /dev/stdin "$HOME/domains/ilovemybody.in/ilmb-config.php" <<'PHP'
+          <?php
           $c=require $argv[1]; if(isset($c["database"])) $c=$c["database"];
           $pdo=new PDO("mysql:host=".$c["host"].";port=".($c["port"]??3306).";dbname=".($c["db"]??$c["name"]).";charset=utf8mb4",$c["user"],$c["pass"]??$c["password"],[PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION]);
-          $tables=$pdo->query("SELECT table_name FROM information_schema.tables WHERE table_schema=DATABASE() AND table_name LIKE '''ilb%test%atlas%''' ORDER BY table_name")->fetchAll(PDO::FETCH_COLUMN);
+          $tables=$pdo->query("SELECT table_name FROM information_schema.tables WHERE table_schema=DATABASE() AND table_name LIKE 'ilb%test%atlas%' ORDER BY table_name")->fetchAll(PDO::FETCH_COLUMN);
           $out=[];
-          foreach($tables as $t){
+          foreach($tables as $t) {
             $cols=$pdo->prepare("SELECT column_name,data_type,is_nullable,column_key FROM information_schema.columns WHERE table_schema=DATABASE() AND table_name=? ORDER BY ordinal_position");
             $cols->execute([$t]);
             $count=(int)$pdo->query("SELECT COUNT(*) FROM `$t`")->fetchColumn();
             $out[$t]=["rows"=>$count,"columns"=>$cols->fetchAll(PDO::FETCH_ASSOC)];
           }
           echo json_encode($out,JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES),PHP_EOL;
-          ' "$HOME/domains/ilovemybody.in/ilmb-config.php"
+          PHP
           REMOTE
