@@ -54,7 +54,7 @@ CREATE TABLE IF NOT EXISTS sp_cosmos_apparent_observation (
   dec_icrf_deg DOUBLE NOT NULL, azimuth_apparent_deg DOUBLE NULL,
   elevation_apparent_deg DOUBLE NULL, range_au DOUBLE NOT NULL,
   range_rate_km_s DOUBLE NOT NULL, solar_elongation_deg DOUBLE NOT NULL,
-  phase_angle_deg DOUBLE NOT NULL, reference_frame VARCHAR(64) NOT NULL,
+  phase_angle_deg DOUBLE NULL, reference_frame VARCHAR(64) NOT NULL,
   correction_class VARCHAR(32) NOT NULL, range_unit VARCHAR(16) NOT NULL,
   range_rate_unit VARCHAR(16) NOT NULL, angle_unit VARCHAR(16) NOT NULL,
   source_id VARCHAR(64) NOT NULL, row_status VARCHAR(32) NOT NULL,
@@ -72,5 +72,8 @@ CREATE TABLE IF NOT EXISTS sp_cosmos_freeze_manifest (
   status VARCHAR(32) NOT NULL, evidence TEXT NOT NULL,
   INDEX idx_freeze_status (status)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+ALTER TABLE sp_cosmos_apparent_observation
+  MODIFY phase_angle_deg DOUBLE NULL;
 
 COMMIT;
