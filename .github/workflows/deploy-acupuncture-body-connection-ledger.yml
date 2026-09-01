@@ -1,39 +1,30 @@
 name: Deploy acupuncture body-connection ledger
-
 on:
   push:
-    paths:
-      - .github/workflows/deploy-acupuncture-body-connection-ledger.yml
+    paths: [.github/workflows/deploy-acupuncture-body-connection-ledger.yml]
   workflow_dispatch:
-
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
       - name: Apply deployed guarded migration on Hostinger
-        env:
-          DEPLOY_BUNDLE: ${{ secrets.HOSTINGER_DEPLOY_BUNDLE }}
+        env: { DEPLOY_BUNDLE: ${{ secrets.HOSTINGER_DEPLOY_BUNDLE }} }
         run: |
           set -euo pipefail
-          test -n "$DEPLOY_BUNDLE"
-          mkdir -p "$HOME/.ssh"
-          chmod 700 "$HOME/.ssh"
+          mkdir -p "$HOME/.ssh"; chmod 700 "$HOME/.ssh"
           printf '%s' "$DEPLOY_BUNDLE" | base64 --decode > "$RUNNER_TEMP/deploy.json"
-          jq -e '.host and .port and .user and .key' "$RUNNER_TEMP/deploy.json" >/dev/null
-          jq -r '.key' "$RUNNER_TEMP/deploy.json" > "$HOME/.ssh/id_ed25519"
-          chmod 600 "$HOME/.ssh/id_ed25519"
-          deploy_host="$(jq -r '.host' "$RUNNER_TEMP/deploy.json")"
-          deploy_port="$(jq -r '.port' "$RUNNER_TEMP/deploy.json")"
-          deploy_user="$(jq -r '.user' "$RUNNER_TEMP/deploy.json")"
-          ssh -o IdentitiesOnly=yes -o BatchMode=yes -o StrictHostKeyChecking=accept-new \
-            -o ConnectTimeout=30 -i "$HOME/.ssh/id_ed25519" -p "$deploy_port" \
-            "$deploy_user@$deploy_host" 'bash -se' <<'REMOTE'
+          jq -r '.key' "$RUNNER_TEMP/deploy.json" > "$HOME/.ssh/id_ed25519"; chmod 600 "$HOME/.ssh/id_ed25519"
+          h="$(jq -r .host "$RUNNER_TEMP/deploy.json")"; p="$(jq -r .port "$RUNNER_TEMP/deploy.json")"; u="$(jq -r .user "$RUNNER_TEMP/deploy.json")"
+          ssh -o IdentitiesOnly=yes -o BatchMode=yes -o StrictHostKeyChecking=accept-new -o ConnectTimeout=30 -i "$HOME/.ssh/id_ed25519" -p "$p" "$u@$h" 'bash -se' <<'REMOTE'
           set -euo pipefail
-          root="$HOME/domains/ilovemybody.in/public_html"
-          config="$HOME/domains/ilovemybody.in/ilmb-config.php"
-          test -s "$config"
-          test -s "$root/backend/phase_72_acupuncture_body_connection_ledger.sql"
-          test -s "$root/ops/run-acupuncture-body-connection-ledger.php"
-          php "$root/ops/run-acupuncture-body-connection-ledger.php" "$config" \
-            "$root/backend/phase_72_acupuncture_body_connection_ledger.sql"
+          root="$HOME/domains/ilovemybody.in/public_html"; config="$HOME/domains/ilovemybody.in/ilmb-config.php"
+          php -l "$root/ops/run-acupuncture-body-connection-ledger.php"
+          set +e
+          output="$(php "$root/ops/run-acupuncture-body-connection-ledger.php" "$config" "$root/backend/phase_72_acupuncture_body_connection_ledger.sql" 2>&1)"
+          status=$?
+          set -e
+          echo "php_exit=$status"
+          printf '%s
+' "$output"
+          exit "$status"
           REMOTE
