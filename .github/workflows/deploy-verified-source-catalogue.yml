@@ -1,0 +1,23 @@
+name: Deploy verified source catalogue
+on:
+  push:
+    branches: [main]
+    paths: [backend/phase_58_verified_source_catalogue.sql, ops/run-verified-source-catalogue.php, .github/workflows/deploy-verified-source-catalogue.yml]
+  workflow_dispatch:
+jobs:
+  migrate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: deploy
+        env: {DEPLOY_BUNDLE: "${{ secrets.HOSTINGER_DEPLOY_BUNDLE }}"}
+        run: |
+          set -euo pipefail
+          mkdir -p "$HOME/.ssh"; printf '%s' "$DEPLOY_BUNDLE"|base64 --decode >/tmp/d.json
+          jq -r .key /tmp/d.json >"$HOME/.ssh/id_ed25519"; chmod 600 "$HOME/.ssh/id_ed25519"
+          host="$(jq -r .host /tmp/d.json)"; port="$(jq -r .port /tmp/d.json)"; user="$(jq -r .user /tmp/d.json)"
+          ssh-keyscan -p "$port" "$host" >>"$HOME/.ssh/known_hosts"
+          a="/tmp/source-catalogue-${GITHUB_RUN_ID}.tgz"; w="/tmp/source-catalogue-${GITHUB_RUN_ID}"
+          tar -czf "$a" backend/phase_58_verified_source_catalogue.sql ops/run-verified-source-catalogue.php
+          scp -i "$HOME/.ssh/id_ed25519" -P "$port" "$a" "$user@$host:$a"
+          ssh -i "$HOME/.ssh/id_ed25519" -p "$port" "$user@$host" "mkdir -p '$w' && tar -xzf '$a' -C '$w' && php '$w/ops/run-verified-source-catalogue.php' '/home/$user/domains/ilovemybody.in/ilmb-config.php' '$w/backend/phase_58_verified_source_catalogue.sql'"
