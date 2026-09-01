@@ -36,8 +36,8 @@ WHERE t.table_schema=DATABASE()
   AND t.table_name <> 'ilb_source_data_object_registry'
 ON DUPLICATE KEY UPDATE
   object_type=VALUES(object_type),
-  domain_key=COALESCE(VALUES(domain_key),domain_key),
-  canonical_role=COALESCE(VALUES(canonical_role),canonical_role);
+  domain_key=COALESCE(VALUES(domain_key),ilb_source_data_object_registry.domain_key),
+  canonical_role=COALESCE(VALUES(canonical_role),ilb_source_data_object_registry.canonical_role);
 
 CREATE OR REPLACE VIEW v_ilb_source_data_master AS
 SELECT object_name,object_type,domain_key,canonical_role,source_name,source_release,source_url,
