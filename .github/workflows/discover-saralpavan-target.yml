@@ -49,6 +49,13 @@ jobs:
           find "$HOME/domains" -maxdepth 5 -type d             \( -iname '*saral*pavan*' -o -iname '*saralpavan*' -o -iname '*cosmic*guidance*' \)             -print 2>/dev/null | sed "s#^$HOME#~#" | sort
           echo "candidate_config_names:"
           find "$HOME" -maxdepth 7 -type f             \( -path '*saralpavan*config*.php' -o -path '*saral*pavan*config*.php' \)             -print 2>/dev/null | sed "s#^$HOME#~#" | sort
+          echo "target_top_level_files:"
+          find "$HOME/domains/saralpavan.com" -maxdepth 3 -type f -printf '%m %p\n' 2>/dev/null |
+            sed "s#^\([0-9]*\) $HOME#\1 ~#" | sort
+          echo "target_environment_names:"
+          if [ -f "$HOME/domains/saralpavan.com/public_html/.env" ]; then
+            sed -n 's/^\([A-Za-z_][A-Za-z0-9_]*\)=.*/\1/p' "$HOME/domains/saralpavan.com/public_html/.env" | sort
+          fi
           echo "matching_database_config_files:"
           find "$HOME" -maxdepth 7 -type f -name '*.php' -print0 2>/dev/null |
             xargs -0 grep -Il 'u756742628_saralpavan' 2>/dev/null |
