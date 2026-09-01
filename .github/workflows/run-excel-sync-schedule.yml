@@ -1,5 +1,5 @@
 name: Run ILMB Excel and ChEBI Sync
-# authorized intake trigger: 2026-08-31 — ChEBI synonyms and sources shared read-only; rescan requested
+# authorized intake trigger: 2026-09-01 — acupuncture source workbook uploaded to ILMB Production Intake; immediate rescan requested
 
 on:
   push:
