@@ -1,0 +1,35 @@
+name: Deploy standalone acupuncture mathematics
+on:
+  push:
+    paths:
+      - backend/phase_73_acupuncture_standalone_mathematics.sql
+      - ops/run-acupuncture-standalone-mathematics.php
+      - .github/workflows/deploy-acupuncture-standalone-mathematics.yml
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Apply guarded migration and verify readiness on Hostinger
+        env:
+          DEPLOY_BUNDLE: ${{ secrets.HOSTINGER_DEPLOY_BUNDLE }}
+        run: |
+          set -euo pipefail
+          mkdir -p "$HOME/.ssh"
+          chmod 700 "$HOME/.ssh"
+          printf '%s' "$DEPLOY_BUNDLE" | base64 --decode > "$RUNNER_TEMP/deploy.json"
+          jq -r '.key' "$RUNNER_TEMP/deploy.json" > "$HOME/.ssh/id_ed25519"
+          chmod 600 "$HOME/.ssh/id_ed25519"
+          h="$(jq -r .host "$RUNNER_TEMP/deploy.json")"
+          p="$(jq -r .port "$RUNNER_TEMP/deploy.json")"
+          u="$(jq -r .user "$RUNNER_TEMP/deploy.json")"
+          ssh -o IdentitiesOnly=yes -o BatchMode=yes -o StrictHostKeyChecking=accept-new -o ConnectTimeout=30 -i "$HOME/.ssh/id_ed25519" -p "$p" "$u@$h" 'bash -se' <<'REMOTE'
+          set -euo pipefail
+          root="$HOME/domains/ilovemybody.in/public_html"
+          config="$HOME/domains/ilovemybody.in/ilmb-config.php"
+          php -l "$root/ops/run-acupuncture-standalone-mathematics.php"
+          php "$root/ops/run-acupuncture-standalone-mathematics.php" \
+            "$config" \
+            "$root/backend/phase_73_acupuncture_standalone_mathematics.sql"
+          REMOTE
