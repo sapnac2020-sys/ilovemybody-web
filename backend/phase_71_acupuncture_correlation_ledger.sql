@@ -10,26 +10,6 @@ ON DUPLICATE KEY UPDATE title=VALUES(title),author_or_organisation=VALUES(author
  version_or_release=VALUES(version_or_release),canonical_url=VALUES(canonical_url),
  accessed_on=VALUES(accessed_on),citation_status='ACCESSIBLE',note=VALUES(note);
 
-CREATE TABLE IF NOT EXISTS ilb_acupuncture_point_standard (
-  acupuncture_point_id bigint unsigned NOT NULL AUTO_INCREMENT,
-  standard_key varchar(80) NOT NULL,
-  point_code varchar(40) NOT NULL,
-  point_name varchar(255) NULL,
-  meridian_name varchar(255) NULL,
-  body_region varchar(255) NULL,
-  canonical_location_text text NULL,
-  location_method varchar(255) NULL,
-  source_bibliography_id bigint unsigned NOT NULL,
-  source_locator varchar(500) NULL,
-  record_status enum('SOURCE_PENDING','SOURCE_VERIFIED','RETIRED') NOT NULL DEFAULT 'SOURCE_PENDING',
-  created_at datetime(6) NOT NULL DEFAULT current_timestamp(6),
-  updated_at datetime(6) NOT NULL DEFAULT current_timestamp(6) ON UPDATE current_timestamp(6),
-  PRIMARY KEY(acupuncture_point_id),
-  UNIQUE KEY uq_ilb_acupuncture_standard_point (standard_key,point_code),
-  CONSTRAINT fk_ilb_acupuncture_standard_bibliography FOREIGN KEY(source_bibliography_id)
-    REFERENCES ilb_bibliography_entry(bibliography_id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
 CREATE TABLE IF NOT EXISTS ilb_aatmn_acupuncture_crosswalk (
   crosswalk_id bigint unsigned NOT NULL AUTO_INCREMENT,
   point_id bigint unsigned NOT NULL,
@@ -48,7 +28,7 @@ CREATE TABLE IF NOT EXISTS ilb_aatmn_acupuncture_crosswalk (
   CONSTRAINT fk_ilb_aatmn_acupuncture_point FOREIGN KEY(point_id)
     REFERENCES ilb_aatmn_parmar_point_source(point_id),
   CONSTRAINT fk_ilb_aatmn_acupuncture_standard FOREIGN KEY(acupuncture_point_id)
-    REFERENCES ilb_acupuncture_point_standard(acupuncture_point_id),
+    REFERENCES ilb_acupuncture_point(point_id),
   CONSTRAINT fk_ilb_aatmn_acupuncture_bibliography FOREIGN KEY(source_bibliography_id)
     REFERENCES ilb_bibliography_entry(bibliography_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -75,7 +55,7 @@ CREATE TABLE IF NOT EXISTS ilb_aatmn_formula_hypothesis (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 INSERT INTO ilb_bibliography_link(bibliography_id,cited_object_type,cited_object_key,evidence_role,locator_within_source)
-SELECT bibliography_id,'OTHER','ilb_acupuncture_point_standard','LOCATION','WHO 2008 standard; 361 point locations'
+SELECT bibliography_id,'OTHER','ilb_acupuncture_point','LOCATION','WHO 2008 standard; canonical location basis for the existing 361-point ILMB acupuncture dataset'
 FROM ilb_bibliography_entry WHERE citation_key='who_acupuncture_point_locations_wpr_2008'
 ON DUPLICATE KEY UPDATE locator_within_source=VALUES(locator_within_source),link_status='ACTIVE';
 
