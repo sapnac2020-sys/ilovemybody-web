@@ -20,8 +20,11 @@ jobs:
           jq -r .key /tmp/d.json >"$HOME/.ssh/id_ed25519"; chmod 600 "$HOME/.ssh/id_ed25519"
           h="$(jq -r .host /tmp/d.json)"; p="$(jq -r .port /tmp/d.json)"; u="$(jq -r .user /tmp/d.json)"
           ssh-keyscan -T 10 -t ed25519 -p "$p" "$h" >>"$HOME/.ssh/known_hosts"
-          opts=(-i "$HOME/.ssh/id_ed25519" -P "$p" -o BatchMode=yes -o ConnectTimeout=20 -o ConnectionAttempts=1)
-          a="/tmp/acupuncture-ledger-${GITHUB_RUN_ID}.tgz"; w="/tmp/acupuncture-ledger-${GITHUB_RUN_ID}"
-          tar -czf "$a" backend/phase_71_acupuncture_correlation_ledger.sql ops/run-acupuncture-correlation-ledger.php
-          for n in 1 2 3; do scp "${opts[@]}" "$a" "$u@$h:$a" && break; test "$n" = 3 && exit 1; sleep 8; done
-          for n in 1 2 3; do ssh -i "$HOME/.ssh/id_ed25519" -p "$p" -o BatchMode=yes -o ConnectTimeout=20 -o ConnectionAttempts=1 "$u@$h" "mkdir -p '$w' && tar -xzf '$a' -C '$w' && php '$w/ops/run-acupuncture-correlation-ledger.php' '/home/$u/domains/ilovemybody.in/ilmb-config.php' '$w/backend/phase_71_acupuncture_correlation_ledger.sql'" && break; test "$n" = 3 && exit 1; sleep 8; done
+          w="/tmp/acupuncture-ledger-${GITHUB_RUN_ID}"
+          for n in 1 2 3; do
+            if tar -czf - backend/phase_71_acupuncture_correlation_ledger.sql ops/run-acupuncture-correlation-ledger.php | ssh -i "$HOME/.ssh/id_ed25519" -p "$p" -o BatchMode=yes -o ConnectTimeout=20 -o ConnectionAttempts=1 "$u@$h" "mkdir -p '$w' && tar -xzf - -C '$w' && php '$w/ops/run-acupuncture-correlation-ledger.php' '/home/$u/domains/ilovemybody.in/ilmb-config.php' '$w/backend/phase_71_acupuncture_correlation_ledger.sql'"; then
+              break
+            fi
+            test "$n" = 3 && exit 1
+            sleep 8
+          done
