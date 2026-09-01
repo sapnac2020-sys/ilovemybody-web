@@ -38,15 +38,24 @@ jobs:
           )
           for attempt in 1 2 3; do
             echo "Hostinger migration attempt $attempt"
-            if ssh "${ssh_args[@]}" "$deploy_user@$deploy_host" \
-              "MIGRATION_B64='$migration_b64' RUNNER_B64='$runner_b64' DEPLOY_USER='$deploy_user' bash -s" <<'REMOTE'
+            if {
+              cat <<'REMOTE_HEAD'
           set -euo pipefail
           remote_dir="/tmp/ilmb-acupuncture-body-ledger-$$"
           mkdir -p "$remote_dir"
-          printf '%s' "$MIGRATION_B64" | base64 --decode > "$remote_dir/phase_72.sql"
-          printf '%s' "$RUNNER_B64" | base64 --decode > "$remote_dir/run.php"
+          base64 --decode > "$remote_dir/phase_72.sql" <<'MIGRATION_SQL'
+          REMOTE_HEAD
+              printf '%s\n' "$migration_b64"
+              cat <<'REMOTE_MIDDLE'
+          MIGRATION_SQL
+          base64 --decode > "$remote_dir/run.php" <<'RUNNER_PHP'
+          REMOTE_MIDDLE
+              printf '%s\n' "$runner_b64"
+              cat <<'REMOTE_TAIL'
+          RUNNER_PHP
           php "$remote_dir/run.php" "/home/$DEPLOY_USER/domains/ilovemybody.in/ilmb-config.php" "$remote_dir/phase_72.sql"
-          REMOTE
+          REMOTE_TAIL
+            } | ssh "${ssh_args[@]}" "$deploy_user@$deploy_host" "DEPLOY_USER='$deploy_user' bash -s"
             then
               exit 0
             fi
