@@ -1,0 +1,36 @@
+name: Audit live source data inventory
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - ops/audit-live-source-data-inventory.php
+      - .github/workflows/audit-live-source-data-inventory.yml
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    permissions: {contents: read}
+    steps:
+      - uses: actions/checkout@v4
+      - run: php -l ops/audit-live-source-data-inventory.php
+      - name: Prepare SSH
+        env: {DEPLOY_BUNDLE: "${{ secrets.HOSTINGER_DEPLOY_BUNDLE }}"}
+        run: |
+          set -euo pipefail
+          mkdir -p "$HOME/.ssh"
+          printf '%s' "$DEPLOY_BUNDLE" | base64 --decode >/tmp/d.json
+          jq -r '.key' /tmp/d.json >"$HOME/.ssh/id_ed25519"; chmod 600 "$HOME/.ssh/id_ed25519"
+          echo "DEPLOY_HOST=$(jq -r '.host' /tmp/d.json)" >>"$GITHUB_ENV"
+          echo "DEPLOY_PORT=$(jq -r '.port' /tmp/d.json)" >>"$GITHUB_ENV"
+          echo "DEPLOY_USER=$(jq -r '.user' /tmp/d.json)" >>"$GITHUB_ENV"
+          ssh-keyscan -p "$(jq -r '.port' /tmp/d.json)" "$(jq -r '.host' /tmp/d.json)" >>"$HOME/.ssh/known_hosts"
+      - name: Audit database
+        run: |
+          set -euo pipefail
+          archive="/tmp/ilmb-source-inventory-${GITHUB_RUN_ID}.tgz"
+          work="/tmp/ilmb-source-inventory-${GITHUB_RUN_ID}"
+          tar -czf "$archive" ops/audit-live-source-data-inventory.php
+          scp -i "$HOME/.ssh/id_ed25519" -P "$DEPLOY_PORT" "$archive" "$DEPLOY_USER@$DEPLOY_HOST:$archive"
+          ssh -i "$HOME/.ssh/id_ed25519" -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" "mkdir -p '$work' && tar -xzf '$archive' -C '$work' && php '$work/ops/audit-live-source-data-inventory.php' '/home/${DEPLOY_USER}/domains/ilovemybody.in/ilmb-config.php'"
