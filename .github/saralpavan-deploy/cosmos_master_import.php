@@ -29,7 +29,18 @@ $pdo=new PDO(sprintf('mysql:host=%s;dbname=%s;charset=%s',$db['host'],$db['name'
 $book=readXlsx($workbook);
 foreach(['COSMOS_CONTROL','COSMOS_IMPORT','C18_BIBLIOGRAPHY','C20_EOP_RECORD'] as $required)if(!isset($book[$required]))fail("Missing required cosmos sheet: {$required}");
 $allowed=[];foreach(array_slice($book['COSMOS_IMPORT'],1) as $row){$sheet=clean($row[1]??null);$table=clean($row[2]??null);$mode=strtoupper((string)($row[3]??''));$status=strtoupper((string)($row[5]??''));if(!$sheet||!$table||$mode!=='UPSERT'||$status!=='READY')continue;if(!preg_match('/^C\d{2}_[A-Z0-9_]+$/',$sheet)||!preg_match('/^sp_cosmos_[a-z0-9_]+$/',$table))fail('Unsafe import manifest entry.');$allowed[$sheet]=$table;}
-if(count($allowed)<32)fail('COSMOS_IMPORT must contain at least 32 READY mappings.');
+$batch008=[
+    'C24_HORIZONS_REQUEST'=>'sp_cosmos_horizons_request',
+    'C25_HORIZONS_RESPONSE'=>'sp_cosmos_horizons_response',
+    'C26_EPHEMERIS_STATE'=>'sp_cosmos_ephemeris_state',
+    'C27_GEOMETRY_EQUATIONS'=>'sp_cosmos_equation',
+    'C28_EVENT_DEFINITION'=>'sp_cosmos_event_definition',
+    'C29_UNCERTAINTY_RULE'=>'sp_cosmos_uncertainty_rule',
+    'C30_DATA_LINEAGE'=>'sp_cosmos_data_lineage',
+    'C31_VALIDATION_RECORD'=>'sp_cosmos_validation_record',
+];
+foreach($batch008 as $sheet=>$table){if(!isset($book[$sheet]))fail("Missing Batch 008 sheet: {$sheet}");$allowed[$sheet]=$table;}
+if(count($allowed)<32)fail('COSMOS_IMPORT must contain at least 32 READY mappings; parsed '.count($allowed).'.');
 $rowsWritten=0;$pdo->beginTransaction();
 try{
     foreach($allowed as $sheet=>$table){
