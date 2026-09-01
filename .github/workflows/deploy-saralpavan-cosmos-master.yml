@@ -87,7 +87,7 @@ jobs:
             $expected=["sp_cosmos_horizons_request"=>11,"sp_cosmos_horizons_response"=>11,"sp_cosmos_ephemeris_state"=>33,"sp_cosmos_event_definition"=>12,"sp_cosmos_uncertainty_rule"=>12,"sp_cosmos_data_lineage"=>33,"sp_cosmos_validation_record"=>14];
             foreach($expected as $t=>$minimum){$n=(int)$p->query("SELECT COUNT(*) FROM `".$t."`")->fetchColumn();echo "live_count_".$t."=".$n."\n";if($n<$minimum)exit(51);}
             $bad=(int)$p->query("SELECT COUNT(*) FROM sp_cosmos_ephemeris_state WHERE source_id<>\"SRC-JPL-HORIZONS-API\" OR row_status<>\"RAW_SOURCE\"")->fetchColumn();echo "invalid_ephemeris_rows=".$bad."\n";if($bad!==0)exit(52);
-            $pending=(int)$p->query("SELECT COUNT(*) FROM sp_cosmos_validation_record WHERE status=\"PENDING\"")->fetchColumn();echo "pending_validation_records=".$pending."\n";
+            $pending=(int)$p->query("SELECT COUNT(*) FROM sp_cosmos_validation_record WHERE status=0x50454E44494E47")->fetchColumn();echo "pending_validation_records=".$pending."\n";
           '
           rm -f /tmp/sync_master_from_drive.php /tmp/cosmos_master_import.php /tmp/018_batch_008.sql
           REMOTE
