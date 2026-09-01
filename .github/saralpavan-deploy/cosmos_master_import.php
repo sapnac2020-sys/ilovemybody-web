@@ -29,7 +29,7 @@ $pdo=new PDO(sprintf('mysql:host=%s;dbname=%s;charset=%s',$db['host'],$db['name'
 $book=readXlsx($workbook);
 foreach(['COSMOS_CONTROL','COSMOS_IMPORT','C18_BIBLIOGRAPHY','C20_EOP_RECORD'] as $required)if(!isset($book[$required]))fail("Missing required cosmos sheet: {$required}");
 $allowed=[];foreach(array_slice($book['COSMOS_IMPORT'],1) as $row){$sheet=clean($row[1]??null);$table=clean($row[2]??null);$mode=strtoupper((string)($row[3]??''));$status=strtoupper((string)($row[5]??''));if(!$sheet||!$table||$mode!=='UPSERT'||$status!=='READY')continue;if(!preg_match('/^C\d{2}_[A-Z0-9_]+$/',$sheet)||!preg_match('/^sp_cosmos_[a-z0-9_]+$/',$table))fail('Unsafe import manifest entry.');$allowed[$sheet]=$table;}
-if(count($allowed)!==32)fail('COSMOS_IMPORT must contain exactly 32 READY mappings.');
+if(count($allowed)<32)fail('COSMOS_IMPORT must contain at least 32 READY mappings.');
 $rowsWritten=0;$pdo->beginTransaction();
 try{
     foreach($allowed as $sheet=>$table){
