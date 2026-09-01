@@ -27,13 +27,13 @@ jobs:
           deploy_user="$(jq -r '.user' "$RUNNER_TEMP/deploy.json")"
           ssh -o IdentitiesOnly=yes -o BatchMode=yes -o StrictHostKeyChecking=accept-new \
             -o ConnectTimeout=30 -i "$HOME/.ssh/id_ed25519" -p "$deploy_port" \
-            "$deploy_user@$deploy_host" "DEPLOY_USER='$deploy_user' bash -se" <<'REMOTE'
+            "$deploy_user@$deploy_host" 'bash -se' <<'REMOTE'
           set -euo pipefail
-          root="/home/$DEPLOY_USER/domains/ilovemybody.in/public_html"
-          test -s "/home/$DEPLOY_USER/domains/ilovemybody.in/ilmb-config.php"
+          root="$HOME/domains/ilovemybody.in/public_html"
+          config="$HOME/domains/ilovemybody.in/ilmb-config.php"
+          test -s "$config"
           test -s "$root/backend/phase_72_acupuncture_body_connection_ledger.sql"
           test -s "$root/ops/run-acupuncture-body-connection-ledger.php"
-          php "$root/ops/run-acupuncture-body-connection-ledger.php" \
-            "/home/$DEPLOY_USER/domains/ilovemybody.in/ilmb-config.php" \
+          php "$root/ops/run-acupuncture-body-connection-ledger.php" "$config" \
             "$root/backend/phase_72_acupuncture_body_connection_ledger.sql"
           REMOTE
