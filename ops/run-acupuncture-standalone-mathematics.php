@@ -30,20 +30,42 @@ if (!is_array($config)) {
     throw new RuntimeException('Configuration file must return an array.');
 }
 
-$requiredConfig = ['dsn', 'username', 'password'];
-$missingConfig = array_values(array_diff($requiredConfig, array_keys($config)));
-if ($missingConfig !== []) {
+$hasDsnContract = isset($config['dsn'], $config['username'], $config['password']);
+$hasHostContract = isset($config['host'], $config['db'], $config['user'], $config['pass']);
+if (!$hasDsnContract && !$hasHostContract) {
     throw new RuntimeException(
-        'Configuration key(s) missing: ' . implode(', ', $missingConfig) .
-        '; available keys: ' . implode(', ', array_keys($config))
+        'Unsupported configuration contract; available keys: ' . implode(', ', array_keys($config))
     );
 }
 
+if ($hasDsnContract) {
+    $dsn = (string) $config['dsn'];
+    $username = (string) $config['username'];
+    $password = (string) $config['password'];
+} else {
+    $charset = isset($config['charset']) ? (string) $config['charset'] : 'utf8mb4';
+    $port = isset($config['port']) ? (int) $config['port'] : 3306;
+    $dsn = sprintf(
+        'mysql:host=%s;port=%d;dbname=%s;charset=%s',
+        (string) $config['host'],
+        $port,
+        (string) $config['db'],
+        $charset
+    );
+    $username = (string) $config['user'];
+    $password = (string) $config['pass'];
+}
+
+$pdoOptions = [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION];
+if (!empty($config['init_command']) && defined('PDO::MYSQL_ATTR_INIT_COMMAND')) {
+    $pdoOptions[PDO::MYSQL_ATTR_INIT_COMMAND] = (string) $config['init_command'];
+}
+
 $pdo = new PDO(
-    $config['dsn'],
-    $config['username'],
-    $config['password'],
-    [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
+    $dsn,
+    $username,
+    $password,
+    $pdoOptions
 );
 
 $required = ['ilb_acupuncture_point', 'ilb_acupuncture_channel'];
