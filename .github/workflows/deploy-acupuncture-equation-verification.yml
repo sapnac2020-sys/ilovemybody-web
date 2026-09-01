@@ -1,5 +1,5 @@
 name: Deploy acupuncture equation verification
-on:
+"on":
   push:
     paths:
       - backend/phase_74_acupuncture_equation_verification.sql
@@ -11,7 +11,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Apply and verify all acupuncture equations on Hostinger
-        env: { DEPLOY_BUNDLE: ${{ secrets.HOSTINGER_DEPLOY_BUNDLE }} }
+        env:
+          DEPLOY_BUNDLE: ${{ secrets.HOSTINGER_DEPLOY_BUNDLE }}
         run: |
           set -euo pipefail
           mkdir -p "$HOME/.ssh"; chmod 700 "$HOME/.ssh"
