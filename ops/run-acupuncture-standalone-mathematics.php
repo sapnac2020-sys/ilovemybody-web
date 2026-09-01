@@ -93,6 +93,13 @@ $readiness = $pdo->query(
        FROM v_ilb_acupuncture_math_readiness'
 )->fetch(PDO::FETCH_ASSOC);
 
+$pointStatus = $pdo->query(
+    'SELECT status, COUNT(*) AS point_count
+       FROM ilb_acupuncture_point
+      GROUP BY status
+      ORDER BY status'
+)->fetchAll(PDO::FETCH_ASSOC);
+
 if ($readiness === false) {
     throw new RuntimeException('Migration applied but readiness view returned no row.');
 }
@@ -116,6 +123,7 @@ $result = [
     'migration' => 'phase_73_acupuncture_standalone_mathematics',
     'verified' => $mismatches === [],
     'readiness' => $readiness,
+    'point_status_inventory' => $pointStatus,
     'mismatches' => $mismatches,
 ];
 
