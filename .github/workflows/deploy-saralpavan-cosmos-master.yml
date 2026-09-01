@@ -93,6 +93,18 @@ jobs:
           download_code=$?
           if [ "$download_code" -eq 0 ]; then
             php -d display_errors=1 -d log_errors=0 "$app/scripts/cosmos_master_import.php" --workbook="$private/incoming/Saral_Pavan_Excel_Production_Master_v1.0.xlsx" --private-root="$private" 2>&1
+            import_result=$?
+            if [ "$import_result" -eq 0 ]; then
+              SP_CONFIG="$private/config.php" php -r '
+                $c=require getenv("SP_CONFIG");$d=$c["db"];
+                if(($d["name"]??"")!=="u756742628_saralpavan") exit(51);
+                $p=new PDO("mysql:host=".$d["host"].";dbname=".$d["name"].";charset=".($d["charset"]??"utf8mb4"),$d["user"],$d["pass"],[PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION]);
+                $tables=["sp_cosmos_source","sp_cosmos_unit","sp_cosmos_time_standard","sp_cosmos_reference_frame","sp_cosmos_object","sp_cosmos_constant","sp_cosmos_body_parameter","sp_cosmos_orbital_model","sp_cosmos_orbital_coefficient","sp_cosmos_equation","sp_cosmos_kernel_registry","sp_cosmos_body_shape","sp_cosmos_rotation_model","sp_cosmos_rotation_coefficient","sp_cosmos_rotation_periodic_coefficient","sp_cosmos_nutation_phase_angle_coefficient","sp_cosmos_bibliography","sp_cosmos_citation_policy","sp_cosmos_entity_citation","sp_cosmos_eop_record"];
+                foreach($tables as $t){$n=(int)$p->query("SELECT COUNT(*) FROM `".$t."`")->fetchColumn();echo "live_count_".$t."=".$n."\n";}
+                $orph=(int)$p->query("SELECT COUNT(*) FROM sp_cosmos_entity_citation c LEFT JOIN sp_cosmos_bibliography b ON b.bibliography_id=c.bibliography_id WHERE b.bibliography_id IS NULL")->fetchColumn();
+                echo "orphan_citations=".$orph."\n";if($orph!==0)exit(52);
+              '
+            fi
           fi
           import_code=$?
           set -e
