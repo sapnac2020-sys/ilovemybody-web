@@ -36,9 +36,10 @@ jobs:
         run: |
           set -euo pipefail
           ssh_args=(-o IdentitiesOnly=yes -o BatchMode=yes -o StrictHostKeyChecking=accept-new -o ConnectTimeout=30 -i "$HOME/.ssh/id_ed25519" -p "$DEPLOY_PORT")
+          scp_args=(-o IdentitiesOnly=yes -o BatchMode=yes -o StrictHostKeyChecking=accept-new -o ConnectTimeout=30 -i "$HOME/.ssh/id_ed25519" -P "$DEPLOY_PORT")
           printf '%s' "$SYNC_B64" | base64 --decode > "$RUNNER_TEMP/sync_master_from_drive.php"
           printf '%s' "$IMPORT_B64" | base64 --decode > "$RUNNER_TEMP/cosmos_master_import.php"
-          scp "${ssh_args[@]}" "$RUNNER_TEMP/sync_master_from_drive.php" "$RUNNER_TEMP/cosmos_master_import.php" "$DEPLOY_USER@$DEPLOY_HOST:/tmp/"
+          scp "${scp_args[@]}" "$RUNNER_TEMP/sync_master_from_drive.php" "$RUNNER_TEMP/cosmos_master_import.php" "$DEPLOY_USER@$DEPLOY_HOST:/tmp/"
           ssh "${ssh_args[@]}" "$DEPLOY_USER@$DEPLOY_HOST" 'bash -se' <<'REMOTE'
           set -euo pipefail
           app="$HOME/domains/saralpavan.com/public_html"
