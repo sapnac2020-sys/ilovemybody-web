@@ -26,26 +26,27 @@ jobs:
           deploy_host="$(jq -r '.host' "$RUNNER_TEMP/deploy.json")"
           deploy_port="$(jq -r '.port' "$RUNNER_TEMP/deploy.json")"
           deploy_user="$(jq -r '.user' "$RUNNER_TEMP/deploy.json")"
-          remote_dir="/tmp/ilmb-acupuncture-body-ledger-$GITHUB_RUN_ID"
+          migration_b64="$(base64 -w0 backend/phase_72_acupuncture_body_connection_ledger.sql)"
+          runner_b64="$(base64 -w0 ops/run-acupuncture-body-connection-ledger.php)"
           ssh_args=(
+            -o IdentitiesOnly=yes
+            -o BatchMode=yes
+            -o StrictHostKeyChecking=accept-new
+            -o ConnectTimeout=30
             -i "$HOME/.ssh/id_ed25519"
             -p "$deploy_port"
-            -o IdentitiesOnly=yes
-            -o BatchMode=yes
-            -o StrictHostKeyChecking=accept-new
-            -o ConnectTimeout=30
-          )
-          scp_args=(
-            -i "$HOME/.ssh/id_ed25519"
-            -P "$deploy_port"
-            -o IdentitiesOnly=yes
-            -o BatchMode=yes
-            -o StrictHostKeyChecking=accept-new
-            -o ConnectTimeout=30
           )
           for attempt in 1 2 3; do
             echo "Hostinger migration attempt $attempt"
-            if ssh "${ssh_args[@]}" "$deploy_user@$deploy_host" "mkdir -p '$remote_dir'"               && scp "${scp_args[@]}"                    backend/phase_72_acupuncture_body_connection_ledger.sql                    ops/run-acupuncture-body-connection-ledger.php                    "$deploy_user@$deploy_host:$remote_dir/"               && ssh "${ssh_args[@]}" "$deploy_user@$deploy_host"                    "php '$remote_dir/run-acupuncture-body-connection-ledger.php' '/home/$deploy_user/domains/ilovemybody.in/ilmb-config.php' '$remote_dir/phase_72_acupuncture_body_connection_ledger.sql'"
+            if ssh "${ssh_args[@]}" "$deploy_user@$deploy_host" \
+              "MIGRATION_B64='$migration_b64' RUNNER_B64='$runner_b64' DEPLOY_USER='$deploy_user' bash -s" <<'REMOTE'
+          set -euo pipefail
+          remote_dir="/tmp/ilmb-acupuncture-body-ledger-$$"
+          mkdir -p "$remote_dir"
+          printf '%s' "$MIGRATION_B64" | base64 --decode > "$remote_dir/phase_72.sql"
+          printf '%s' "$RUNNER_B64" | base64 --decode > "$remote_dir/run.php"
+          php "$remote_dir/run.php" "/home/$DEPLOY_USER/domains/ilovemybody.in/ilmb-config.php" "$remote_dir/phase_72.sql"
+          REMOTE
             then
               exit 0
             fi
