@@ -56,8 +56,10 @@ jobs:
           fi
           case "$mode" in 600|400) ;; *) echo "config_permission_invalid=$mode"; exit 21;; esac
           echo "config_permission=$mode"
+          git -C "$app" pull --ff-only origin main
           test -s "$app/database/011_cosmos_foundation_batch_001.sql"
           test -s "$app/database/012_source_first_cosmos_foundation.sql"
+          test -s "$app/database/013_cosmos_scientific_expansion_batch_002.sql"
           runner="/tmp/saralpavan_cosmos_migrate_$$.php"
           cat > "$runner" <<'PHP'
           <?php
@@ -85,7 +87,7 @@ jobs:
                PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
                PDO::MYSQL_ATTR_MULTI_STATEMENTS => true]
           );
-          foreach (['011_cosmos_foundation_batch_001.sql','012_source_first_cosmos_foundation.sql'] as $file) {
+          foreach (['011_cosmos_foundation_batch_001.sql','012_source_first_cosmos_foundation.sql','013_cosmos_scientific_expansion_batch_002.sql'] as $file) {
               $sql = file_get_contents($app . '/database/' . $file);
               if ($sql === false || trim($sql) === '') throw new RuntimeException('Unreadable migration: ' . $file);
               $pdo->exec($sql);
@@ -96,7 +98,8 @@ jobs:
               'sp_cosmos_object','sp_cosmos_validation_record','sp_cosmos_constant','sp_cosmos_body_parameter',
               'sp_cosmos_orbital_model','sp_cosmos_orbital_coefficient','sp_cosmos_node_definition',
               'sp_cosmos_equation','sp_cosmos_ephemeris_request','sp_cosmos_ephemeris_record',
-              'sp_cosmos_eop_record','sp_cosmos_kernel_registry'
+              'sp_cosmos_eop_record','sp_cosmos_kernel_registry','sp_cosmos_approximation_error',
+              'sp_cosmos_orbital_supplemental_term'
           ];
           $quoted = implode(',', array_fill(0, count($expected), '?'));
           $stmt = $pdo->prepare('SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA=? AND TABLE_NAME IN (' . $quoted . ')');
@@ -110,7 +113,10 @@ jobs:
           echo 'missing_tables=' . count($missing) . "\n";
           if ($missing) { echo 'missing_names=' . implode(',', $missing) . "\n"; exit(31); }
           $checks = ['sources'=>['sp_cosmos_source',15], 'objects'=>['sp_cosmos_object',13],
-                     'constants'=>['sp_cosmos_constant',9], 'validations'=>['sp_cosmos_validation_record',6]];
+                     'constants'=>['sp_cosmos_constant',13], 'validations'=>['sp_cosmos_validation_record',12],
+                     'body_parameters'=>['sp_cosmos_body_parameter',10], 'orbital_models'=>['sp_cosmos_orbital_model',8],
+                     'orbital_coefficients'=>['sp_cosmos_orbital_coefficient',48], 'approximation_errors'=>['sp_cosmos_approximation_error',16],
+                     'supplemental_terms'=>['sp_cosmos_orbital_supplemental_term',4], 'equations'=>['sp_cosmos_equation',10]];
           foreach ($checks as $label => [$table, $minimum]) {
               $count = (int)$pdo->query('SELECT COUNT(*) FROM ' . $table)->fetchColumn();
               echo $label . '_rows=' . $count . "\n";
