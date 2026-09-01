@@ -40,7 +40,17 @@ $batch008=[
     'C31_VALIDATION_RECORD'=>'sp_cosmos_validation_record',
 ];
 foreach($batch008 as $sheet=>$table){if(!isset($book[$sheet]))fail("Missing Batch 008 sheet: {$sheet}");$allowed[$sheet]=$table;}
-if(count($allowed)<32)fail('COSMOS_IMPORT must contain at least 32 READY mappings; parsed '.count($allowed).'.');
+$batch009=[
+    'C32_FREEZE_KERNEL'=>'sp_cosmos_freeze_kernel',
+    'C33_SPICE_VALIDATION'=>'sp_cosmos_spice_validation',
+    'C34_COVERAGE_EXCEPTION'=>'sp_cosmos_coverage_exception',
+    'C35_OBSERVER_REQUEST'=>'sp_cosmos_observer_request',
+    'C36_OBSERVER_RESPONSE'=>'sp_cosmos_observer_response',
+    'C37_APPARENT_OBSERVATION'=>'sp_cosmos_apparent_observation',
+    'C38_FREEZE_MANIFEST'=>'sp_cosmos_freeze_manifest',
+];
+foreach($batch009 as $sheet=>$table){if(!isset($book[$sheet]))fail("Missing Batch 009 freeze sheet: {$sheet}");$allowed[$sheet]=$table;}
+if(count($allowed)<39)fail('COSMOS_IMPORT must contain at least 39 READY mappings; parsed '.count($allowed).'.');
 $rowsWritten=0;$pdo->beginTransaction();
 try{
     foreach($allowed as $sheet=>$table){
