@@ -1,5 +1,5 @@
 name: Run ILMB Excel and ChEBI Sync
-# authorized intake trigger: 2026-09-01 — acupuncture workbook filename corrected to registered TCM pattern; immediate rescan requested
+# authorized intake trigger: 2026-09-01 — acupuncture workbook v1.0.1 has a new source hash and registered TCM pattern; immediate rescan requested
 
 on:
   push:
