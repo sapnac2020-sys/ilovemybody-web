@@ -35,6 +35,9 @@ jobs:
           set -euo pipefail
           work="/tmp/test-atlas-crosswalk-$RUN_ID"; rm -rf "$work"; mkdir -p "$work"
           tar -xzf "/tmp/test-atlas-crosswalk-$RUN_ID.tgz" -C "$work"
-          php "$work/ops/run-test-atlas-loinc-crosswalk-migration.php" "$HOME/domains/ilovemybody.in/ilmb-config.php" "$work/backend/phase_56_test_atlas_loinc_crosswalk.sql"
+          set +e
+          php "$work/ops/run-test-atlas-loinc-crosswalk-migration.php" "$HOME/domains/ilovemybody.in/ilmb-config.php" "$work/backend/phase_56_test_atlas_loinc_crosswalk.sql" 2>&1
+          rc=$?
           rm -rf "$work" "/tmp/test-atlas-crosswalk-$RUN_ID.tgz"
+          exit "$rc"
           REMOTE
