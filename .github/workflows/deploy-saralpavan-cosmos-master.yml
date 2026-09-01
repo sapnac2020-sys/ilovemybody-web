@@ -37,7 +37,7 @@ jobs:
           set -euo pipefail
           cp .github/saralpavan-deploy/sync_master_from_drive.php "$RUNNER_TEMP/sync_master_from_drive.php"
           cp .github/saralpavan-deploy/cosmos_master_import.php "$RUNNER_TEMP/cosmos_master_import.php"
-          cp .github/saralpavan-deploy/018_batch_008.sql "$RUNNER_TEMP/018_batch_008.sql"
+          cp .github/saralpavan-deploy/019_batch_009.sql "$RUNNER_TEMP/019_batch_009.sql"
           php -l "$RUNNER_TEMP/sync_master_from_drive.php"
           php -l "$RUNNER_TEMP/cosmos_master_import.php"
       - name: Deploy, migrate, import and audit
@@ -47,7 +47,7 @@ jobs:
           scp_args=(-o IdentitiesOnly=yes -o BatchMode=yes -o StrictHostKeyChecking=accept-new -o ConnectTimeout=30 -i "$HOME/.ssh/id_ed25519" -P "$DEPLOY_PORT")
           copied=false
           for attempt in 1 2 3 4 5; do
-            if scp "${scp_args[@]}" "$RUNNER_TEMP/sync_master_from_drive.php" "$RUNNER_TEMP/cosmos_master_import.php" "$RUNNER_TEMP/018_batch_008.sql" "$DEPLOY_USER@$DEPLOY_HOST:/tmp/"; then copied=true; break; fi
+            if scp "${scp_args[@]}" "$RUNNER_TEMP/sync_master_from_drive.php" "$RUNNER_TEMP/cosmos_master_import.php" "$RUNNER_TEMP/019_batch_009.sql" "$DEPLOY_USER@$DEPLOY_HOST:/tmp/"; then copied=true; break; fi
             sleep 10
           done
           test "$copied" = true
@@ -67,7 +67,7 @@ jobs:
             if(file_put_contents($path,"<?php\nreturn ".var_export($cfg,true).";\n")===false)exit(32);
           '
           chmod 600 "$private/config.php"
-          SP_CONFIG="$private/config.php" SP_MIGRATION="/tmp/018_batch_008.sql" php -r '
+          SP_CONFIG="$private/config.php" SP_MIGRATION="/tmp/019_batch_009.sql" php -r '
             $c=require getenv("SP_CONFIG");$d=$c["db"];
             if(($d["name"]??"")!=="u756742628_saralpavan")exit(41);
             $p=new PDO("mysql:host=".$d["host"].";dbname=".$d["name"].";charset=".($d["charset"]??"utf8mb4"),$d["user"],$d["pass"],[PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION]);
@@ -80,13 +80,17 @@ jobs:
           php -l "$app/scripts/cosmos_master_import.php"
           php -d display_errors=1 -d log_errors=0 "$app/scripts/sync_master_from_drive.php" --private-root="$private" --download-only
           workbook="$private/incoming/Saral_Pavan_Excel_Production_Master_v1.0.xlsx"
-          sha256sum "$workbook"
+          workbook_sha="$(sha256sum "$workbook" | awk '{print $1}')"
+          echo "workbook_sha256=$workbook_sha"
+          test "$workbook_sha" = "768a886a58e622202fed4027d8c96fe4054c0e388a370bf9f010917ef59a0a77"
           php -d display_errors=1 -d log_errors=0 "$app/scripts/cosmos_master_import.php" --workbook="$workbook" --private-root="$private"
           SP_CONFIG="$private/config.php" php -r '
             $c=require getenv("SP_CONFIG");$d=$c["db"];$p=new PDO("mysql:host=".$d["host"].";dbname=".$d["name"].";charset=".($d["charset"]??"utf8mb4"),$d["user"],$d["pass"],[PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION]);
-            $expected=["sp_cosmos_horizons_request"=>11,"sp_cosmos_horizons_response"=>11,"sp_cosmos_ephemeris_state"=>33,"sp_cosmos_event_definition"=>12,"sp_cosmos_uncertainty_rule"=>12,"sp_cosmos_data_lineage"=>33,"sp_cosmos_validation_record"=>14];
+            $expected=["sp_cosmos_horizons_request"=>11,"sp_cosmos_horizons_response"=>11,"sp_cosmos_ephemeris_state"=>33,"sp_cosmos_event_definition"=>12,"sp_cosmos_uncertainty_rule"=>12,"sp_cosmos_data_lineage"=>33,"sp_cosmos_validation_record"=>14,"sp_cosmos_freeze_kernel"=>3,"sp_cosmos_spice_validation"=>15,"sp_cosmos_coverage_exception"=>18,"sp_cosmos_observer_request"=>20,"sp_cosmos_observer_response"=>20,"sp_cosmos_apparent_observation"=>60,"sp_cosmos_freeze_manifest"=>10];
             foreach($expected as $t=>$minimum){$n=(int)$p->query("SELECT COUNT(*) FROM `".$t."`")->fetchColumn();echo "live_count_".$t."=".$n."\n";if($n<$minimum)exit(51);}
             $bad=(int)$p->query("SELECT COUNT(*) FROM sp_cosmos_ephemeris_state WHERE source_id<>\"SRC-JPL-HORIZONS-API\" OR row_status<>\"RAW_SOURCE\"")->fetchColumn();echo "invalid_ephemeris_rows=".$bad."\n";if($bad!==0)exit(52);
+            $failed=(int)$p->query("SELECT COUNT(*) FROM sp_cosmos_spice_validation WHERE status<>\"PASS\"")->fetchColumn();echo "failed_spice_validations=".$failed."\n";if($failed!==0)exit(53);
+            $freeze=(int)$p->query("SELECT COUNT(*) FROM sp_cosmos_freeze_manifest WHERE status=\"PASS\"")->fetchColumn();echo "freeze_gates_pass=".$freeze."\n";if($freeze!==10)exit(54);
           '
-          rm -f /tmp/sync_master_from_drive.php /tmp/cosmos_master_import.php /tmp/018_batch_008.sql
+          rm -f /tmp/sync_master_from_drive.php /tmp/cosmos_master_import.php /tmp/019_batch_009.sql
           REMOTE
