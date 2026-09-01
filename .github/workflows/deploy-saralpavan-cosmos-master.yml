@@ -68,6 +68,22 @@ jobs:
             if(file_put_contents($path,$body)===false) exit(32);
           '
           chmod 600 "$private/config.php"
+          SP_CONFIG="$private/config.php" php -r '
+            $c=require getenv("SP_CONFIG"); $d=$c["db"];
+            if(($d["name"]??"")!=="u756742628_saralpavan") exit(41);
+            $pdo=new PDO("mysql:host=".$d["host"].";dbname=".$d["name"].";charset=".($d["charset"]??"utf8mb4"),$d["user"],$d["pass"],[PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION]);
+            $pdo->exec("CREATE TABLE IF NOT EXISTS cg_workbook_sync (
+              sync_id CHAR(36) PRIMARY KEY,
+              direction ENUM(\"DRIVE_TO_INTAKE\",\"INTAKE_TO_MARIADB\",\"MARIADB_TO_CLIENT_EXPORT\",\"CLIENT_RETURN_TO_INTAKE\") NOT NULL,
+              drive_file_id VARCHAR(128) NULL, workbook_name VARCHAR(255) NOT NULL,
+              workbook_sha256 CHAR(64) NULL, source_sync_id CHAR(36) NULL,
+              status ENUM(\"DISCOVERED\",\"DOWNLOADED\",\"VALIDATED\",\"REJECTED\",\"IMPORTED\",\"EXPORTED\",\"ARCHIVED\") NOT NULL DEFAULT \"DISCOVERED\",
+              rows_written INT UNSIGNED NOT NULL DEFAULT 0, error_summary TEXT NULL,
+              created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, completed_at DATETIME NULL,
+              KEY ix_cg_workbook_sha(workbook_sha256), KEY ix_cg_sync_direction_status(direction,status),
+              CONSTRAINT fk_cg_sync_parent FOREIGN KEY(source_sync_id) REFERENCES cg_workbook_sync(sync_id)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+          '
           install -m 0750 /tmp/sync_master_from_drive.php "$app/scripts/sync_master_from_drive.php"
           install -m 0750 /tmp/cosmos_master_import.php "$app/scripts/cosmos_master_import.php"
           php -l "$app/scripts/sync_master_from_drive.php"
