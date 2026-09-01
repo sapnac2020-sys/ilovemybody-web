@@ -43,7 +43,7 @@ jobs:
           set -euo pipefail
           ssh -i "$HOME/.ssh/hostinger_deploy" -p "$DEPLOY_PORT"             "$DEPLOY_USER@$DEPLOY_HOST" 'bash -se' <<'REMOTE'
           set -euo pipefail
-          echo "discovery_version=1"
+          echo "discovery_version=2"
           echo "php_version=$(php -r 'echo PHP_MAJOR_VERSION,".",PHP_MINOR_VERSION;' 2>/dev/null || echo unavailable)"
           echo "candidate_directories:"
           find "$HOME/domains" -maxdepth 5 -type d             \( -iname '*saral*pavan*' -o -iname '*saralpavan*' -o -iname '*cosmic*guidance*' \)             -print 2>/dev/null | sed "s#^$HOME#~#" | sort
