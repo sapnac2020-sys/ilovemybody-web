@@ -39,7 +39,15 @@ jobs:
           scp_args=(-o IdentitiesOnly=yes -o BatchMode=yes -o StrictHostKeyChecking=accept-new -o ConnectTimeout=30 -i "$HOME/.ssh/id_ed25519" -P "$DEPLOY_PORT")
           printf '%s' "$SYNC_B64" | base64 --decode > "$RUNNER_TEMP/sync_master_from_drive.php"
           printf '%s' "$IMPORT_B64" | base64 --decode > "$RUNNER_TEMP/cosmos_master_import.php"
-          scp "${scp_args[@]}" "$RUNNER_TEMP/sync_master_from_drive.php" "$RUNNER_TEMP/cosmos_master_import.php" "$DEPLOY_USER@$DEPLOY_HOST:/tmp/"
+          copied=false
+          for attempt in 1 2 3 4 5; do
+            if scp "${scp_args[@]}" "$RUNNER_TEMP/sync_master_from_drive.php" "$RUNNER_TEMP/cosmos_master_import.php" "$DEPLOY_USER@$DEPLOY_HOST:/tmp/"; then
+              copied=true
+              break
+            fi
+            sleep 10
+          done
+          test "$copied" = true
           ssh "${ssh_args[@]}" "$DEPLOY_USER@$DEPLOY_HOST" 'bash -se' <<'REMOTE'
           set -euo pipefail
           app="$HOME/domains/saralpavan.com/public_html"
