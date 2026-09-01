@@ -45,7 +45,7 @@ SELECT object_name,object_type,domain_key,canonical_role,source_name,source_rele
 FROM ilb_source_data_object_registry;
 
 INSERT INTO ilb_backend_object_registry(object_name,object_type,domain_key,canonical_role,frontend_access,lifecycle_status,replacement_object_name,decision_note,release_key) VALUES
-('ilb_source_data_object_registry','table','governance','Central register of all live ILMB database tables and views.','internal_only','canonical',NULL,'Unknown source/provenance is retained as unclassified until a source record is attached.','ilmb_backend_2026_09_01_source_master'),
-('v_ilb_source_data_master','view','governance','Read model for the ILMB source-data master register.','read_contract','canonical',NULL,'Reports source, identity, connection and usability status without inventing evidence.','ilmb_backend_2026_09_01_source_master')
+('ilb_source_data_object_registry','table','governance','Central register of all live ILMB database tables and views.','internal_only','canonical',NULL,'Unknown source/provenance is retained as unclassified until a source record is attached.','ilb_backend_2026_07_24_complete'),
+('v_ilb_source_data_master','view','governance','Read model for the ILMB source-data master register.','read_contract','canonical',NULL,'Reports source, identity, connection and usability status without inventing evidence.','ilb_backend_2026_07_24_complete')
 ON DUPLICATE KEY UPDATE object_type=VALUES(object_type),domain_key=VALUES(domain_key),canonical_role=VALUES(canonical_role),frontend_access=VALUES(frontend_access),lifecycle_status=VALUES(lifecycle_status),replacement_object_name=VALUES(replacement_object_name),decision_note=VALUES(decision_note),release_key=VALUES(release_key);
 COMMIT;
