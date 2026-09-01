@@ -46,7 +46,7 @@ CREATE TABLE IF NOT EXISTS ilb_aatmn_acupuncture_crosswalk (
   UNIQUE KEY uq_ilb_aatmn_acupuncture_crosswalk (point_id,acupuncture_point_id),
   KEY ix_ilb_aatmn_acupuncture_review (review_status,relation_type),
   CONSTRAINT fk_ilb_aatmn_acupuncture_point FOREIGN KEY(point_id)
-    REFERENCES ilb_aatmn_point(point_id),
+    REFERENCES ilb_aatmn_parmar_point_source(point_id),
   CONSTRAINT fk_ilb_aatmn_acupuncture_standard FOREIGN KEY(acupuncture_point_id)
     REFERENCES ilb_acupuncture_point_standard(acupuncture_point_id),
   CONSTRAINT fk_ilb_aatmn_acupuncture_bibliography FOREIGN KEY(source_bibliography_id)
@@ -67,7 +67,7 @@ CREATE TABLE IF NOT EXISTS ilb_aatmn_formula_hypothesis (
   PRIMARY KEY(hypothesis_id),
   KEY ix_ilb_aatmn_formula_state (evidence_state),
   CONSTRAINT fk_ilb_aatmn_formula_point FOREIGN KEY(point_id)
-    REFERENCES ilb_aatmn_point(point_id),
+    REFERENCES ilb_aatmn_parmar_point_source(point_id),
   CONSTRAINT fk_ilb_aatmn_formula_crosswalk FOREIGN KEY(crosswalk_id)
     REFERENCES ilb_aatmn_acupuncture_crosswalk(crosswalk_id),
   CONSTRAINT fk_ilb_aatmn_formula_bibliography FOREIGN KEY(source_bibliography_id)
