@@ -30,7 +30,12 @@ jobs:
           echo "DEPLOY_HOST=$(jq -r '.host' "$RUNNER_TEMP/deploy.json")" >> "$GITHUB_ENV"
           echo "DEPLOY_PORT=$(jq -r '.port' "$RUNNER_TEMP/deploy.json")" >> "$GITHUB_ENV"
           echo "DEPLOY_USER=$(jq -r '.user' "$RUNNER_TEMP/deploy.json")" >> "$GITHUB_ENV"
-          ssh-keyscan -T 15 -p "$(jq -r '.port' "$RUNNER_TEMP/deploy.json")"             "$(jq -r '.host' "$RUNNER_TEMP/deploy.json")" >> "$HOME/.ssh/known_hosts"
+          for attempt in 1 2 3; do
+            if ssh-keyscan -T 15 -p "$(jq -r '.port' "$RUNNER_TEMP/deploy.json")" "$(jq -r '.host' "$RUNNER_TEMP/deploy.json")" >> "$HOME/.ssh/known_hosts"; then
+              break
+            fi
+            test "$attempt" -lt 3
+          done
           chmod 600 "$HOME/.ssh/known_hosts"
 
       - name: Discover isolated Saral Pavan target
