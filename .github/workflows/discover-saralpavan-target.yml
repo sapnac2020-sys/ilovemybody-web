@@ -56,6 +56,19 @@ jobs:
           if [ -f "$HOME/domains/saralpavan.com/public_html/.env" ]; then
             sed -n 's/^\([A-Za-z_][A-Za-z0-9_]*\)=.*/\1/p' "$HOME/domains/saralpavan.com/public_html/.env" | sort
           fi
+          echo "mysql_defaults_available:"
+          for defaults in "$HOME/.my.cnf" "$HOME/.mylogin.cnf"; do
+            if [ -f "$defaults" ]; then
+              printf '%s %s\n' "$(stat -c '%a' "$defaults")" "${defaults/#$HOME/~}"
+            fi
+          done
+          echo "saralpavan_database_access:"
+          if command -v mysql >/dev/null 2>&1 && mysql --batch --skip-column-names -e "SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME='u756742628_saralpavan';" 2>/dev/null | grep -qx 'u756742628_saralpavan'; then
+            echo "available"
+            mysql --batch --skip-column-names -e "SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA='u756742628_saralpavan';"
+          else
+            echo "unavailable_without_config"
+          fi
           echo "matching_database_config_files:"
           find "$HOME" -maxdepth 7 -type f -name '*.php' -print0 2>/dev/null |
             xargs -0 grep -Il 'u756742628_saralpavan' 2>/dev/null |
