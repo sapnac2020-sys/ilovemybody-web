@@ -1,0 +1,45 @@
+name: Deploy acupuncture body-connection ledger
+
+on:
+  push:
+    paths:
+      - .github/workflows/deploy-acupuncture-body-connection-ledger.yml
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Apply guarded ledger migration on Hostinger
+        env:
+          DEPLOY_BUNDLE: ${{ secrets.HOSTINGER_DEPLOY_BUNDLE }}
+        run: |
+          set -euo pipefail
+          test -n "$DEPLOY_BUNDLE"
+          mkdir -p "$HOME/.ssh"
+          chmod 700 "$HOME/.ssh"
+          printf '%s' "$DEPLOY_BUNDLE" | base64 --decode > "$RUNNER_TEMP/deploy.json"
+          jq -e '.host and .port and .user and .key' "$RUNNER_TEMP/deploy.json" >/dev/null
+          jq -r '.key' "$RUNNER_TEMP/deploy.json" > "$HOME/.ssh/id_ed25519"
+          chmod 600 "$HOME/.ssh/id_ed25519"
+          deploy_host="$(jq -r '.host' "$RUNNER_TEMP/deploy.json")"
+          deploy_port="$(jq -r '.port' "$RUNNER_TEMP/deploy.json")"
+          deploy_user="$(jq -r '.user' "$RUNNER_TEMP/deploy.json")"
+          remote_dir="/tmp/ilmb-acupuncture-body-ledger-$GITHUB_RUN_ID"
+          ssh_args=(
+            -i "$HOME/.ssh/id_ed25519"
+            -p "$deploy_port"
+            -o IdentitiesOnly=yes
+            -o BatchMode=yes
+            -o StrictHostKeyChecking=accept-new
+            -o ConnectTimeout=30
+          )
+          for attempt in 1 2 3; do
+            if tar -czf -               backend/phase_72_acupuncture_body_connection_ledger.sql               ops/run-acupuncture-body-connection-ledger.php               | ssh "${ssh_args[@]}" "$deploy_user@$deploy_host"                 "mkdir -p '$remote_dir' && tar -xzf - -C '$remote_dir' && php '$remote_dir/ops/run-acupuncture-body-connection-ledger.php' '/home/$deploy_user/domains/ilovemybody.in/ilmb-config.php' '$remote_dir/backend/phase_72_acupuncture_body_connection_ledger.sql'"
+            then
+              exit 0
+            fi
+            test "$attempt" = 3 && exit 1
+            sleep 10
+          done
