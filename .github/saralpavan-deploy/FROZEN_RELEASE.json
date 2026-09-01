@@ -1,0 +1,9 @@
+{
+  "release": "1.0.0-cosmos-foundation-frozen",
+  "drive_file_id": "1a2lEm-xtopkC5YCCEK6MTyq5YWXrXb-O",
+  "workbook_sha256": "768a886a58e622202fed4027d8c96fe4054c0e388a370bf9f010917ef59a0a77",
+  "migration": "019_batch_009.sql",
+  "import_mappings": 39,
+  "freeze_gates": 10,
+  "status": "FROZEN"
+}
