@@ -30,14 +30,11 @@ jobs:
         run: |
           set -euo pipefail
           tar -czf /tmp/test-atlas-crosswalk.tgz backend/phase_56_test_atlas_loinc_crosswalk.sql ops/run-test-atlas-loinc-crosswalk-migration.php
-          scp -i "$HOME/.ssh/id_ed25519" -P "$DEPLOY_PORT" /tmp/test-atlas-crosswalk.tgz "$DEPLOY_USER@$DEPLOY_HOST:/tmp/test-atlas-crosswalk-${GITHUB_RUN_ID}.tgz"
-          ssh -i "$HOME/.ssh/id_ed25519" -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" "RUN_ID='${GITHUB_RUN_ID}' bash -s" <<'REMOTE'
+          scp -vv -i "$HOME/.ssh/id_ed25519" -P "$DEPLOY_PORT" /tmp/test-atlas-crosswalk.tgz "$DEPLOY_USER@$DEPLOY_HOST:/tmp/test-atlas-crosswalk-${GITHUB_RUN_ID}.tgz"
+          ssh -vv -o ConnectTimeout=20 -o ServerAliveInterval=10 -i "$HOME/.ssh/id_ed25519" -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" "RUN_ID='${GITHUB_RUN_ID}' bash -s" <<'REMOTE'
           set -euo pipefail
           work="/tmp/test-atlas-crosswalk-$RUN_ID"; rm -rf "$work"; mkdir -p "$work"
           tar -xzf "/tmp/test-atlas-crosswalk-$RUN_ID.tgz" -C "$work"
-          set +e
-          php "$work/ops/run-test-atlas-loinc-crosswalk-migration.php" "$HOME/domains/ilovemybody.in/ilmb-config.php" "$work/backend/phase_56_test_atlas_loinc_crosswalk.sql" 2>&1
-          rc=$?
+          php "$work/ops/run-test-atlas-loinc-crosswalk-migration.php" "$HOME/domains/ilovemybody.in/ilmb-config.php" "$work/backend/phase_56_test_atlas_loinc_crosswalk.sql"
           rm -rf "$work" "/tmp/test-atlas-crosswalk-$RUN_ID.tgz"
-          exit "$rc"
           REMOTE
