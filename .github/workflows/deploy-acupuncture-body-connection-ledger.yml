@@ -35,8 +35,17 @@ jobs:
             -o StrictHostKeyChecking=accept-new
             -o ConnectTimeout=30
           )
+          scp_args=(
+            -i "$HOME/.ssh/id_ed25519"
+            -P "$deploy_port"
+            -o IdentitiesOnly=yes
+            -o BatchMode=yes
+            -o StrictHostKeyChecking=accept-new
+            -o ConnectTimeout=30
+          )
           for attempt in 1 2 3; do
-            if tar -czf -               backend/phase_72_acupuncture_body_connection_ledger.sql               ops/run-acupuncture-body-connection-ledger.php               | ssh "${ssh_args[@]}" "$deploy_user@$deploy_host"                 "mkdir -p '$remote_dir' && tar -xzf - -C '$remote_dir' && php '$remote_dir/ops/run-acupuncture-body-connection-ledger.php' '/home/$deploy_user/domains/ilovemybody.in/ilmb-config.php' '$remote_dir/backend/phase_72_acupuncture_body_connection_ledger.sql'"
+            echo "Hostinger migration attempt $attempt"
+            if ssh "${ssh_args[@]}" "$deploy_user@$deploy_host" "mkdir -p '$remote_dir'"               && scp "${scp_args[@]}"                    backend/phase_72_acupuncture_body_connection_ledger.sql                    ops/run-acupuncture-body-connection-ledger.php                    "$deploy_user@$deploy_host:$remote_dir/"               && ssh "${ssh_args[@]}" "$deploy_user@$deploy_host"                    "php '$remote_dir/run-acupuncture-body-connection-ledger.php' '/home/$deploy_user/domains/ilovemybody.in/ilmb-config.php' '$remote_dir/phase_72_acupuncture_body_connection_ledger.sql'"
             then
               exit 0
             fi
