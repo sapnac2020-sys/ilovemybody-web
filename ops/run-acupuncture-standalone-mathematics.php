@@ -1,6 +1,20 @@
 <?php
 declare(strict_types=1);
 
+error_reporting(E_ALL);
+ini_set('display_errors', 'stderr');
+
+set_exception_handler(static function (Throwable $error): void {
+    fwrite(STDERR, json_encode([
+        'verified' => false,
+        'error_type' => get_class($error),
+        'error_message' => $error->getMessage(),
+        'error_file' => basename($error->getFile()),
+        'error_line' => $error->getLine(),
+    ], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . PHP_EOL);
+    exit(70);
+});
+
 if ($argc !== 3) {
     fwrite(STDERR, "Usage: php {$argv[0]} <config.php> <migration.sql>\n");
     exit(64);
@@ -75,4 +89,3 @@ echo json_encode($result, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES), PHP_EOL;
 if ($mismatches !== []) {
     exit(65);
 }
-
