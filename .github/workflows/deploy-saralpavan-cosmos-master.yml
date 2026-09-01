@@ -54,6 +54,20 @@ jobs:
           private="$HOME/domains/saralpavan.com/saralpavan_private"
           test -d "$app/scripts"
           test -s "$private/config.php"
+          key_count="$(find "$private/credentials" -maxdepth 1 -type f -name '*.json' | wc -l | tr -d ' ')"
+          test "$key_count" = 1
+          service_key="$(find "$private/credentials" -maxdepth 1 -type f -name '*.json' -print -quit)"
+          SP_CONFIG="$private/config.php" SP_KEY="$service_key" php -r '
+            $path=getenv("SP_CONFIG"); $cfg=require $path;
+            if (!is_array($cfg) || !isset($cfg["db"])) { fwrite(STDERR,"invalid private config\n"); exit(31); }
+            $cfg["drive"]=[
+              "master_file_id"=>"1a2lEm-xtopkC5YCCEK6MTyq5YWXrXb-O",
+              "service_account_key"=>getenv("SP_KEY")
+            ];
+            $body="<?php\nreturn ".var_export($cfg,true).";\n";
+            if(file_put_contents($path,$body)===false) exit(32);
+          '
+          chmod 600 "$private/config.php"
           install -m 0750 /tmp/sync_master_from_drive.php "$app/scripts/sync_master_from_drive.php"
           install -m 0750 /tmp/cosmos_master_import.php "$app/scripts/cosmos_master_import.php"
           php -l "$app/scripts/sync_master_from_drive.php"
