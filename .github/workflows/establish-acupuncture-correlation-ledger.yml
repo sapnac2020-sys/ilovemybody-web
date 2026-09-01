@@ -1,11 +1,5 @@
 name: Establish acupuncture correlation ledger
 on:
-  push:
-    branches: [main]
-    paths:
-      - backend/phase_71_acupuncture_correlation_ledger.sql
-      - ops/run-acupuncture-correlation-ledger.php
-      - .github/workflows/establish-acupuncture-correlation-ledger.yml
   workflow_dispatch:
 jobs:
   establish:
