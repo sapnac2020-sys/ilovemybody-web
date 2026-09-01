@@ -7,6 +7,7 @@ on:
     paths:
       - backend/phase_56_test_atlas_loinc_crosswalk.sql
       - ops/run-test-atlas-loinc-crosswalk-migration.php
+      - ops/deploy-test-atlas-loinc-crosswalk-remote.sh
       - .github/workflows/deploy-test-atlas-loinc-crosswalk.yml
 jobs:
   migrate:
@@ -31,6 +32,6 @@ jobs:
           set -euo pipefail
           archive="/tmp/test-atlas-crosswalk-${GITHUB_RUN_ID}.tgz"
           work="/tmp/test-atlas-crosswalk-${GITHUB_RUN_ID}"
-          tar -czf "$archive" backend/phase_56_test_atlas_loinc_crosswalk.sql ops/run-test-atlas-loinc-crosswalk-migration.php
+          tar -czf "$archive" backend/phase_56_test_atlas_loinc_crosswalk.sql ops/run-test-atlas-loinc-crosswalk-migration.php ops/deploy-test-atlas-loinc-crosswalk-remote.sh
           scp -i "$HOME/.ssh/id_ed25519" -P "$DEPLOY_PORT" "$archive" "$DEPLOY_USER@$DEPLOY_HOST:$archive"
-          ssh -i "$HOME/.ssh/id_ed25519" -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" "set -euo pipefail; work='$work'; archive='$archive'; rm -rf \"$work\"; mkdir -p \"$work\"; tar -xzf \"$archive\" -C \"$work\"; php \"$work/ops/run-test-atlas-loinc-crosswalk-migration.php\" \"/home/$DEPLOY_USER/domains/ilovemybody.in/ilmb-config.php\" \"$work/backend/phase_56_test_atlas_loinc_crosswalk.sql\"; rm -rf \"$work\" \"$archive\""
+          ssh -i "$HOME/.ssh/id_ed25519" -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" "mkdir -p '/tmp/test-atlas-crosswalk-${GITHUB_RUN_ID}' && tar -xzf '/tmp/test-atlas-crosswalk-${GITHUB_RUN_ID}.tgz' -C '/tmp/test-atlas-crosswalk-${GITHUB_RUN_ID}' && bash '/tmp/test-atlas-crosswalk-${GITHUB_RUN_ID}/ops/deploy-test-atlas-loinc-crosswalk-remote.sh' '/tmp/test-atlas-crosswalk-${GITHUB_RUN_ID}' '/home/${DEPLOY_USER}/domains/ilovemybody.in/ilmb-config.php'"
