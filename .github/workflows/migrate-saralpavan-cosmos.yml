@@ -1,0 +1,122 @@
+name: Migrate Saral Pavan Cosmos Foundation
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: [".github/workflows/migrate-saralpavan-cosmos.yml"]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: saralpavan-production-cosmos
+  cancel-in-progress: false
+
+jobs:
+  migrate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Prepare Hostinger SSH identity
+        env:
+          DEPLOY_BUNDLE: ${{ secrets.HOSTINGER_DEPLOY_BUNDLE }}
+        run: |
+          set -euo pipefail
+          test -n "$DEPLOY_BUNDLE"
+          mkdir -p "$HOME/.ssh"
+          chmod 700 "$HOME/.ssh"
+          printf '%s' "$DEPLOY_BUNDLE" | base64 --decode > "$RUNNER_TEMP/deploy.json"
+          jq -e '.host and .port and .user and .key' "$RUNNER_TEMP/deploy.json" >/dev/null
+          jq -r '.key' "$RUNNER_TEMP/deploy.json" > "$HOME/.ssh/hostinger_deploy"
+          chmod 600 "$HOME/.ssh/hostinger_deploy"
+          echo "DEPLOY_HOST=$(jq -r '.host' "$RUNNER_TEMP/deploy.json")" >> "$GITHUB_ENV"
+          echo "DEPLOY_PORT=$(jq -r '.port' "$RUNNER_TEMP/deploy.json")" >> "$GITHUB_ENV"
+          echo "DEPLOY_USER=$(jq -r '.user' "$RUNNER_TEMP/deploy.json")" >> "$GITHUB_ENV"
+          for attempt in 1 2 3 4 5; do
+            if ssh-keyscan -T 15 -p "$(jq -r '.port' "$RUNNER_TEMP/deploy.json")" "$(jq -r '.host' "$RUNNER_TEMP/deploy.json")" >> "$HOME/.ssh/known_hosts"; then
+              break
+            fi
+            test "$attempt" -lt 5
+          done
+          chmod 600 "$HOME/.ssh/known_hosts"
+
+      - name: Validate, migrate and verify isolated cosmos database
+        run: |
+          set -euo pipefail
+          ssh -i "$HOME/.ssh/hostinger_deploy" -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" 'bash -se' <<'REMOTE'
+          set -euo pipefail
+          app="$HOME/domains/saralpavan.com/public_html"
+          config="$HOME/domains/saralpavan.com/saralpavan_private/config.php"
+          test -f "$config" && test -s "$config"
+          mode="$(stat -c '%a' "$config")"
+          case "$mode" in 600|400) ;; *) echo "config_permission_invalid=$mode"; exit 21;; esac
+          test -s "$app/database/011_cosmos_foundation_batch_001.sql"
+          test -s "$app/database/012_source_first_cosmos_foundation.sql"
+          runner="/tmp/saralpavan_cosmos_migrate_$$.php"
+          cat > "$runner" <<'PHP'
+          <?php
+          declare(strict_types=1);
+          $configPath = getenv('SP_CONFIG');
+          $app = getenv('SP_APP');
+          $cfg = require $configPath;
+          if (!is_array($cfg) || !isset($cfg['db']) || !is_array($cfg['db'])) {
+              throw new RuntimeException('Invalid Saral Pavan configuration contract');
+          }
+          $db = $cfg['db'];
+          foreach (['host','name','user','pass'] as $key) {
+              if (!isset($db[$key]) || !is_string($db[$key]) || $db[$key] === '') {
+                  throw new RuntimeException('Missing database configuration field: ' . $key);
+              }
+          }
+          if ($db['name'] !== 'u756742628_saralpavan') {
+              throw new RuntimeException('Refusing non-Saral-Pavan database target');
+          }
+          $charset = isset($db['charset']) && is_string($db['charset']) ? $db['charset'] : 'utf8mb4';
+          $pdo = new PDO(
+              'mysql:host=' . $db['host'] . ';dbname=' . $db['name'] . ';charset=' . $charset,
+              $db['user'], $db['pass'],
+              [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+               PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+               PDO::MYSQL_ATTR_MULTI_STATEMENTS => true]
+          );
+          foreach (['011_cosmos_foundation_batch_001.sql','012_source_first_cosmos_foundation.sql'] as $file) {
+              $sql = file_get_contents($app . '/database/' . $file);
+              if ($sql === false || trim($sql) === '') throw new RuntimeException('Unreadable migration: ' . $file);
+              $pdo->exec($sql);
+              echo 'migration_applied=' . $file . "\n";
+          }
+          $expected = [
+              'sp_cosmos_source','sp_cosmos_unit','sp_cosmos_time_standard','sp_cosmos_reference_frame',
+              'sp_cosmos_object','sp_cosmos_validation_record','sp_cosmos_constant','sp_cosmos_body_parameter',
+              'sp_cosmos_orbital_model','sp_cosmos_orbital_coefficient','sp_cosmos_node_definition',
+              'sp_cosmos_equation','sp_cosmos_ephemeris_request','sp_cosmos_ephemeris_record',
+              'sp_cosmos_eop_record','sp_cosmos_kernel_registry'
+          ];
+          $quoted = implode(',', array_fill(0, count($expected), '?'));
+          $stmt = $pdo->prepare('SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA=? AND TABLE_NAME IN (' . $quoted . ')');
+          $stmt->execute(array_merge([$db['name']], $expected));
+          $found = array_column($stmt->fetchAll(), 'TABLE_NAME');
+          sort($found); sort($expected);
+          $missing = array_values(array_diff($expected, $found));
+          echo 'database=' . $db['name'] . "\n";
+          echo 'expected_tables=' . count($expected) . "\n";
+          echo 'found_tables=' . count($found) . "\n";
+          echo 'missing_tables=' . count($missing) . "\n";
+          if ($missing) { echo 'missing_names=' . implode(',', $missing) . "\n"; exit(31); }
+          $checks = ['sources'=>['sp_cosmos_source',15], 'objects'=>['sp_cosmos_object',13],
+                     'constants'=>['sp_cosmos_constant',9], 'validations'=>['sp_cosmos_validation_record',6]];
+          foreach ($checks as $label => [$table, $minimum]) {
+              $count = (int)$pdo->query('SELECT COUNT(*) FROM ' . $table)->fetchColumn();
+              echo $label . '_rows=' . $count . "\n";
+              if ($count < $minimum) throw new RuntimeException('Seed validation failed for ' . $table);
+          }
+          $failed = (int)$pdo->query("SELECT COUNT(*) FROM sp_cosmos_validation_record WHERE result IN ('FAIL','BLOCKED')")->fetchColumn();
+          echo 'failed_or_blocked_validations=' . $failed . "\n";
+          if ($failed !== 0) throw new RuntimeException('Cosmos validation gate failed');
+          echo "cosmos_foundation_verdict=VERIFIED\n";
+          PHP
+          chmod 600 "$runner"
+          trap 'rm -f "$runner"' EXIT
+          SP_CONFIG="$config" SP_APP="$app" php "$runner"
+          REMOTE
