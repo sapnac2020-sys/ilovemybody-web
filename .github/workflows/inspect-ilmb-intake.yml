@@ -1,0 +1,46 @@
+name: Inspect ILMB Intake Registration
+
+on:
+  push:
+    branches: [main]
+    paths: [.github/workflows/inspect-ilmb-intake.yml]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Prepare Hostinger SSH
+        shell: bash
+        env:
+          DEPLOY_BUNDLE: ${{ secrets.HOSTINGER_DEPLOY_BUNDLE }}
+        run: |
+          set -euo pipefail
+          mkdir -p "$HOME/.ssh"
+          chmod 700 "$HOME/.ssh"
+          printf '%s' "$DEPLOY_BUNDLE" | base64 --decode > "$RUNNER_TEMP/deploy.json"
+          jq -r '.key' "$RUNNER_TEMP/deploy.json" > "$HOME/.ssh/id_ed25519"
+          chmod 600 "$HOME/.ssh/id_ed25519"
+          echo "DEPLOY_HOST=$(jq -r '.host' "$RUNNER_TEMP/deploy.json")" >> "$GITHUB_ENV"
+          echo "DEPLOY_PORT=$(jq -r '.port' "$RUNNER_TEMP/deploy.json")" >> "$GITHUB_ENV"
+          echo "DEPLOY_USER=$(jq -r '.user' "$RUNNER_TEMP/deploy.json")" >> "$GITHUB_ENV"
+      - name: Locate acupuncture intake registration
+        shell: bash
+        run: |
+          set -euo pipefail
+          ssh -o IdentitiesOnly=yes -o BatchMode=yes -o StrictHostKeyChecking=accept-new -i "$HOME/.ssh/id_ed25519" -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" 'bash -s' <<'REMOTE'
+          set -euo pipefail
+          ROOT="$HOME/private/ilmb-excel-sync/current"
+          test -d "$ROOT"
+          echo "=== command help ==="
+          "$ROOT/.venv/bin/ilmb-sync" --help || true
+          echo "=== intake configuration matches ==="
+          if command -v rg >/dev/null 2>&1; then
+            rg -n -i 'unregistered|register|manifest|workbook|acupuncture' "$ROOT" --glob '!*.pyc' || true
+          else
+            grep -RniE 'unregistered|register|manifest|workbook|acupuncture' "$ROOT" --exclude='*.pyc' || true
+          fi
+          REMOTE
