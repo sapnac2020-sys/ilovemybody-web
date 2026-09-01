@@ -1,0 +1,26 @@
+name: Establish acupuncture correlation ledger
+on:
+  push:
+    branches: [main]
+    paths:
+      - backend/phase_71_acupuncture_correlation_ledger.sql
+      - ops/run-acupuncture-correlation-ledger.php
+      - .github/workflows/establish-acupuncture-correlation-ledger.yml
+  workflow_dispatch:
+jobs:
+  establish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: establish ledger
+        env: {DEPLOY_BUNDLE: "${{ secrets.HOSTINGER_DEPLOY_BUNDLE }}"}
+        run: |
+          set -euo pipefail
+          mkdir -p "$HOME/.ssh"; printf '%s' "$DEPLOY_BUNDLE"|base64 --decode >/tmp/d.json
+          jq -r .key /tmp/d.json >"$HOME/.ssh/id_ed25519"; chmod 600 "$HOME/.ssh/id_ed25519"
+          h="$(jq -r .host /tmp/d.json)"; p="$(jq -r .port /tmp/d.json)"; u="$(jq -r .user /tmp/d.json)"
+          ssh-keyscan -p "$p" "$h" >>"$HOME/.ssh/known_hosts"
+          a="/tmp/acupuncture-ledger-${GITHUB_RUN_ID}.tgz"; w="/tmp/acupuncture-ledger-${GITHUB_RUN_ID}"
+          tar -czf "$a" backend/phase_71_acupuncture_correlation_ledger.sql ops/run-acupuncture-correlation-ledger.php
+          scp -i "$HOME/.ssh/id_ed25519" -P "$p" "$a" "$u@$h:$a"
+          ssh -i "$HOME/.ssh/id_ed25519" -p "$p" "$u@$h" "mkdir -p '$w' && tar -xzf '$a' -C '$w' && php '$w/ops/run-acupuncture-correlation-ledger.php' '/home/$u/domains/ilovemybody.in/ilmb-config.php' '$w/backend/phase_71_acupuncture_correlation_ledger.sql'"
