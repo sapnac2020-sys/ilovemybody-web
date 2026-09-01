@@ -122,7 +122,7 @@ jobs:
           if(!$downloaded) throw new RuntimeException('IERS EOP download failed');
           $eopHash=hash_file('sha256',$eopCsv);
           if($eopHash!=='68a4b10cc1f39cf63975d5a6dd7b5b7189dd2536e71fb6c2278b8c541d8c4dbf') throw new RuntimeException('IERS product changed; review new release before import');
-          passthru('php '.escapeshellarg('/tmp/sync_iers_eop_'.getmypid().'.php').' '.escapeshellarg($configPath).' '.escapeshellarg($eopCsv),$syncCode);
+          passthru('php '.escapeshellarg(getenv('SP_IERS_SYNC')).' '.escapeshellarg($configPath).' '.escapeshellarg($eopCsv),$syncCode);
           if($syncCode!==0) throw new RuntimeException('IERS EOP import failed');
           $expected = [
               'sp_cosmos_source','sp_cosmos_unit','sp_cosmos_time_standard','sp_cosmos_reference_frame',
@@ -168,7 +168,7 @@ jobs:
           PHP
           chmod 600 "$runner"
           trap 'rm -f "$runner" "$batch2" "$batch4" "$batch5" "$batch6" "$iers_sync" /tmp/finals2000A.all.csv' EXIT
-          SP_CONFIG="$config" SP_APP="$app" php "$runner"
+          SP_CONFIG="$config" SP_APP="$app" SP_IERS_SYNC="$iers_sync" php "$runner"
           REMOTE
 
       - name: Acquire and register authoritative NAIF kernels
