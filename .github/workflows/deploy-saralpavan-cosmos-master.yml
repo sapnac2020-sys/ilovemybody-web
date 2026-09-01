@@ -3,7 +3,9 @@ on:
   workflow_dispatch:
   push:
     branches: [main]
-    paths: [".github/workflows/deploy-saralpavan-cosmos-master.yml"]
+    paths:
+      - ".github/workflows/deploy-saralpavan-cosmos-master.yml"
+      - ".github/saralpavan-deploy/**"
 permissions:
   contents: read
 concurrency:
@@ -14,6 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
+      - uses: actions/checkout@v4
       - name: Prepare Hostinger SSH
         env:
           DEPLOY_BUNDLE: ${{ secrets.HOSTINGER_DEPLOY_BUNDLE }}
@@ -29,13 +32,12 @@ jobs:
           echo "DEPLOY_HOST=$(jq -r '.host' "$RUNNER_TEMP/deploy.json")" >> "$GITHUB_ENV"
           echo "DEPLOY_PORT=$(jq -r '.port' "$RUNNER_TEMP/deploy.json")" >> "$GITHUB_ENV"
           echo "DEPLOY_USER=$(jq -r '.user' "$RUNNER_TEMP/deploy.json")" >> "$GITHUB_ENV"
-      - name: Fetch approved Saral Pavan bridge and migration
+      - name: Prepare approved Saral Pavan bridge and migration
         run: |
           set -euo pipefail
-          base="https://raw.githubusercontent.com/sapnac2020-sys/ilovemybody-saralpavan/main"
-          curl -fsSL --retry 4 "$base/scripts/sync_master_from_drive.php" -o "$RUNNER_TEMP/sync_master_from_drive.php"
-          curl -fsSL --retry 4 "$base/scripts/cosmos_master_import.php" -o "$RUNNER_TEMP/cosmos_master_import.php"
-          curl -fsSL --retry 4 "$base/database/018_cosmos_horizons_geometry_batch_008.sql" -o "$RUNNER_TEMP/018_batch_008.sql"
+          cp .github/saralpavan-deploy/sync_master_from_drive.php "$RUNNER_TEMP/sync_master_from_drive.php"
+          cp .github/saralpavan-deploy/cosmos_master_import.php "$RUNNER_TEMP/cosmos_master_import.php"
+          cp .github/saralpavan-deploy/018_batch_008.sql "$RUNNER_TEMP/018_batch_008.sql"
           php -l "$RUNNER_TEMP/sync_master_from_drive.php"
           php -l "$RUNNER_TEMP/cosmos_master_import.php"
       - name: Deploy, migrate, import and audit
