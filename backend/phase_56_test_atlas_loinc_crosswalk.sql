@@ -13,8 +13,7 @@ CREATE TABLE IF NOT EXISTS ilb_test_atlas_loinc_crosswalk (
  approved_at datetime(6) NULL,
  PRIMARY KEY(crosswalk_id),
  UNIQUE KEY uq_ilb_test_atlas_loinc(candidate_id,loinc_num,specimen_text),
- KEY idx_ilb_test_atlas_loinc_status(mapping_status,loinc_num),
- CONSTRAINT fk_ilb_test_atlas_loinc_candidate FOREIGN KEY(candidate_id) REFERENCES ilb_test_atlas_candidate(candidate_id)
+ KEY idx_ilb_test_atlas_loinc_status(mapping_status,loinc_num)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 CREATE OR REPLACE VIEW v_ilb_test_atlas_compute_ready AS
 SELECT c.candidate_id,c.domain,c.area,c.test_short_name,c.full_name,c.what_it_measures,
