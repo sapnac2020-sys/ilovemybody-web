@@ -26,6 +26,19 @@ if ($sql === false) {
     throw new RuntimeException('Unable to read migration SQL.');
 }
 
+if (!is_array($config)) {
+    throw new RuntimeException('Configuration file must return an array.');
+}
+
+$requiredConfig = ['dsn', 'username', 'password'];
+$missingConfig = array_values(array_diff($requiredConfig, array_keys($config)));
+if ($missingConfig !== []) {
+    throw new RuntimeException(
+        'Configuration key(s) missing: ' . implode(', ', $missingConfig) .
+        '; available keys: ' . implode(', ', array_keys($config))
+    );
+}
+
 $pdo = new PDO(
     $config['dsn'],
     $config['username'],
