@@ -1,0 +1,74 @@
+name: Deploy governed psoriasis pathway
+
+concurrency:
+  group: ilmb-production-correlation-migrations
+  cancel-in-progress: false
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - backend/phase_60_psoriasis_pathway.sql
+      - ops/run-psoriasis-pathway-migration.php
+      - app/psoriasis-pathway.php
+      - app/medicine-identity.php
+      - .github/workflows/deploy-psoriasis-pathway.yml
+
+jobs:
+  migrate-deploy-verify:
+    runs-on: ubuntu-latest
+    permissions: {contents: read}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Static validation
+        run: |
+          set -euo pipefail
+          php -l ops/run-psoriasis-pathway-migration.php
+          php -l app/psoriasis-pathway.php
+          php -l app/medicine-identity.php
+      - name: Prepare SSH
+        env:
+          DEPLOY_BUNDLE: ${{ secrets.HOSTINGER_DEPLOY_BUNDLE }}
+        run: |
+          set -euo pipefail
+          test -n "$DEPLOY_BUNDLE"
+          mkdir -p "$HOME/.ssh"
+          chmod 700 "$HOME/.ssh"
+          printf '%s' "$DEPLOY_BUNDLE" | base64 --decode >"$RUNNER_TEMP/deploy.json"
+          jq -e '.host and .port and .user and .key' "$RUNNER_TEMP/deploy.json" >/dev/null
+          jq -r '.key' "$RUNNER_TEMP/deploy.json" >"$HOME/.ssh/id_ed25519"
+          chmod 600 "$HOME/.ssh/id_ed25519"
+          echo "DEPLOY_HOST=$(jq -r '.host' "$RUNNER_TEMP/deploy.json")" >>"$GITHUB_ENV"
+          echo "DEPLOY_PORT=$(jq -r '.port' "$RUNNER_TEMP/deploy.json")" >>"$GITHUB_ENV"
+          echo "DEPLOY_USER=$(jq -r '.user' "$RUNNER_TEMP/deploy.json")" >>"$GITHUB_ENV"
+          ssh-keyscan -p "$(jq -r '.port' "$RUNNER_TEMP/deploy.json")" "$(jq -r '.host' "$RUNNER_TEMP/deploy.json")" >>"$HOME/.ssh/known_hosts"
+      - name: Migrate and deploy
+        run: |
+          set -euo pipefail
+          bundle="$RUNNER_TEMP/psoriasis-pathway.tgz"
+          tar -czf "$bundle" backend/phase_60_psoriasis_pathway.sql ops/run-psoriasis-pathway-migration.php app/psoriasis-pathway.php app/medicine-identity.php
+          scp -i "$HOME/.ssh/id_ed25519" -P "$DEPLOY_PORT" "$bundle" "$DEPLOY_USER@$DEPLOY_HOST:/tmp/psoriasis-pathway-${GITHUB_RUN_ID}.tgz"
+          ssh -i "$HOME/.ssh/id_ed25519" -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" "RUN_ID='${GITHUB_RUN_ID}' bash -s" <<'REMOTE'
+          set -euo pipefail
+          work="/tmp/psoriasis-pathway-$RUN_ID"
+          rm -rf "$work"
+          mkdir -p "$work"
+          tar -xzf "/tmp/psoriasis-pathway-$RUN_ID.tgz" -C "$work"
+          php "$work/ops/run-psoriasis-pathway-migration.php" "$HOME/domains/ilovemybody.in/ilmb-config.php" "$work/backend/phase_60_psoriasis_pathway.sql" >"$work/verification.json"
+          target="$HOME/domains/ilovemybody.in/public_html/app"
+          install -m 600 "$work/app/psoriasis-pathway.php" "$target/psoriasis-pathway.php"
+          install -m 600 "$work/app/medicine-identity.php" "$target/medicine-identity.php"
+          cat "$work/verification.json"
+          rm -rf "$work" "/tmp/psoriasis-pathway-$RUN_ID.tgz"
+          REMOTE
+      - name: Verify live read-only proofs
+        run: |
+          set -euo pipefail
+          ssh -i "$HOME/.ssh/id_ed25519" -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" 'bash -s' <<'REMOTE' >"$RUNNER_TEMP/ixekizumab.json"
+          php -r 'parse_str("drug=ixekizumab", $_GET); include $argv[1];' "$HOME/domains/ilovemybody.in/public_html/app/medicine-identity.php"
+          REMOTE
+          jq -e '.ok==true and .mode=="governed_psoriasis_medicine_identity_proof" and .drug.id=="ixekizumab" and .drug.brand=="Copellor" and .rxnorm.id=="1745099" and .rxnorm.status=="exact_approved" and .patient_data_read==false and .patient_data_written==false' "$RUNNER_TEMP/ixekizumab.json" >/dev/null
+          ssh -i "$HOME/.ssh/id_ed25519" -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" 'php "$HOME/domains/ilovemybody.in/public_html/app/psoriasis-pathway.php"' >"$RUNNER_TEMP/pathway.json"
+          jq -e '.ok==true and .automated_diagnosis==false and .automated_prescribing==false and (.conditions|length)==6 and (.assessments|length)==5 and (.treatment_classes|length)==5 and (.safety_gates|length)==6' "$RUNNER_TEMP/pathway.json" >/dev/null
+          echo "PSORIASIS_PATHWAY_PROOF=passed"
