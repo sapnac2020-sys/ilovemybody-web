@@ -1,0 +1,54 @@
+name: Deploy ixekizumab computation foundation
+concurrency:
+  group: ilmb-production-correlation-migrations
+  cancel-in-progress: false
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - backend/phase_61_ixekizumab_computation_foundation.sql
+      - ops/run-ixekizumab-computation-migration.php
+      - app/ixekizumab-computation.php
+      - .github/workflows/deploy-ixekizumab-computation.yml
+jobs:
+  migrate-deploy-verify:
+    runs-on: ubuntu-latest
+    permissions: {contents: read}
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          set -euo pipefail
+          php -l ops/run-ixekizumab-computation-migration.php
+          php -l app/ixekizumab-computation.php
+      - name: Prepare SSH
+        env: {DEPLOY_BUNDLE: "${{ secrets.HOSTINGER_DEPLOY_BUNDLE }}"}
+        run: |
+          set -euo pipefail
+          test -n "$DEPLOY_BUNDLE"
+          mkdir -p "$HOME/.ssh"; chmod 700 "$HOME/.ssh"
+          printf '%s' "$DEPLOY_BUNDLE" | base64 --decode >"$RUNNER_TEMP/d.json"
+          jq -e '.host and .port and .user and .key' "$RUNNER_TEMP/d.json" >/dev/null
+          jq -r '.key' "$RUNNER_TEMP/d.json" >"$HOME/.ssh/id_ed25519"; chmod 600 "$HOME/.ssh/id_ed25519"
+          echo "DEPLOY_HOST=$(jq -r '.host' "$RUNNER_TEMP/d.json")" >>"$GITHUB_ENV"
+          echo "DEPLOY_PORT=$(jq -r '.port' "$RUNNER_TEMP/d.json")" >>"$GITHUB_ENV"
+          echo "DEPLOY_USER=$(jq -r '.user' "$RUNNER_TEMP/d.json")" >>"$GITHUB_ENV"
+          ssh-keyscan -p "$(jq -r '.port' "$RUNNER_TEMP/d.json")" "$(jq -r '.host' "$RUNNER_TEMP/d.json")" >>"$HOME/.ssh/known_hosts"
+      - name: Migrate and deploy
+        run: |
+          set -euo pipefail
+          tar -czf "$RUNNER_TEMP/ixe.tgz" backend/phase_61_ixekizumab_computation_foundation.sql ops/run-ixekizumab-computation-migration.php app/ixekizumab-computation.php
+          scp -i "$HOME/.ssh/id_ed25519" -P "$DEPLOY_PORT" "$RUNNER_TEMP/ixe.tgz" "$DEPLOY_USER@$DEPLOY_HOST:/tmp/ixe-${GITHUB_RUN_ID}.tgz"
+          ssh -i "$HOME/.ssh/id_ed25519" -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" "RID='${GITHUB_RUN_ID}' bash -s" <<'REMOTE'
+          set -euo pipefail
+          w="/tmp/ixe-$RID"; rm -rf "$w"; mkdir -p "$w"; tar -xzf "/tmp/ixe-$RID.tgz" -C "$w"
+          php "$w/ops/run-ixekizumab-computation-migration.php" "$HOME/domains/ilovemybody.in/ilmb-config.php" "$w/backend/phase_61_ixekizumab_computation_foundation.sql"
+          install -m 600 "$w/app/ixekizumab-computation.php" "$HOME/domains/ilovemybody.in/public_html/app/ixekizumab-computation.php"
+          rm -rf "$w" "/tmp/ixe-$RID.tgz"
+          REMOTE
+      - name: Verify live gates
+        run: |
+          set -euo pipefail
+          ssh -i "$HOME/.ssh/id_ed25519" -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" 'php "$HOME/domains/ilovemybody.in/public_html/app/ixekizumab-computation.php"' >"$RUNNER_TEMP/proof.json"
+          jq -e '.ok==true and .patient_data_read==false and .patient_data_written==false and .readiness.approved_connectors==4 and .readiness.blocked_connectors==2 and .readiness.registered_equations==8 and .readiness.missing_parameters==7 and .readiness.pk_pd_patient_execution_enabled==0 and .readiness.pasi_execution_enabled==1 and .readiness.acupuncture_causal_execution_enabled==0' "$RUNNER_TEMP/proof.json" >/dev/null
+          echo "IXEKIZUMAB_COMPUTATION_FOUNDATION=passed"
