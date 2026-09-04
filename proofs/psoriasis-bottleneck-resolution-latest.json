@@ -1,0 +1,73 @@
+{
+    "database": "u756742628_ilovemybody",
+    "phase": "P91_BARRIER_MEMORY_DIRECTIONAL_COVERAGE",
+    "state_coverage": [
+        {
+            "state_key": "B",
+            "supported_candidates": 1
+        },
+        {
+            "state_key": "D",
+            "supported_candidates": 1
+        },
+        {
+            "state_key": "I",
+            "supported_candidates": 6
+        },
+        {
+            "state_key": "P",
+            "supported_candidates": 2
+        },
+        {
+            "state_key": "R",
+            "supported_candidates": 2
+        }
+    ],
+    "source_bound_records": 4,
+    "guselkumab_state_matrix": [
+        {
+            "state_key": "B",
+            "evidence_status": "SUPPORTED_DIRECTION",
+            "direct_state_measurement": 1,
+            "withdrawal_tested": 0,
+            "rechallenge_tested": 0
+        },
+        {
+            "state_key": "D",
+            "evidence_status": "SUPPORTED_DIRECTION",
+            "direct_state_measurement": 1,
+            "withdrawal_tested": 0,
+            "rechallenge_tested": 0
+        },
+        {
+            "state_key": "I",
+            "evidence_status": "SUPPORTED_DIRECTION",
+            "direct_state_measurement": 1,
+            "withdrawal_tested": 0,
+            "rechallenge_tested": 0
+        },
+        {
+            "state_key": "P",
+            "evidence_status": "SUPPORTED_DIRECTION",
+            "direct_state_measurement": 1,
+            "withdrawal_tested": 0,
+            "rechallenge_tested": 0
+        },
+        {
+            "state_key": "R",
+            "evidence_status": "SUPPORTED_DIRECTION",
+            "direct_state_measurement": 1,
+            "withdrawal_tested": 0,
+            "rechallenge_tested": 0
+        }
+    ],
+    "all_five_states_directionally_covered": true,
+    "withdrawal_positive_cells": 0,
+    "rechallenge_positive_cells": 0,
+    "disease_modification_proven": false,
+    "cure_candidate_identified": false,
+    "patient_tables_queried": false,
+    "patient_rows_read": 0,
+    "patient_rows_modified": 0,
+    "verified": true
+}
