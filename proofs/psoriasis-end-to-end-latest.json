@@ -3,7 +3,7 @@
   "mode": "governed_non_patient_research",
   "migration_verified": false,
   "exit_code": 255,
-  "error": "",
+  "error": "Fatal error: Uncaught PDOException: SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 'KEY UPDATE parameter_role=VALUES(parameter_role),required_flag=VALUES(require...' at line 13 in /tmp/run-psoriasis-end-to-end-migration.php:40\nStack trace:\n#0 /tmp/run-psoriasis-end-to-end-migration.php(40): PDOStatement->nextRowset()\n#1 {main}\n  thrown in /tmp/run-psoriasis-end-to-end-migration.php on line 40\n{\"fatal_type\":1,\"fatal_message\":\"Uncaught PDOException: SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 'KEY UPDATE parameter_role=VALUES(parameter_role),required_flag=VALUES(require...' at line 13 in /tmp/run-psoriasis-end-to-end-migration.php:40\\nStack trace:\\n#0 /tmp/run-psoriasis-end-to-end-migration.php(40): PDOStatement->nextRowset()\\n#1 {main}\\n  thrown\",\"fatal_file\":\"run-psoriasis-end-to-end-migration.php\",\"fatal_line\":40}",
   "patient_tables_queried": false,
   "patient_rows_read": 0,
   "patient_rows_modified": 0
