@@ -1,0 +1,102 @@
+{
+    "database": "u756742628_ilovemybody",
+    "phase": "P92_RESET_EXPERIMENT_SPECIFICATION",
+    "experiment": {
+        "experiment_key": "EXP_PSO_RESET_001",
+        "title": "Psoriasis state correction, withdrawal and rechallenge",
+        "biological_system": "T-cell-enriched full-thickness 3D psoriatic skin equivalent",
+        "objective": "Determine whether pathway interruption merely suppresses the phenotype or changes the model ability to recreate psoriasis after complete washout and matched rechallenge.",
+        "status": "DESIGN_READY_WETLAB_PENDING",
+        "patient_experiment": 0
+    },
+    "arm_count": 6,
+    "arms": [
+        {
+            "arm_key": "A_HEALTHY",
+            "arm_order": 1,
+            "source_bound_dose_required": 0
+        },
+        {
+            "arm_key": "B_PSORIATIC",
+            "arm_order": 2,
+            "source_bound_dose_required": 0
+        },
+        {
+            "arm_key": "C_IL17",
+            "arm_order": 3,
+            "source_bound_dose_required": 1
+        },
+        {
+            "arm_key": "D_IL23",
+            "arm_order": 4,
+            "source_bound_dose_required": 1
+        },
+        {
+            "arm_key": "E_BARRIER",
+            "arm_order": 5,
+            "source_bound_dose_required": 1
+        },
+        {
+            "arm_key": "F_COMBINATION",
+            "arm_order": 6,
+            "source_bound_dose_required": 1
+        }
+    ],
+    "stage_count": 5,
+    "stages": [
+        {
+            "stage_key": "S1_INDUCTION",
+            "stage_order": 1,
+            "duration_source_required": 1
+        },
+        {
+            "stage_key": "S2_INTERVENTION",
+            "stage_order": 2,
+            "duration_source_required": 1
+        },
+        {
+            "stage_key": "S3_WASHOUT",
+            "stage_order": 3,
+            "duration_source_required": 1
+        },
+        {
+            "stage_key": "S4_RENEWAL",
+            "stage_order": 4,
+            "duration_source_required": 1
+        },
+        {
+            "stage_key": "S5_RECHALLENGE",
+            "stage_order": 5,
+            "duration_source_required": 1
+        }
+    ],
+    "formula_count": 4,
+    "formulas": [
+        {
+            "formula_key": "F_DENOMINATOR_GATE",
+            "invented_coefficient_count": 0,
+            "computation_ready": 1
+        },
+        {
+            "formula_key": "F_NORMALISE",
+            "invented_coefficient_count": 0,
+            "computation_ready": 1
+        },
+        {
+            "formula_key": "F_RECHALLENGE_CHANGE",
+            "invented_coefficient_count": 0,
+            "computation_ready": 1
+        },
+        {
+            "formula_key": "F_WITHDRAWAL_CHANGE",
+            "invented_coefficient_count": 0,
+            "computation_ready": 1
+        }
+    ],
+    "wetlab_measurements_loaded": 0,
+    "cure_decision_emitted": false,
+    "patient_tables_queried": false,
+    "patient_rows_read": 0,
+    "patient_rows_modified": 0,
+    "verified": true
+}
