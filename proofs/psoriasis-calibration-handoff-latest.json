@@ -1,0 +1,88 @@
+{
+    "database": "u756742628_ilovemybody",
+    "phase": "P95_NONPATIENT_CALIBRATION_HANDOFF",
+    "calibration_study_count": 6,
+    "studies": [
+        {
+            "calibration_key": "CAL01_REAGENT_IDENTITY",
+            "study_order": 1,
+            "status": "SPECIFIED",
+            "participant_treatment": 0
+        },
+        {
+            "calibration_key": "CAL02_DOSE_RESPONSE",
+            "study_order": 2,
+            "status": "SPECIFIED",
+            "participant_treatment": 0
+        },
+        {
+            "calibration_key": "CAL03_TIME_COURSE",
+            "study_order": 3,
+            "status": "SPECIFIED",
+            "participant_treatment": 0
+        },
+        {
+            "calibration_key": "CAL04_WASHOUT_ASSAY",
+            "study_order": 4,
+            "status": "SPECIFIED",
+            "participant_treatment": 0
+        },
+        {
+            "calibration_key": "CAL05_RECHALLENGE",
+            "study_order": 5,
+            "status": "SPECIFIED",
+            "participant_treatment": 0
+        },
+        {
+            "calibration_key": "CAL06_EQUIVALENCE",
+            "study_order": 6,
+            "status": "SPECIFIED",
+            "participant_treatment": 0
+        }
+    ],
+    "required_control_count": 10,
+    "parameter_acquisition_count": 10,
+    "promoted_parameter_count": 0,
+    "formula_count": 6,
+    "formulas": [
+        {
+            "formula_key": "F_CAL_NORMALISE",
+            "source_id": null,
+            "invented_coefficient_count": 0
+        },
+        {
+            "formula_key": "F_EQUIVALENCE",
+            "source_id": null,
+            "invented_coefficient_count": 0
+        },
+        {
+            "formula_key": "F_EXECUTABLE",
+            "source_id": null,
+            "invented_coefficient_count": 0
+        },
+        {
+            "formula_key": "F_ICH_DL",
+            "source_id": "ICH:Q2(R2)",
+            "invented_coefficient_count": 0
+        },
+        {
+            "formula_key": "F_ICH_QL",
+            "source_id": "ICH:Q2(R2)",
+            "invented_coefficient_count": 0
+        },
+        {
+            "formula_key": "F_LIVE_FRACTION",
+            "source_id": null,
+            "invented_coefficient_count": 0
+        }
+    ],
+    "measurement_rows": 0,
+    "laboratory_execution_started": false,
+    "reset_experiment_executable": false,
+    "invented_coefficients": 0,
+    "participant_treatment": false,
+    "patient_tables_queried": false,
+    "patient_rows_read": 0,
+    "patient_rows_modified": 0,
+    "verified": true
+}
