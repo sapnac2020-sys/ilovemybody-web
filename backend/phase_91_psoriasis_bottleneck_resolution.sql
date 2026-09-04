@@ -32,3 +32,5 @@ INSERT INTO ilb_psoriasis_candidate_state_evidence(candidate_key,state_key,evide
 ('CALCIPOTRIOL_VDR','P','NOT_ESTABLISHED','Histological improvement reported; no universal proliferation threshold registered.',0,0,0),('CALCIPOTRIOL_VDR','D','NOT_ESTABLISHED','Differentiation effects were not sufficient for a withdrawal-stable state claim.',0,0,0),('CALCIPOTRIOL_VDR','B','NOT_MEASURED',NULL,0,0,0),('CALCIPOTRIOL_VDR','I','SUPPORTED_DIRECTION','Frequency of CD8-positive IL-17-positive cells decreased in treated lesions.',1,0,0),('CALCIPOTRIOL_VDR','R','NOT_ESTABLISHED','The measured CD8-positive IL-17-positive population was not established as eliminated resident memory.',0,0,0)
 ON DUPLICATE KEY UPDATE evidence_status=VALUES(evidence_status),observed_result=VALUES(observed_result),direct_state_measurement=VALUES(direct_state_measurement),withdrawal_tested=VALUES(withdrawal_tested),rechallenge_tested=VALUES(rechallenge_tested);
 COMMIT;
+
+-- Deployment trigger: Phase 91 live verification.
