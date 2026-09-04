@@ -42,6 +42,18 @@ function derivatives(float $K, float $T): array
     ];
 }
 
+function governance(): array
+{
+    return [
+        'provenance_status' => 'ASSUMPTION_BASED_REDUCED_MODEL',
+        'source_code_exact' => true,
+        'physiological_law_validated' => false,
+        'patient_execution_allowed' => false,
+        'transition_constructed_from_assumption' => true,
+        'immune_infiltration_assumed' => true,
+    ];
+}
+
 function selfTest(): array
 {
     $states = [
@@ -54,10 +66,43 @@ function selfTest(): array
     $passed = true;
 
     foreach ($states as $name => [$K, $T]) {
-        $result = derivatives((float)$argv[1], (float)$argv[2]);
-    $result['governance'] = [
-        'provenance_status' => 'ASSUMPTION_BASED_REDUCED_MODEL',
-        'patient_execution_allowed' => false,
+        $result = derivatives($K, $T);
+        $residual = max(abs($result['dK_dt_cells_per_mm2_per_day']), abs($result['dT_dt_cells_per_mm2_per_day']));
+        $ok = $residual <= $tolerance;
+        $passed = $passed && $ok;
+        $results[$name] = ['residual_max' => $residual, 'passed' => $ok] + $result;
+    }
+
+    return [
+        'calculator' => 'psoriasis_skin_state',
+        'source_model' => 'pzuliani/psoriasis matlab/simple_model.m',
+        'governance' => governance(),
+        'tolerance' => $tolerance,
+        'passed' => $passed,
+        'states' => $results,
+        'patient_rows_read' => 0,
+        'patient_rows_modified' => 0,
+    ];
+}
+
+if (PHP_SAPI !== 'cli') {
+    http_response_code(404);
+    exit;
+}
+
+try {
+    if (($argv[1] ?? '') === '--self-test') {
+        $output = selfTest();
+        echo json_encode($output, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES), PHP_EOL;
+        exit($output['passed'] ? 0 : 4);
+    }
+    if (count($argv) !== 3 || !is_numeric($argv[1]) || !is_numeric($argv[2])) {
+        fwrite(STDERR, "Usage: php scripts/psoriasis_skin_state.php --self-test\n");
+        fwrite(STDERR, "   or: php scripts/psoriasis_skin_state.php K_cells_per_mm2 T_cells_per_mm2\n");
+        exit(2);
+    }
+    $result = derivatives((float)$argv[1], (float)$argv[2]);
+    $result['governance'] = governance() + [
         'interpretation' => 'Research reproduction only; values are not patient targets.',
     ];
     echo json_encode($result, JSON_PRETTY_PRINT), PHP_EOL;
