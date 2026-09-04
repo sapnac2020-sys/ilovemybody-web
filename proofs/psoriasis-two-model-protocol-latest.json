@@ -1,0 +1,208 @@
+{
+    "database": "u756742628_ilovemybody",
+    "phase": "P98_TWO_MODEL_DISEASE_MODIFICATION_PROTOCOL",
+    "models": [
+        {
+            "model_key": "MODEL_A_TCELL_FTSE",
+            "model_name": "T-cell-enriched full-thickness 3D psoriatic skin equivalent",
+            "patient_experiment": 0
+        },
+        {
+            "model_key": "MODEL_B_CYTOKINE_HSE",
+            "model_name": "Cytokine-primed bilayered 3D human skin equivalent",
+            "patient_experiment": 0
+        }
+    ],
+    "model_count": 2,
+    "endpoints": [
+        {
+            "endpoint_key": "BARRIER_FUNCTION",
+            "state_key": "B",
+            "model_a_required": 1,
+            "model_b_required": 1,
+            "universal_numeric_threshold": null
+        },
+        {
+            "endpoint_key": "CLDN1",
+            "state_key": "B",
+            "model_a_required": 1,
+            "model_b_required": 1,
+            "universal_numeric_threshold": null
+        },
+        {
+            "endpoint_key": "DSG1",
+            "state_key": "B",
+            "model_a_required": 1,
+            "model_b_required": 1,
+            "universal_numeric_threshold": null
+        },
+        {
+            "endpoint_key": "FLG",
+            "state_key": "D",
+            "model_a_required": 1,
+            "model_b_required": 1,
+            "universal_numeric_threshold": null
+        },
+        {
+            "endpoint_key": "IL17A",
+            "state_key": "I",
+            "model_a_required": 1,
+            "model_b_required": 1,
+            "universal_numeric_threshold": null
+        },
+        {
+            "endpoint_key": "IL22",
+            "state_key": "I",
+            "model_a_required": 1,
+            "model_b_required": 1,
+            "universal_numeric_threshold": null
+        },
+        {
+            "endpoint_key": "IL23",
+            "state_key": "I",
+            "model_a_required": 1,
+            "model_b_required": 0,
+            "universal_numeric_threshold": null
+        },
+        {
+            "endpoint_key": "IL6",
+            "state_key": "I",
+            "model_a_required": 1,
+            "model_b_required": 1,
+            "universal_numeric_threshold": null
+        },
+        {
+            "endpoint_key": "KI67",
+            "state_key": "P",
+            "model_a_required": 1,
+            "model_b_required": 1,
+            "universal_numeric_threshold": null
+        },
+        {
+            "endpoint_key": "KRT10",
+            "state_key": "D",
+            "model_a_required": 1,
+            "model_b_required": 1,
+            "universal_numeric_threshold": null
+        },
+        {
+            "endpoint_key": "RESIDUAL_INTERVENTION",
+            "state_key": "W",
+            "model_a_required": 1,
+            "model_b_required": 1,
+            "universal_numeric_threshold": null
+        },
+        {
+            "endpoint_key": "S100A7",
+            "state_key": "R",
+            "model_a_required": 1,
+            "model_b_required": 1,
+            "universal_numeric_threshold": null
+        },
+        {
+            "endpoint_key": "TISSUE_VIABILITY",
+            "state_key": "Q",
+            "model_a_required": 1,
+            "model_b_required": 1,
+            "universal_numeric_threshold": null
+        },
+        {
+            "endpoint_key": "TJP1",
+            "state_key": "B",
+            "model_a_required": 1,
+            "model_b_required": 1,
+            "universal_numeric_threshold": null
+        },
+        {
+            "endpoint_key": "TNF",
+            "state_key": "I",
+            "model_a_required": 1,
+            "model_b_required": 1,
+            "universal_numeric_threshold": null
+        }
+    ],
+    "endpoint_count": 15,
+    "gates": [
+        {
+            "gate_key": "G01_MODEL_QC",
+            "current_state": "DATA_REQUIRED",
+            "patient_use_authorized": 0
+        },
+        {
+            "gate_key": "G02_TARGET_ENGAGEMENT",
+            "current_state": "DATA_REQUIRED",
+            "patient_use_authorized": 0
+        },
+        {
+            "gate_key": "G03_SKIN_EQUIVALENCE",
+            "current_state": "DATA_REQUIRED",
+            "patient_use_authorized": 0
+        },
+        {
+            "gate_key": "G04_IMMUNE_EQUIVALENCE",
+            "current_state": "DATA_REQUIRED",
+            "patient_use_authorized": 0
+        },
+        {
+            "gate_key": "G05_WASHOUT",
+            "current_state": "DATA_REQUIRED",
+            "patient_use_authorized": 0
+        },
+        {
+            "gate_key": "G06_RECHALLENGE",
+            "current_state": "DATA_REQUIRED",
+            "patient_use_authorized": 0
+        },
+        {
+            "gate_key": "G07_CROSS_MODEL",
+            "current_state": "DATA_REQUIRED",
+            "patient_use_authorized": 0
+        },
+        {
+            "gate_key": "G08_COMPLETE_CASE",
+            "current_state": "DATA_REQUIRED",
+            "patient_use_authorized": 0
+        }
+    ],
+    "gate_count": 8,
+    "data_required_gates": 8,
+    "formulas": [
+        {
+            "formula_key": "F_P98_DECISION",
+            "invented_coefficient_count": 0,
+            "computation_state": "BLOCKED_BY_DATA"
+        },
+        {
+            "formula_key": "F_P98_EQUIVALENCE",
+            "invented_coefficient_count": 0,
+            "computation_state": "BLOCKED_BY_DATA"
+        },
+        {
+            "formula_key": "F_P98_NORMALISE",
+            "invented_coefficient_count": 0,
+            "computation_state": "READY_FOR_DATA"
+        },
+        {
+            "formula_key": "F_P98_RECHALLENGE",
+            "invented_coefficient_count": 0,
+            "computation_state": "READY_FOR_DATA"
+        },
+        {
+            "formula_key": "F_P98_RENEWAL",
+            "invented_coefficient_count": 0,
+            "computation_state": "READY_FOR_DATA"
+        }
+    ],
+    "formula_count": 5,
+    "universal_numeric_thresholds": 0,
+    "invented_coefficients": 0,
+    "specification_complete": true,
+    "biological_result_available": false,
+    "wetlab_measurements_loaded": 0,
+    "patient_experiment": false,
+    "patient_use_authorized": false,
+    "patient_tables_queried": false,
+    "patient_rows_read": 0,
+    "patient_rows_modified": 0,
+    "verified": true
+}
