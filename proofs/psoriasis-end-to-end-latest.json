@@ -1,10 +1,152 @@
 {
-  "database": "u756742628_ilovemybody",
-  "mode": "governed_non_patient_research",
-  "migration_verified": false,
-  "exit_code": 255,
-  "error": "Fatal error: Uncaught PDOException: SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 'KEY UPDATE parameter_role=VALUES(parameter_role),required_flag=VALUES(require...' at line 13 in /tmp/run-psoriasis-end-to-end-migration.php:40\nStack trace:\n#0 /tmp/run-psoriasis-end-to-end-migration.php(40): PDOStatement->nextRowset()\n#1 {main}\n  thrown in /tmp/run-psoriasis-end-to-end-migration.php on line 40\n{\"fatal_type\":1,\"fatal_message\":\"Uncaught PDOException: SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 'KEY UPDATE parameter_role=VALUES(parameter_role),required_flag=VALUES(require...' at line 13 in /tmp/run-psoriasis-end-to-end-migration.php:40\\nStack trace:\\n#0 /tmp/run-psoriasis-end-to-end-migration.php(40): PDOStatement->nextRowset()\\n#1 {main}\\n  thrown\",\"fatal_file\":\"run-psoriasis-end-to-end-migration.php\",\"fatal_line\":40}",
-  "patient_tables_queried": false,
-  "patient_rows_read": 0,
-  "patient_rows_modified": 0
+    "database": "u756742628_ilovemybody",
+    "programme": "PSORIASIS_E2E_V1",
+    "mode": "governed_non_patient_research",
+    "source_model": {
+        "species": 25,
+        "parameters": 62,
+        "reactions": 35,
+        "participants": 72
+    },
+    "readiness": {
+        "program_key": "PSORIASIS_E2E_V1",
+        "status": "RESEARCH_OPERATIONAL",
+        "formula_count": 15,
+        "pharma_agent_count": 11,
+        "persistence_state_count": 4,
+        "experiment_count": 10,
+        "passed_gates": 2,
+        "open_or_blocked_gates": 9,
+        "executable_pharma_agents": 0,
+        "research_structure_operational": 1,
+        "validated_declared_use_enabled": 0,
+        "patient_execution_enabled": 0
+    },
+    "agents": [
+        {
+            "agent_key": "ADALIMUMAB",
+            "ingredient_name": "adalimumab",
+            "identity_status": "SOURCE_CONFIRMATION_REQUIRED",
+            "calculation_status": "IDENTITY_ONLY",
+            "parameter_slots": 8,
+            "required_parameters": "8",
+            "missing_or_unapproved_parameters": "8",
+            "executable_target_mapping": 0,
+            "research_execution_enabled": 0
+        },
+        {
+            "agent_key": "BIMEKIZUMAB",
+            "ingredient_name": "bimekizumab",
+            "identity_status": "SOURCE_CONFIRMATION_REQUIRED",
+            "calculation_status": "IDENTITY_ONLY",
+            "parameter_slots": 8,
+            "required_parameters": "8",
+            "missing_or_unapproved_parameters": "8",
+            "executable_target_mapping": 0,
+            "research_execution_enabled": 0
+        },
+        {
+            "agent_key": "BRODALUMAB",
+            "ingredient_name": "brodalumab",
+            "identity_status": "SOURCE_CONFIRMATION_REQUIRED",
+            "calculation_status": "IDENTITY_ONLY",
+            "parameter_slots": 8,
+            "required_parameters": "8",
+            "missing_or_unapproved_parameters": "8",
+            "executable_target_mapping": 0,
+            "research_execution_enabled": 0
+        },
+        {
+            "agent_key": "ETANERCEPT",
+            "ingredient_name": "etanercept",
+            "identity_status": "SOURCE_CONFIRMATION_REQUIRED",
+            "calculation_status": "IDENTITY_ONLY",
+            "parameter_slots": 8,
+            "required_parameters": "8",
+            "missing_or_unapproved_parameters": "8",
+            "executable_target_mapping": 0,
+            "research_execution_enabled": 0
+        },
+        {
+            "agent_key": "GUSELKUMAB",
+            "ingredient_name": "guselkumab",
+            "identity_status": "SOURCE_CONFIRMATION_REQUIRED",
+            "calculation_status": "IDENTITY_ONLY",
+            "parameter_slots": 8,
+            "required_parameters": "8",
+            "missing_or_unapproved_parameters": "8",
+            "executable_target_mapping": 0,
+            "research_execution_enabled": 0
+        },
+        {
+            "agent_key": "INFLIXIMAB",
+            "ingredient_name": "infliximab",
+            "identity_status": "SOURCE_CONFIRMATION_REQUIRED",
+            "calculation_status": "IDENTITY_ONLY",
+            "parameter_slots": 8,
+            "required_parameters": "7",
+            "missing_or_unapproved_parameters": "7",
+            "executable_target_mapping": 0,
+            "research_execution_enabled": 0
+        },
+        {
+            "agent_key": "IXEKIZUMAB",
+            "ingredient_name": "ixekizumab",
+            "identity_status": "EXACT_APPROVED",
+            "calculation_status": "PARAMETER_INCOMPLETE",
+            "parameter_slots": 8,
+            "required_parameters": "8",
+            "missing_or_unapproved_parameters": "8",
+            "executable_target_mapping": 1,
+            "research_execution_enabled": 0
+        },
+        {
+            "agent_key": "RISANKIZUMAB",
+            "ingredient_name": "risankizumab",
+            "identity_status": "SOURCE_CONFIRMATION_REQUIRED",
+            "calculation_status": "IDENTITY_ONLY",
+            "parameter_slots": 8,
+            "required_parameters": "8",
+            "missing_or_unapproved_parameters": "8",
+            "executable_target_mapping": 0,
+            "research_execution_enabled": 0
+        },
+        {
+            "agent_key": "SECUKINUMAB",
+            "ingredient_name": "secukinumab",
+            "identity_status": "SOURCE_CONFIRMATION_REQUIRED",
+            "calculation_status": "IDENTITY_ONLY",
+            "parameter_slots": 8,
+            "required_parameters": "8",
+            "missing_or_unapproved_parameters": "8",
+            "executable_target_mapping": 0,
+            "research_execution_enabled": 0
+        },
+        {
+            "agent_key": "TILDRAKIZUMAB",
+            "ingredient_name": "tildrakizumab",
+            "identity_status": "SOURCE_CONFIRMATION_REQUIRED",
+            "calculation_status": "IDENTITY_ONLY",
+            "parameter_slots": 8,
+            "required_parameters": "8",
+            "missing_or_unapproved_parameters": "8",
+            "executable_target_mapping": 0,
+            "research_execution_enabled": 0
+        },
+        {
+            "agent_key": "USTEKINUMAB",
+            "ingredient_name": "ustekinumab",
+            "identity_status": "SOURCE_CONFIRMATION_REQUIRED",
+            "calculation_status": "IDENTITY_ONLY",
+            "parameter_slots": 8,
+            "required_parameters": "8",
+            "missing_or_unapproved_parameters": "8",
+            "executable_target_mapping": 0,
+            "research_execution_enabled": 0
+        }
+    ],
+    "patient_tables_queried": false,
+    "patient_rows_read": 0,
+    "patient_rows_modified": 0,
+    "migration_verified": true
 }
