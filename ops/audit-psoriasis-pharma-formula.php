@@ -42,7 +42,13 @@ if (tableExists($pdo,'ilmb_canonical_record')) {
     foreach($terms as $term){$like='%'.$term.'%';$q->execute([$like,$like]);$out['canonical_term_hits'][$term]=(int)$q->fetchColumn();}
 }
 
-foreach (['ilb_drug','ilb_drug_identifier','ilb_medicine_mechanism','ilb_pharma_medicine'] as $table) {
+foreach ([
+    'ilb_drug','ilb_drug_identifier','ilb_medicine_mechanism','ilb_pharma_medicine',
+    'ilb_drug_label_reference','ilb_drug_property','ilb_drug_marker_connection',
+    'ilb_ixekizumab_parameter','ilb_psoriasis_medicine','ilb_psoriasis_control_equation',
+    'ilb_psoriasis_system_equation','ilb_psoriasis_mechanism_node','ilb_psoriasis_mechanism_edge',
+    'ilb_psoriasis_feedback_segment','ilb_psoriasis_loop_observable','ilb_kinetics_gap'
+] as $table) {
     if (tableExists($pdo,$table)) {
         $out['live_table_counts'][$table]=scalar($pdo,"SELECT COUNT(*) FROM `{$table}`");
         $out['live_table_samples'][$table]=rows($pdo,"SELECT * FROM `{$table}` LIMIT 25");
