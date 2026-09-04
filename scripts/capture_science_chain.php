@@ -43,21 +43,15 @@ foreach ($objects as $name) {
     $out['objects'][$name] = $entry;
 }
 
-$candidates = [
-    dirname(__DIR__).'/scripts/vitamin_d_direct_beam.php',
-    dirname(__DIR__).'/public_html/scripts/vitamin_d_direct_beam.php',
-];
+$scriptPath = $argv[2] ?? '';
 $out['vitamin_d_direct_beam'] = ['exists' => false];
-foreach ($candidates as $path) {
-    if (is_file($path)) {
-        $out['vitamin_d_direct_beam'] = [
-            'exists' => true,
-            'path' => $path,
-            'sha256' => hash_file('sha256', $path),
-            'bytes' => filesize($path),
-        ];
-        break;
-    }
+if ($scriptPath !== '' && is_file($scriptPath)) {
+    $out['vitamin_d_direct_beam'] = [
+        'exists' => true,
+        'path' => $scriptPath,
+        'sha256' => hash_file('sha256', $scriptPath),
+        'bytes' => filesize($scriptPath),
+    ];
 }
 
 echo json_encode($out, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES), PHP_EOL;
