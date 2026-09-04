@@ -1,0 +1,10 @@
+{
+  "phase": "P83_AGGREGATE_TRIALS",
+  "verified": false,
+  "exit_code": 255,
+  "error": "Fatal error: Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'canonical_name' in 'SELECT' in /tmp/refresh-psoriasis-aggregate-trials.php:9\nStack trace:\n#0 /tmp/refresh-psoriasis-aggregate-trials.php(9): PDO->query()\n#1 {main}\n  thrown in /tmp/refresh-psoriasis-aggregate-trials.php on line 9",
+  "participant_level_data_requested": false,
+  "patient_tables_queried": false,
+  "patient_rows_read": 0,
+  "patient_rows_modified": 0
+}
