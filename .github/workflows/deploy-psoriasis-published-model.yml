@@ -56,7 +56,7 @@ jobs:
           work="/tmp/p77-$RUN_ID"
           mkdir -p "$work"
           tar -xzf "/tmp/p77-$RUN_ID.tgz" -C "$work"
-          php "$work/ops/run-psoriasis-published-model-migration.php" +            "$HOME/domains/ilovemybody.in/ilmb-config.php" +            "$work/backend/phase_77_psoriasis_published_model_registry.sql" +            "$work/sources/psoriasis/Shmarov_2022_psor_v8_4.xml"
+          php "$work/ops/run-psoriasis-published-model-migration.php" "$HOME/domains/ilovemybody.in/ilmb-config.php" "$work/backend/phase_77_psoriasis_published_model_registry.sql" "$work/sources/psoriasis/Shmarov_2022_psor_v8_4.xml"
           install -m 600 "$work/scripts/psoriasis_skin_state.php" "$HOME/domains/ilovemybody.in/private/app/scripts/psoriasis_skin_state.php"
           rm -rf "$work" "/tmp/p77-$RUN_ID.tgz"
           REMOTE
