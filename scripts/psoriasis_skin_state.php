@@ -2,12 +2,17 @@
 declare(strict_types=1);
 
 /*
- * Source-exact two-state psoriasis model ported from:
+ * Software-exact port of an assumption-based exploratory two-state helper:
  * https://github.com/pzuliani/psoriasis/blob/main/matlab/simple_model.m
  *
  * K: proliferative keratinocytes per mm^2
- * T: activated immune cells per mm^2
+ * T: immune cells per mm^2
  * Rates: cells per mm^2 per day
+ *
+ * This reproduces the source construction; it is not a validated physiological
+ * law, patient target, diagnostic tool, or treatment calculator. The source
+ * sets the transition at 10% of an assumed thickness difference and explicitly
+ * labels immune infiltration k4=100 as assumed.
  */
 
 const A_KT = 3.1746031746e-5;
@@ -49,41 +54,13 @@ function selfTest(): array
     $passed = true;
 
     foreach ($states as $name => [$K, $T]) {
-        $result = derivatives($K, $T);
-        $residual = max(abs($result['dK_dt_cells_per_mm2_per_day']), abs($result['dT_dt_cells_per_mm2_per_day']));
-        $ok = $residual <= $tolerance;
-        $passed = $passed && $ok;
-        $results[$name] = ['residual_max' => $residual, 'passed' => $ok] + $result;
-    }
-
-    return [
-        'calculator' => 'psoriasis_skin_state',
-        'source_model' => 'pzuliani/psoriasis matlab/simple_model.m',
-        'tolerance' => $tolerance,
-        'passed' => $passed,
-        'states' => $results,
-        'patient_rows_read' => 0,
-        'patient_rows_modified' => 0,
+        $result = derivatives((float)$argv[1], (float)$argv[2]);
+    $result['governance'] = [
+        'provenance_status' => 'ASSUMPTION_BASED_REDUCED_MODEL',
+        'patient_execution_allowed' => false,
+        'interpretation' => 'Research reproduction only; values are not patient targets.',
     ];
-}
-
-if (PHP_SAPI !== 'cli') {
-    http_response_code(404);
-    exit;
-}
-
-try {
-    if (($argv[1] ?? '') === '--self-test') {
-        $output = selfTest();
-        echo json_encode($output, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES), PHP_EOL;
-        exit($output['passed'] ? 0 : 4);
-    }
-    if (count($argv) !== 3 || !is_numeric($argv[1]) || !is_numeric($argv[2])) {
-        fwrite(STDERR, "Usage: php scripts/psoriasis_skin_state.php --self-test\n");
-        fwrite(STDERR, "   or: php scripts/psoriasis_skin_state.php K_cells_per_mm2 T_cells_per_mm2\n");
-        exit(2);
-    }
-    $result = derivatives((float)$argv[1], (float)$argv[2]);\n    $result['governance'] = [\n        'provenance_status' => 'ASSUMPTION_BASED_REDUCED_MODEL',\n        'patient_execution_allowed' => false,\n        'interpretation' => 'Research reproduction only; values are not patient targets.',\n    ];\n    echo json_encode($result, JSON_PRETTY_PRINT), PHP_EOL;
+    echo json_encode($result, JSON_PRETTY_PRINT), PHP_EOL;
 } catch (Throwable $e) {
     fwrite(STDERR, $e->getMessage() . PHP_EOL);
     exit(3);
