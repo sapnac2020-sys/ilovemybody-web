@@ -1,0 +1,49 @@
+{
+    "database": "u756742628_ilovemybody",
+    "phase": "P87_WITHDRAWAL_IDENTIFIABILITY",
+    "withdrawal_outcomes": 99,
+    "decision_counts": [
+        {
+            "decision": "CLINICAL_RELAPSE_ONLY",
+            "outcome_count": 97,
+            "measurement_count": "659"
+        },
+        {
+            "decision": "STATE_CANDIDATE_TEXT",
+            "outcome_count": 2,
+            "measurement_count": "11"
+        }
+    ],
+    "persistence_text_candidates": {
+        "R_text_candidates": "0",
+        "E_text_candidates": "0",
+        "F_text_candidates": "0",
+        "L_text_candidates": "2",
+        "identified_states": "0"
+    },
+    "state_candidate_samples": [
+        {
+            "agent_key": "ETANERCEPT",
+            "nct_id": "NCT00322439",
+            "outcome_title": "Five-year Cumulative Incidence for Events of Medical Interest (EMIs)",
+            "time_frame": "5 years",
+            "decision": "STATE_CANDIDATE_TEXT",
+            "source_url": "https://clinicaltrials.gov/study/NCT00322439"
+        },
+        {
+            "agent_key": "ETANERCEPT",
+            "nct_id": "NCT01421069",
+            "outcome_title": "Number of Participants With Infections: Extension Study: Withdrawal Period",
+            "time_frame": "Extension study: Day of study treatment withdrawal up to entering re-treatment period or observational period (for a maximum of 96 months)",
+            "decision": "STATE_CANDIDATE_TEXT",
+            "source_url": "https://clinicaltrials.gov/study/NCT01421069"
+        }
+    ],
+    "identified_persistence_states": 0,
+    "computation_eligible_records": 0,
+    "conclusion": "Aggregate clinical withdrawal outcomes establish recurrence but do not identify R, E, F or L. Mechanism-resolved post-clearance tissue measurements are required.",
+    "patient_tables_queried": false,
+    "patient_rows_read": 0,
+    "patient_rows_modified": 0,
+    "verified": true
+}
