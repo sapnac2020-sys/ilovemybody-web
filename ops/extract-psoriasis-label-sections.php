@@ -18,7 +18,7 @@ $stmt=$pdo->prepare(file_get_contents($sqlPath));$stmt->execute();do{if($stmt->c
 $labels=$pdo->query("SELECT agent_key,set_id FROM ilb_psoriasis_regulatory_label WHERE source_status='DAILYMED_RETURNED' ORDER BY agent_key,set_id")->fetchAll();if(count($labels)<11)throw new RuntimeException('Regulatory label registry incomplete');
 $sections=[];$failed=[];
 foreach($labels as $label){
- $url='https://dailymed.nlm.nih.gov/dailymed/services/v2/spls/'.$label['set_id'].'.xml';
+ $url='https://www.accessdata.fda.gov/spl/data/'.$label['set_id'].'/'.$label['set_id'].'.xml';
  try{$xml=sourceXml($url);$doc=new DOMDocument();$doc->preserveWhiteSpace=false;if(!$doc->loadXML($xml,LIBXML_NONET|LIBXML_NOERROR|LIBXML_NOWARNING))throw new RuntimeException('Invalid SPL XML');
   $xp=new DOMXPath($doc);
   foreach($xp->query('//*[local-name()="section"]') as $node){
