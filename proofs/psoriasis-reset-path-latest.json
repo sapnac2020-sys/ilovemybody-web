@@ -1,0 +1,20 @@
+{
+    "database": "u756742628_ilovemybody",
+    "phase": "P86_DRUG_FREE_RESET_PATH",
+    "plaque_symbol": "B_plaque",
+    "persistence_symbols": [
+        "E",
+        "L",
+        "F",
+        "R"
+    ],
+    "namespace_collision_resolved": true,
+    "reset_conditions": 7,
+    "structurally_executable_conditions": 1,
+    "patient_use_conditions": 0,
+    "path_conclusion": "Drug-free reset requires washout, plaque resolution, resolution of R/E/F/L, a healthy equilibrium, and negative dominant real eigenvalue.",
+    "patient_tables_queried": false,
+    "patient_rows_read": 0,
+    "patient_rows_modified": 0,
+    "verified": true
+}
