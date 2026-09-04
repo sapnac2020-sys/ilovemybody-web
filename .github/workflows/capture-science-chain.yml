@@ -1,7 +1,7 @@
 name: Capture unmanaged science chain
 on:
   push:
-    branches: [govern-science-chain-psoriasis]
+    branches: [main, govern-science-chain-psoriasis]
     paths:
       - scripts/capture_science_chain.php
       - scripts/psoriasis_skin_state.php
