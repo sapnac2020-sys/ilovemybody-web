@@ -83,7 +83,7 @@ try {
         fwrite(STDERR, "   or: php scripts/psoriasis_skin_state.php K_cells_per_mm2 T_cells_per_mm2\n");
         exit(2);
     }
-    echo json_encode(derivatives((float)$argv[1], (float)$argv[2]), JSON_PRETTY_PRINT), PHP_EOL;
+    $result = derivatives((float)$argv[1], (float)$argv[2]);\n    $result['governance'] = [\n        'provenance_status' => 'ASSUMPTION_BASED_REDUCED_MODEL',\n        'patient_execution_allowed' => false,\n        'interpretation' => 'Research reproduction only; values are not patient targets.',\n    ];\n    echo json_encode($result, JSON_PRETTY_PRINT), PHP_EOL;
 } catch (Throwable $e) {
     fwrite(STDERR, $e->getMessage() . PHP_EOL);
     exit(3);
