@@ -20,10 +20,13 @@ $out=[
  'parameter_gated_equations'=>(int)$r['parameter_gated_equations'],
  'persistence_loop_structurally_complete'=>(int)$r['persistence_loop_structurally_complete'],
  'feedback_loop_numerically_identified'=>(int)$r['feedback_loop_numerically_identified'],
- 'structural_ready'=>false,'patient_execution_ready'=>(int)$r['feedback_loop_numerically_identified'],\n 'patient_rows_read'=>0,'patient_rows_modified'=>0
+ 'patient_execution_ready'=>(int)$r['feedback_loop_numerically_identified'],
+ 'patient_rows_read'=>0,
+ 'patient_rows_modified'=>0
 ];
 $out['structural_ready']=$out['active_loop_segments']===9&&$out['ready_observables']===3&&
  $out['measurement_required']===7&&$out['executable_equations']===1&&
  $out['parameter_gated_equations']===6&&$out['persistence_loop_structurally_complete']===1;
-$out['ready']=$out['structural_ready'];\necho json_encode($out,JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES),PHP_EOL;
-if(!$out['ready']) exit(4);
+$out['ready']=$out['structural_ready'];
+echo json_encode($out,JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES),PHP_EOL;
+if(!$out['structural_ready']) exit(4);
