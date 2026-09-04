@@ -1,9 +1,23 @@
 {
-  "phase": "P81_LABEL_SECTIONS",
-  "verified": false,
-  "exit_code": 255,
-  "error": "Fatal error: Uncaught RuntimeException: Not every agent has an exact FDA section source: [\"ADALIMUMAB\",\"BRODALUMAB\",\"TILDRAKIZUMAB\",\"USTEKINUMAB\"] in /tmp/extract-psoriasis-label-sections.php:33\nStack trace:\n#0 {main}\n  thrown in /tmp/extract-psoriasis-label-sections.php on line 33",
-  "patient_tables_queried": false,
-  "patient_rows_read": 0,
-  "patient_rows_modified": 0
+    "database": "u756742628_ilovemybody",
+    "phase": "P81_LABEL_SECTIONS",
+    "registered_labels": 68,
+    "covered_agents": 11,
+    "exact_sections": 230,
+    "unavailable_xml_labels": 0,
+    "coverage_cells": 88,
+    "coverage": [
+        {
+            "coverage_status": "MISSING",
+            "row_count": 40
+        },
+        {
+            "coverage_status": "SOURCE_TEXT_AVAILABLE",
+            "row_count": 48
+        }
+    ],
+    "patient_tables_queried": false,
+    "patient_rows_read": 0,
+    "patient_rows_modified": 0,
+    "verified": true
 }
