@@ -12,7 +12,7 @@ on:
 jobs:
   migrate-and-verify:
     runs-on: ubuntu-latest
-    permissions: {contents: read}
+    permissions: {contents: write}
     steps:
       - uses: actions/checkout@v4
       - run: php -l ops/run-psoriasis-end-to-end-migration.php
@@ -48,6 +48,19 @@ jobs:
           cp "$RUNNER_TEMP/psoriasis-end-to-end-${tag}.json" "$RUNNER_TEMP/psoriasis-end-to-end.json"
           ssh -i "$HOME/.ssh/id_ed25519" -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" \
             "rm -f /tmp/run-psoriasis-end-to-end-migration.php /tmp/phase_78_psoriasis_end_to_end.sql"
+      - name: Publish durable production proof
+        run: |
+          set -euo pipefail
+          mkdir -p proofs
+          cp "$RUNNER_TEMP/psoriasis-end-to-end.json" proofs/psoriasis-end-to-end-latest.json
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add proofs/psoriasis-end-to-end-latest.json
+          if git diff --cached --quiet; then
+            exit 0
+          fi
+          git commit -m "proof: verify live psoriasis end-to-end module [skip ci]"
+          git push origin HEAD:main
       - uses: actions/upload-artifact@v4
         with:
           name: psoriasis-end-to-end-proof
