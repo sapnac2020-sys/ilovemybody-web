@@ -1,0 +1,48 @@
+name: Refresh psoriasis regulatory labels
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - backend/phase_80_psoriasis_regulatory_labels.sql
+      - ops/refresh-psoriasis-regulatory-labels.php
+      - .github/workflows/psoriasis-regulatory-labels.yml
+  schedule:
+    - cron: '35 4 21 * *'
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    permissions: {contents: write}
+    steps:
+      - uses: actions/checkout@v4
+      - run: php -l ops/refresh-psoriasis-regulatory-labels.php
+      - name: Prepare SSH
+        env: {DEPLOY_BUNDLE: "${{ secrets.HOSTINGER_DEPLOY_BUNDLE }}"}
+        run: |
+          set -euo pipefail
+          printf '%s' "$DEPLOY_BUNDLE" | base64 --decode >"$RUNNER_TEMP/d.json"
+          mkdir -p "$HOME/.ssh" && chmod 700 "$HOME/.ssh"
+          jq -r '.key' "$RUNNER_TEMP/d.json" >"$HOME/.ssh/id_ed25519" && chmod 600 "$HOME/.ssh/id_ed25519"
+          echo "H=$(jq -r '.host' "$RUNNER_TEMP/d.json")" >>"$GITHUB_ENV"; echo "P=$(jq -r '.port' "$RUNNER_TEMP/d.json")" >>"$GITHUB_ENV"; echo "U=$(jq -r '.user' "$RUNNER_TEMP/d.json")" >>"$GITHUB_ENV"
+          ssh-keyscan -p "$(jq -r '.port' "$RUNNER_TEMP/d.json")" "$(jq -r '.host' "$RUNNER_TEMP/d.json")" >>"$HOME/.ssh/known_hosts"
+      - name: Refresh live registry
+        run: |
+          set -euo pipefail
+          scp -i "$HOME/.ssh/id_ed25519" -P "$P" backend/phase_80_psoriasis_regulatory_labels.sql ops/refresh-psoriasis-regulatory-labels.php "$U@$H:/tmp/"
+          set +e
+          ssh -i "$HOME/.ssh/id_ed25519" -p "$P" "$U@$H" "php /tmp/refresh-psoriasis-regulatory-labels.php \"\$HOME/domains/ilovemybody.in/ilmb-config.php\" /tmp/phase_80_psoriasis_regulatory_labels.sql" >"$RUNNER_TEMP/p80.json" 2>"$RUNNER_TEMP/p80.err"; rc=$?
+          set -e
+          if [ "$rc" -ne 0 ]; then err="$(tail -c 3000 "$RUNNER_TEMP/p80.json"; tail -c 3000 "$RUNNER_TEMP/p80.err")"; jq -n --arg error "$err" --argjson exit_code "$rc" '{phase:"P80_REGULATORY_LABELS",verified:false,exit_code:$exit_code,error:$error,patient_tables_queried:false,patient_rows_read:0,patient_rows_modified:0}' >"$RUNNER_TEMP/proof.json"; exit "$rc"; fi
+          jq -e '.verified_agents==11 and .source_returned_labels>10 and .required_sections==8 and .verified==true and .patient_rows_read==0 and .patient_rows_modified==0' "$RUNNER_TEMP/p80.json" >/dev/null
+          cp "$RUNNER_TEMP/p80.json" "$RUNNER_TEMP/proof.json"
+      - name: Publish durable proof
+        if: always()
+        run: |
+          set -euo pipefail
+          test -f "$RUNNER_TEMP/proof.json"; mkdir -p proofs; cp "$RUNNER_TEMP/proof.json" proofs/psoriasis-regulatory-labels-latest.json
+          git config user.name "github-actions[bot]"; git config user.email "41898282+github-actions[bot]@users.noreply.github.com"; git add proofs/psoriasis-regulatory-labels-latest.json
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m "proof: refresh psoriasis regulatory labels [skip ci]"; git push origin HEAD:main
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with: {name: psoriasis-regulatory-label-proof, path: "${{ runner.temp }}/proof.json", if-no-files-found: error, retention-days: 30}
