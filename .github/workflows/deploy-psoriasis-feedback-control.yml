@@ -1,0 +1,45 @@
+name: Deploy psoriasis feedback control
+concurrency:
+  group: ilmb-production-correlation-migrations
+  cancel-in-progress: false
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - backend/phase_76_psoriasis_feedback_control.sql
+      - ops/run-psoriasis-feedback-control-migration.php
+      - .github/workflows/deploy-psoriasis-feedback-control.yml
+jobs:
+  migrate-verify:
+    runs-on: ubuntu-latest
+    permissions: {contents: read}
+    steps:
+      - uses: actions/checkout@v4
+      - run: php -l ops/run-psoriasis-feedback-control-migration.php
+      - name: Prepare SSH
+        env:
+          DEPLOY_BUNDLE: ${{ secrets.HOSTINGER_DEPLOY_BUNDLE }}
+        run: |
+          set -euo pipefail
+          test -n "$DEPLOY_BUNDLE"
+          mkdir -p "$HOME/.ssh"; chmod 700 "$HOME/.ssh"
+          printf '%s' "$DEPLOY_BUNDLE" | base64 --decode >"$RUNNER_TEMP/deploy.json"
+          jq -e '.host and .port and .user and .key' "$RUNNER_TEMP/deploy.json" >/dev/null
+          jq -r '.key' "$RUNNER_TEMP/deploy.json" >"$HOME/.ssh/id_ed25519"; chmod 600 "$HOME/.ssh/id_ed25519"
+          echo "DEPLOY_HOST=$(jq -r '.host' "$RUNNER_TEMP/deploy.json")" >>"$GITHUB_ENV"
+          echo "DEPLOY_PORT=$(jq -r '.port' "$RUNNER_TEMP/deploy.json")" >>"$GITHUB_ENV"
+          echo "DEPLOY_USER=$(jq -r '.user' "$RUNNER_TEMP/deploy.json")" >>"$GITHUB_ENV"
+          ssh-keyscan -p "$(jq -r '.port' "$RUNNER_TEMP/deploy.json")" "$(jq -r '.host' "$RUNNER_TEMP/deploy.json")" >>"$HOME/.ssh/known_hosts"
+      - name: Migrate and verify production
+        run: |
+          set -euo pipefail
+          tar -czf "$RUNNER_TEMP/p76.tgz" backend/phase_76_psoriasis_feedback_control.sql ops/run-psoriasis-feedback-control-migration.php
+          scp -i "$HOME/.ssh/id_ed25519" -P "$DEPLOY_PORT" "$RUNNER_TEMP/p76.tgz" "$DEPLOY_USER@$DEPLOY_HOST:/tmp/p76-${GITHUB_RUN_ID}.tgz"
+          ssh -i "$HOME/.ssh/id_ed25519" -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" "RUN_ID='${GITHUB_RUN_ID}' bash -s" <<'REMOTE'
+          set -euo pipefail
+          work="/tmp/p76-$RUN_ID"; mkdir -p "$work"
+          tar -xzf "/tmp/p76-$RUN_ID.tgz" -C "$work"
+          php "$work/ops/run-psoriasis-feedback-control-migration.php" "$HOME/domains/ilovemybody.in/ilmb-config.php" "$work/backend/phase_76_psoriasis_feedback_control.sql"
+          rm -rf "$work" "/tmp/p76-$RUN_ID.tgz"
+          REMOTE
