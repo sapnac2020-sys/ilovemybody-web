@@ -57,3 +57,5 @@ INSERT INTO ilb_psoriasis_candidate_state_evidence
 ('MULTISTRAIN_PROBIOTIC','P','NOT_MEASURED',NULL,0,0,0),('MULTISTRAIN_PROBIOTIC','D','NOT_MEASURED',NULL,0,0,0),('MULTISTRAIN_PROBIOTIC','B','NOT_MEASURED',NULL,0,0,0),('MULTISTRAIN_PROBIOTIC','I','SUPPORTED_DIRECTION','Serum LPS, hs-CRP and IL-1beta decreased in one small randomized trial; this is systemic, not a direct skin-state measurement.',0,0,0),('MULTISTRAIN_PROBIOTIC','R','NOT_MEASURED',NULL,0,0,0)
 ON DUPLICATE KEY UPDATE evidence_status=VALUES(evidence_status),observed_result=VALUES(observed_result),direct_state_measurement=VALUES(direct_state_measurement),withdrawal_tested=VALUES(withdrawal_tested),rechallenge_tested=VALUES(rechallenge_tested);
 COMMIT;
+
+-- Deployment trigger: Phase 90 live verification.
