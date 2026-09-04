@@ -1,0 +1,107 @@
+{
+    "database": "u756742628_ilovemybody",
+    "phase": "P89_MEASURABLE_SKIN_STATE_MODEL",
+    "states": [
+        {
+            "state_key": "B",
+            "state_name": "EPIDERMAL_BARRIER",
+            "desired_direction": "UP"
+        },
+        {
+            "state_key": "D",
+            "state_name": "KERATINOCYTE_DIFFERENTIATION",
+            "desired_direction": "NORMALISE"
+        },
+        {
+            "state_key": "I",
+            "state_name": "ACTIVE_INFLAMMATION",
+            "desired_direction": "DOWN"
+        },
+        {
+            "state_key": "P",
+            "state_name": "KERATINOCYTE_PROLIFERATION",
+            "desired_direction": "DOWN"
+        },
+        {
+            "state_key": "R",
+            "state_name": "RESIDENT_IMMUNE_MEMORY",
+            "desired_direction": "DOWN"
+        }
+    ],
+    "observable_counts": [
+        {
+            "state_key": "B",
+            "n": 3,
+            "universal_thresholds": "0"
+        },
+        {
+            "state_key": "D",
+            "n": 3,
+            "universal_thresholds": "0"
+        },
+        {
+            "state_key": "I",
+            "n": 2,
+            "universal_thresholds": "0"
+        },
+        {
+            "state_key": "P",
+            "n": 2,
+            "universal_thresholds": "0"
+        },
+        {
+            "state_key": "R",
+            "n": 2,
+            "universal_thresholds": "0"
+        }
+    ],
+    "total_observables": 12,
+    "gates": [
+        {
+            "gate_order": 1,
+            "gate_key": "G1_PHENOTYPE",
+            "patient_experiment": 0
+        },
+        {
+            "gate_order": 2,
+            "gate_key": "G2_PROLIFERATION",
+            "patient_experiment": 0
+        },
+        {
+            "gate_order": 3,
+            "gate_key": "G3_DIFFERENTIATION",
+            "patient_experiment": 0
+        },
+        {
+            "gate_order": 4,
+            "gate_key": "G4_BARRIER",
+            "patient_experiment": 0
+        },
+        {
+            "gate_order": 5,
+            "gate_key": "G5_INFLAMMATION",
+            "patient_experiment": 0
+        },
+        {
+            "gate_order": 6,
+            "gate_key": "G6_MEMORY",
+            "patient_experiment": 0
+        },
+        {
+            "gate_order": 7,
+            "gate_key": "G7_WITHDRAWAL",
+            "patient_experiment": 0
+        },
+        {
+            "gate_order": 8,
+            "gate_key": "G8_RECHALLENGE",
+            "patient_experiment": 0
+        }
+    ],
+    "universal_numeric_thresholds": 0,
+    "candidate_interventions_registered": 0,
+    "patient_tables_queried": false,
+    "patient_rows_read": 0,
+    "patient_rows_modified": 0,
+    "verified": true
+}
