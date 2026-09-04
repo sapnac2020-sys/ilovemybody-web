@@ -1,0 +1,80 @@
+{
+    "database": "u756742628_ilovemybody",
+    "phase": "P96_PUBLISHED_PARAMETER_RESCUE",
+    "candidate_records": 7,
+    "previously_open_parameters_with_published_evidence": 7,
+    "candidates": [
+        {
+            "candidate_key": "P96_BARRIER_BMM",
+            "parameter_key": "BARRIER_CANDIDATE_ID",
+            "numeric_value": null,
+            "unit": null,
+            "compatibility": "ALTERNATE_3D_MODEL",
+            "exact_in_source": 1,
+            "promotion_allowed": 0
+        },
+        {
+            "candidate_key": "P96_IL17_BMM_80",
+            "parameter_key": "IL17_BLOCK_CONCENTRATION",
+            "numeric_value": "80.00000000",
+            "unit": "microgram/mL",
+            "compatibility": "ALTERNATE_3D_MODEL",
+            "exact_in_source": 1,
+            "promotion_allowed": 0
+        },
+        {
+            "candidate_key": "P96_IL23_MODEL_WARNING",
+            "parameter_key": "IL23_BLOCK_CONCENTRATION",
+            "numeric_value": null,
+            "unit": null,
+            "compatibility": "NOT_COMPATIBLE",
+            "exact_in_source": 1,
+            "promotion_allowed": 0
+        },
+        {
+            "candidate_key": "P96_INTERVENTION_6D",
+            "parameter_key": "INTERVENTION_DURATION",
+            "numeric_value": "6.00000000",
+            "unit": "days",
+            "compatibility": "ALTERNATE_3D_MODEL",
+            "exact_in_source": 1,
+            "promotion_allowed": 0
+        },
+        {
+            "candidate_key": "P96_RECHALLENGE_6D",
+            "parameter_key": "RECHALLENGE_DURATION",
+            "numeric_value": "6.00000000",
+            "unit": "days",
+            "compatibility": "PROTOCOL_COMPONENT",
+            "exact_in_source": 1,
+            "promotion_allowed": 0
+        },
+        {
+            "candidate_key": "P96_RECHALLENGE_MIX",
+            "parameter_key": "RECHALLENGE_STIMULUS",
+            "numeric_value": null,
+            "unit": null,
+            "compatibility": "PROTOCOL_COMPONENT",
+            "exact_in_source": 1,
+            "promotion_allowed": 0
+        },
+        {
+            "candidate_key": "P96_RENEWAL_6D",
+            "parameter_key": "RENEWAL_DURATION",
+            "numeric_value": "6.00000000",
+            "unit": "days",
+            "compatibility": "ALTERNATE_3D_MODEL",
+            "exact_in_source": 1,
+            "promotion_allowed": 0
+        }
+    ],
+    "directly_promoted": 0,
+    "reason_not_promoted": "Values are exact in their sources but arise from an alternate 3D model or from induction rather than post-reset rechallenge.",
+    "remaining_formally_unresolved": 10,
+    "new_numbers_discovered": true,
+    "invented_values": 0,
+    "patient_tables_queried": false,
+    "patient_rows_read": 0,
+    "patient_rows_modified": 0,
+    "verified": true
+}
