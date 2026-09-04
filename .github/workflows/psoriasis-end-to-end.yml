@@ -40,17 +40,30 @@ jobs:
             backend/phase_78_psoriasis_end_to_end.sql \
             ops/run-psoriasis-end-to-end-migration.php \
             "$DEPLOY_USER@$DEPLOY_HOST:/tmp/"
+          set +e
           ssh -i "$HOME/.ssh/id_ed25519" -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" \
             "php /tmp/run-psoriasis-end-to-end-migration.php \"\$HOME/domains/ilovemybody.in/ilmb-config.php\" /tmp/phase_78_psoriasis_end_to_end.sql" \
-            >"$RUNNER_TEMP/psoriasis-end-to-end-${tag}.json"
+            >"$RUNNER_TEMP/psoriasis-end-to-end-${tag}.json" \
+            2>"$RUNNER_TEMP/psoriasis-end-to-end-${tag}.err"
+          rc=$?
+          set -e
+          if [ "$rc" -ne 0 ]; then
+            error_text="$(tail -c 6000 "$RUNNER_TEMP/psoriasis-end-to-end-${tag}.err")"
+            jq -n --arg database "u756742628_ilovemybody" --arg error "$error_text" --argjson exit_code "$rc" \
+              '{database:$database,mode:"governed_non_patient_research",migration_verified:false,exit_code:$exit_code,error:$error,patient_tables_queried:false,patient_rows_read:0,patient_rows_modified:0}' \
+              >"$RUNNER_TEMP/psoriasis-end-to-end.json"
+            exit "$rc"
+          fi
           jq -e '.database=="u756742628_ilovemybody" and .mode=="governed_non_patient_research" and .patient_tables_queried==false and .patient_rows_read==0 and .patient_rows_modified==0 and .migration_verified==true and .readiness.research_structure_operational==1 and .readiness.patient_execution_enabled==0' "$RUNNER_TEMP/psoriasis-end-to-end-${tag}.json" >/dev/null
           rm -f "$RUNNER_TEMP/psoriasis-end-to-end.json"
           cp "$RUNNER_TEMP/psoriasis-end-to-end-${tag}.json" "$RUNNER_TEMP/psoriasis-end-to-end.json"
           ssh -i "$HOME/.ssh/id_ed25519" -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" \
             "rm -f /tmp/run-psoriasis-end-to-end-migration.php /tmp/phase_78_psoriasis_end_to_end.sql"
       - name: Publish durable production proof
+        if: always()
         run: |
           set -euo pipefail
+          test -f "$RUNNER_TEMP/psoriasis-end-to-end.json"
           mkdir -p proofs
           cp "$RUNNER_TEMP/psoriasis-end-to-end.json" proofs/psoriasis-end-to-end-latest.json
           git config user.name "github-actions[bot]"
@@ -62,6 +75,7 @@ jobs:
           git commit -m "proof: verify live psoriasis end-to-end module [skip ci]"
           git push origin HEAD:main
       - uses: actions/upload-artifact@v4
+        if: always()
         with:
           name: psoriasis-end-to-end-proof
           path: ${{ runner.temp }}/psoriasis-end-to-end.json
