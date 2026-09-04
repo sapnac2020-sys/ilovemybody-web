@@ -2,12 +2,17 @@
 declare(strict_types=1);
 
 /*
- * Source-exact two-state psoriasis model ported from:
+ * Software-exact port of an assumption-based exploratory two-state helper:
  * https://github.com/pzuliani/psoriasis/blob/main/matlab/simple_model.m
  *
  * K: proliferative keratinocytes per mm^2
- * T: activated immune cells per mm^2
+ * T: immune cells per mm^2
  * Rates: cells per mm^2 per day
+ *
+ * This reproduces the source construction; it is not a validated physiological
+ * law, patient target, diagnostic tool, or treatment calculator. The source
+ * sets the transition at 10% of an assumed thickness difference and explicitly
+ * labels immune infiltration k4=100 as assumed.
  */
 
 const A_KT = 3.1746031746e-5;
@@ -37,6 +42,18 @@ function derivatives(float $K, float $T): array
     ];
 }
 
+function governance(): array
+{
+    return [
+        'provenance_status' => 'ASSUMPTION_BASED_REDUCED_MODEL',
+        'source_code_exact' => true,
+        'physiological_law_validated' => false,
+        'patient_execution_allowed' => false,
+        'transition_constructed_from_assumption' => true,
+        'immune_infiltration_assumed' => true,
+    ];
+}
+
 function selfTest(): array
 {
     $states = [
@@ -59,6 +76,7 @@ function selfTest(): array
     return [
         'calculator' => 'psoriasis_skin_state',
         'source_model' => 'pzuliani/psoriasis matlab/simple_model.m',
+        'governance' => governance(),
         'tolerance' => $tolerance,
         'passed' => $passed,
         'states' => $results,
@@ -83,7 +101,11 @@ try {
         fwrite(STDERR, "   or: php scripts/psoriasis_skin_state.php K_cells_per_mm2 T_cells_per_mm2\n");
         exit(2);
     }
-    echo json_encode(derivatives((float)$argv[1], (float)$argv[2]), JSON_PRETTY_PRINT), PHP_EOL;
+    $result = derivatives((float)$argv[1], (float)$argv[2]);
+    $result['governance'] = governance() + [
+        'interpretation' => 'Research reproduction only; values are not patient targets.',
+    ];
+    echo json_encode($result, JSON_PRETTY_PRINT), PHP_EOL;
 } catch (Throwable $e) {
     fwrite(STDERR, $e->getMessage() . PHP_EOL);
     exit(3);
