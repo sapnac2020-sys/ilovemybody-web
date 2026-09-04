@@ -1,0 +1,72 @@
+{
+    "database": "u756742628_ilovemybody",
+    "phase": "P90_CANDIDATE_STATE_MATRIX",
+    "candidates": [
+        {
+            "candidate_key": "ALA",
+            "candidate_name": "alpha-linolenic acid",
+            "domain": "NUTRITIONAL_MOLECULE",
+            "evidence_model": "3D_SKIN"
+        },
+        {
+            "candidate_key": "EPA",
+            "candidate_name": "eicosapentaenoic acid",
+            "domain": "NUTRITIONAL_MOLECULE",
+            "evidence_model": "3D_SKIN"
+        },
+        {
+            "candidate_key": "GUSELKUMAB_IL23",
+            "candidate_name": "guselkumab / IL-23p19 blockade",
+            "domain": "PHARMACEUTICAL",
+            "evidence_model": "HUMAN"
+        },
+        {
+            "candidate_key": "LRHAMNOSUS_ADJUVANT",
+            "candidate_name": "Lactobacillus rhamnosus formula",
+            "domain": "MICROBIOME",
+            "evidence_model": "HUMAN"
+        },
+        {
+            "candidate_key": "MINDFULNESS_UV",
+            "candidate_name": "mindfulness audio during UVB or PUVA",
+            "domain": "NEUROBEHAVIOURAL",
+            "evidence_model": "HUMAN"
+        },
+        {
+            "candidate_key": "MULTISTRAIN_PROBIOTIC",
+            "candidate_name": "multi-strain probiotic supplementation",
+            "domain": "MICROBIOME",
+            "evidence_model": "HUMAN"
+        },
+        {
+            "candidate_key": "NB_UVB",
+            "candidate_name": "narrowband ultraviolet-B phototherapy",
+            "domain": "LIGHT",
+            "evidence_model": "HUMAN"
+        }
+    ],
+    "candidate_count": 7,
+    "matrix_cells": 35,
+    "status_counts": [
+        {
+            "evidence_status": "SUPPORTED_DIRECTION",
+            "n": 7
+        },
+        {
+            "evidence_status": "NOT_MEASURED",
+            "n": 19
+        },
+        {
+            "evidence_status": "NOT_ESTABLISHED",
+            "n": 9
+        }
+    ],
+    "withdrawal_positive_cells": 0,
+    "rechallenge_positive_cells": 0,
+    "disease_modification_proven": false,
+    "cure_candidate_identified": false,
+    "patient_tables_queried": false,
+    "patient_rows_read": 0,
+    "patient_rows_modified": 0,
+    "verified": true
+}
