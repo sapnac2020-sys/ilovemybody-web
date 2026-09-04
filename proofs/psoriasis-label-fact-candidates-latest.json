@@ -1,0 +1,9 @@
+{
+  "phase": "P82_LABEL_FACT_CANDIDATES",
+  "verified": false,
+  "exit_code": 255,
+  "error": "Fatal error: Uncaught RuntimeException: Numeric candidates do not cover all 11 agents: [\"ADALIMUMAB\",\"BIMEKIZUMAB\",\"BRODALUMAB\",\"ETANERCEPT\",\"GUSELKUMAB\",\"INFLIXIMAB\",\"RISANKIZUMAB\",\"SECUKINUMAB\",\"TILDRAKIZUMAB\",\"USTEKINUMAB\"] in /tmp/extract-psoriasis-label-fact-candidates.php:19\nStack trace:\n#0 {main}\n  thrown in /tmp/extract-psoriasis-label-fact-candidates.php on line 19",
+  "patient_tables_queried": false,
+  "patient_rows_read": 0,
+  "patient_rows_modified": 0
+}
