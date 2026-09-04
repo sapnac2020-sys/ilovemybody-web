@@ -1,9 +1,42 @@
 {
-  "phase": "P82_LABEL_FACT_CANDIDATES",
-  "verified": false,
-  "exit_code": 255,
-  "error": "Fatal error: Uncaught RuntimeException: Numeric candidates do not cover all 11 agents: [\"ADALIMUMAB\",\"BIMEKIZUMAB\",\"BRODALUMAB\",\"ETANERCEPT\",\"GUSELKUMAB\",\"INFLIXIMAB\",\"RISANKIZUMAB\",\"SECUKINUMAB\",\"TILDRAKIZUMAB\",\"USTEKINUMAB\"] in /tmp/extract-psoriasis-label-fact-candidates.php:19\nStack trace:\n#0 {main}\n  thrown in /tmp/extract-psoriasis-label-fact-candidates.php on line 19",
-  "patient_tables_queried": false,
-  "patient_rows_read": 0,
-  "patient_rows_modified": 0
+    "database": "u756742628_ilovemybody",
+    "phase": "P82_LABEL_FACT_CANDIDATES",
+    "source_sections_scanned": 226,
+    "registered_agents": 11,
+    "source_candidate_agents": 10,
+    "agents_without_numeric_candidates": 1,
+    "candidate_count": 2423,
+    "by_kind": [
+        {
+            "candidate_kind": "DOSING",
+            "row_count": 3
+        },
+        {
+            "candidate_kind": "PHARMACOKINETIC",
+            "row_count": 2157
+        },
+        {
+            "candidate_kind": "IMMUNOGENICITY",
+            "row_count": 146
+        },
+        {
+            "candidate_kind": "SAFETY",
+            "row_count": 117
+        }
+    ],
+    "readiness": [
+        {
+            "readiness_status": "NO_CANDIDATES",
+            "agent_count": 1
+        },
+        {
+            "readiness_status": "SOURCE_CANDIDATES_ONLY",
+            "agent_count": 10
+        }
+    ],
+    "computation_eligible_candidates": 0,
+    "patient_tables_queried": false,
+    "patient_rows_read": 0,
+    "patient_rows_modified": 0,
+    "verified": true
 }
