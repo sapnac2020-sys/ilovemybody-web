@@ -1,41 +1,49 @@
 {
-  "phase": "P88_POSTCLEARANCE_HUMAN_TISSUE_EVIDENCE",
-  "scope": "population-level human post-clearance tissue evidence; no patient data",
-  "registered_sources": 3,
-  "state_decision": {
-    "R": "SUPPORTED",
-    "E": "CANDIDATE_UNRESOLVED",
-    "F": "CANDIDATE_UNRESOLVED",
-    "L": "UNRESOLVED"
-  },
-  "current_identifiable_path": "persistent resident T-cell memory -> IL-17/IL-22-capable response -> local psoriatic tissue response",
-  "non_conclusions": [
-    "R is not proven to be the sole root cause",
-    "no cure formula has been identified",
-    "the 248-probe mixed-tissue residual profile does not uniquely identify E or F",
-    "no treatment action is computation-eligible"
-  ],
-  "sources": [
-    {
-      "id": "PMCID:PMC3962894",
-      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC3962894/",
-      "state": "R",
-      "decision": "SUPPORTED"
+    "database": "u756742628_ilovemybody",
+    "phase": "P88_POSTCLEARANCE_HUMAN_TISSUE_EVIDENCE",
+    "registered_sources": 3,
+    "supported_R_records": 2,
+    "state_decision": {
+        "R": "SUPPORTED",
+        "E": "CANDIDATE_UNRESOLVED",
+        "F": "CANDIDATE_UNRESOLVED",
+        "L": "UNRESOLVED"
     },
-    {
-      "id": "PMID:29510191",
-      "url": "https://pubmed.ncbi.nlm.nih.gov/29510191/",
-      "state": "R",
-      "decision": "SUPPORTED"
-    },
-    {
-      "id": "PMID:20861854",
-      "url": "https://pubmed.ncbi.nlm.nih.gov/20861854/",
-      "state": "MULTI_STATE",
-      "decision": "CANDIDATE_UNRESOLVED",
-      "exact_registered_count": "248 probe sets"
-    }
-  ],
-  "computation_eligible_records": 0,
-  "patient_use_allowed": false
+    "records": [
+        {
+            "evidence_key": "CHEUK_2014_EPIDERMAL_TRM",
+            "persistence_state": "R",
+            "evidence_class": "DIRECT_CELLULAR",
+            "state_decision": "SUPPORTED",
+            "source_id": "PMCID:PMC3962894",
+            "source_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC3962894/",
+            "computation_eligible": 0,
+            "patient_use_allowed": 0
+        },
+        {
+            "evidence_key": "SEREZAL_2018_RESOLVED_TRM",
+            "persistence_state": "R",
+            "evidence_class": "FUNCTIONAL_TISSUE",
+            "state_decision": "SUPPORTED",
+            "source_id": "PMID:29510191",
+            "source_url": "https://pubmed.ncbi.nlm.nih.gov/29510191/",
+            "computation_eligible": 0,
+            "patient_use_allowed": 0
+        },
+        {
+            "evidence_key": "SUAREZ_2011_RESIDUAL_PROFILE",
+            "persistence_state": "MULTI_STATE",
+            "evidence_class": "MIXED_TISSUE_MOLECULAR",
+            "state_decision": "CANDIDATE_UNRESOLVED",
+            "source_id": "PMID:20861854",
+            "source_url": "https://pubmed.ncbi.nlm.nih.gov/20861854/",
+            "computation_eligible": 0,
+            "patient_use_allowed": 0
+        }
+    ],
+    "computation_eligible_records": 0,
+    "patient_tables_queried": false,
+    "patient_rows_read": 0,
+    "patient_rows_modified": 0,
+    "verified": true
 }
