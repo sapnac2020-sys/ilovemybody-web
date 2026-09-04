@@ -1,0 +1,123 @@
+{
+    "database": "u756742628_ilovemybody",
+    "phase": "P93_SOURCE_EXACT_EXPERIMENT_PARAMETERS",
+    "total_parameters": 18,
+    "source_exact_count": 8,
+    "source_exact": [
+        {
+            "parameter_key": "ALA_CONCENTRATION",
+            "numeric_value": "10.00000000",
+            "unit": "micromol/L",
+            "text_value": null,
+            "source_id": "PMID:35563819"
+        },
+        {
+            "parameter_key": "EPA_CONCENTRATION",
+            "numeric_value": "10.00000000",
+            "unit": "micromol/L",
+            "text_value": null,
+            "source_id": "PMID:37597582"
+        },
+        {
+            "parameter_key": "MODEL_AIR_LIQUID_DAYS",
+            "numeric_value": "21.00000000",
+            "unit": "days",
+            "text_value": null,
+            "source_id": "PMID:33857488"
+        },
+        {
+            "parameter_key": "MODEL_IL2",
+            "numeric_value": "10.00000000",
+            "unit": "U/mL",
+            "text_value": null,
+            "source_id": "PMCID:PMC9497242"
+        },
+        {
+            "parameter_key": "MODEL_IL23",
+            "numeric_value": "20.00000000",
+            "unit": "ng/mL",
+            "text_value": null,
+            "source_id": "PMCID:PMC9497242"
+        },
+        {
+            "parameter_key": "MODEL_TCELL_KC_SEPARATE_DAYS",
+            "numeric_value": "7.00000000",
+            "unit": "days",
+            "text_value": null,
+            "source_id": "PMCID:PMC10526348"
+        },
+        {
+            "parameter_key": "MODEL_TCELL_TOTAL",
+            "numeric_value": "500000.00000000",
+            "unit": "cells/sheet",
+            "text_value": null,
+            "source_id": "PMCID:PMC9497242"
+        },
+        {
+            "parameter_key": "MODEL_TH1_TH17_RATIO",
+            "numeric_value": null,
+            "unit": null,
+            "text_value": "1:1",
+            "source_id": "PMCID:PMC9497242"
+        }
+    ],
+    "unresolved_count": 10,
+    "unresolved": [
+        {
+            "parameter_key": "BARRIER_CANDIDATE_ID",
+            "stage_key": "S2_INTERVENTION",
+            "parameter_name": "Barrier-directed experimental candidate identity"
+        },
+        {
+            "parameter_key": "IL17_BLOCK_CONCENTRATION",
+            "stage_key": "S2_INTERVENTION",
+            "parameter_name": "Anti-IL-17 comparator concentration"
+        },
+        {
+            "parameter_key": "IL23_BLOCK_CONCENTRATION",
+            "stage_key": "S2_INTERVENTION",
+            "parameter_name": "Anti-IL-23 candidate concentration"
+        },
+        {
+            "parameter_key": "INTERVENTION_DURATION",
+            "stage_key": "S2_INTERVENTION",
+            "parameter_name": "Intervention duration for reset comparison"
+        },
+        {
+            "parameter_key": "PASS_TOLERANCE",
+            "stage_key": null,
+            "parameter_name": "Preregistered equivalence tolerance against healthy control"
+        },
+        {
+            "parameter_key": "RECHALLENGE_DURATION",
+            "stage_key": "S5_RECHALLENGE",
+            "parameter_name": "Post-rechallenge observation duration"
+        },
+        {
+            "parameter_key": "RECHALLENGE_STIMULUS",
+            "stage_key": "S5_RECHALLENGE",
+            "parameter_name": "Matched inflammatory rechallenge identity and concentration"
+        },
+        {
+            "parameter_key": "RENEWAL_DURATION",
+            "stage_key": "S4_RENEWAL",
+            "parameter_name": "Intervention-free renewal observation duration"
+        },
+        {
+            "parameter_key": "WASHOUT_DETECTION_ASSAY",
+            "stage_key": "S3_WASHOUT",
+            "parameter_name": "Analytical assay proving intervention removal"
+        },
+        {
+            "parameter_key": "WASHOUT_DETECTION_LIMIT",
+            "stage_key": "S3_WASHOUT",
+            "parameter_name": "Validated intervention detection limit"
+        }
+    ],
+    "wetlab_ready": false,
+    "reason": "Ten execution-critical parameters remain unresolved; no values were imputed.",
+    "patient_tables_queried": false,
+    "patient_rows_read": 0,
+    "patient_rows_modified": 0,
+    "verified": true
+}
