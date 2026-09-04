@@ -1,0 +1,54 @@
+name: Deploy psoriasis two-model protocol
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: [backend/phase_98_psoriasis_two_model_protocol.sql, ops/apply-psoriasis-two-model-protocol.php, .github/workflows/psoriasis-two-model-protocol.yml]
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions: {contents: write}
+    steps:
+      - uses: actions/checkout@v4
+      - run: php -l ops/apply-psoriasis-two-model-protocol.php
+      - name: Prepare SSH
+        env: {DEPLOY_BUNDLE: "${{ secrets.HOSTINGER_DEPLOY_BUNDLE }}"}
+        run: |
+          set -euo pipefail
+          printf '%s' "$DEPLOY_BUNDLE" | base64 --decode >"$RUNNER_TEMP/d.json"
+          mkdir -p "$HOME/.ssh"
+          chmod 700 "$HOME/.ssh"
+          jq -r '.key' "$RUNNER_TEMP/d.json" >"$HOME/.ssh/id_ed25519"
+          chmod 600 "$HOME/.ssh/id_ed25519"
+          echo "H=$(jq -r '.host' "$RUNNER_TEMP/d.json")" >>"$GITHUB_ENV"
+          echo "P=$(jq -r '.port' "$RUNNER_TEMP/d.json")" >>"$GITHUB_ENV"
+          echo "U=$(jq -r '.user' "$RUNNER_TEMP/d.json")" >>"$GITHUB_ENV"
+          ssh-keyscan -p "$(jq -r '.port' "$RUNNER_TEMP/d.json")" "$(jq -r '.host' "$RUNNER_TEMP/d.json")" >>"$HOME/.ssh/known_hosts"
+      - name: Apply and verify
+        run: |
+          set -euo pipefail
+          scp -i "$HOME/.ssh/id_ed25519" -P "$P" backend/phase_98_psoriasis_two_model_protocol.sql ops/apply-psoriasis-two-model-protocol.php "$U@$H:/tmp/"
+          set +e
+          ssh -i "$HOME/.ssh/id_ed25519" -p "$P" "$U@$H" "php /tmp/apply-psoriasis-two-model-protocol.php \"\$HOME/domains/ilovemybody.in/ilmb-config.php\" /tmp/phase_98_psoriasis_two_model_protocol.sql" >"$RUNNER_TEMP/p98.json" 2>"$RUNNER_TEMP/p98.err"
+          rc=$?
+          set -e
+          if [ "$rc" -ne 0 ]; then
+            err="$(tail -c 3000 "$RUNNER_TEMP/p98.json"; tail -c 3000 "$RUNNER_TEMP/p98.err")"
+            jq -n --arg error "$err" --argjson exit_code "$rc" '{phase:"P98_TWO_MODEL_DISEASE_MODIFICATION_PROTOCOL",verified:false,exit_code:$exit_code,error:$error,patient_tables_queried:false,patient_rows_read:0,patient_rows_modified:0}' >"$RUNNER_TEMP/proof.json"
+            exit "$rc"
+          fi
+          jq -e '.model_count==2 and .endpoint_count==15 and .gate_count==8 and .formula_count==5 and .data_required_gates==8 and .universal_numeric_thresholds==0 and .invented_coefficients==0 and .specification_complete==true and .biological_result_available==false and .patient_experiment==false and .verified==true' "$RUNNER_TEMP/p98.json" >/dev/null
+          cp "$RUNNER_TEMP/p98.json" "$RUNNER_TEMP/proof.json"
+      - name: Publish proof
+        if: always()
+        run: |
+          set -euo pipefail
+          test -f "$RUNNER_TEMP/proof.json"
+          mkdir -p proofs
+          cp "$RUNNER_TEMP/proof.json" proofs/psoriasis-two-model-protocol-latest.json
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add proofs/psoriasis-two-model-protocol-latest.json
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m "proof: verify psoriasis two-model protocol [skip ci]"
+          git push origin HEAD:main
