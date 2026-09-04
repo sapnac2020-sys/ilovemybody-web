@@ -8,7 +8,7 @@ $database=$config['db']??($config['name']??null);if($database!==EXPECTED_DATABAS
 $sqlPath=$argv[2]??'';if(!is_file($sqlPath))throw new RuntimeException('Phase 81 SQL missing');if(!class_exists(DOMDocument::class))throw new RuntimeException('PHP DOM required');
 $wanted=['34067-9'=>'INDICATIONS','34068-7'=>'DOSAGE','34070-3'=>'CONTRAINDICATIONS','43685-7'=>'WARNINGS','34071-1'=>'WARNINGS','34084-4'=>'ADVERSE_REACTIONS','34090-1'=>'CLINICAL_PHARMACOLOGY','43682-4'=>'PHARMACOKINETICS','88830-5'=>'IMMUNOGENICITY'];
 function sourceXml(string $url):string{
- $ctx=stream_context_create(['http'=>['timeout'=>45,'ignore_errors'=>true,'header'=>"Accept: application/xml\r\nUser-Agent: ILoveMyBody-Research/1.0\r\n"],'ssl'=>['verify_peer'=>true,'verify_peer_name'=>true]]);
+ $ctx=stream_context_create(['http'=>['timeout'=>45,'ignore_errors'=>true,'header'=>"User-Agent: ILoveMyBody-Research/1.0\r\n"],'ssl'=>['verify_peer'=>true,'verify_peer_name'=>true]]);
  $raw=file_get_contents($url,false,$ctx);$status=$http_response_header[0]??'';
  if($raw===false||!preg_match('/\s2\d\d\s/',$status))throw new RuntimeException('DailyMed XML response '.$status.' for '.$url);return $raw;
 }
