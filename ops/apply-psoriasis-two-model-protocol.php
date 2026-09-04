@@ -1,0 +1,26 @@
+<?php
+declare(strict_types=1);
+ini_set('display_errors','stderr');
+error_reporting(E_ALL);
+const EXPECTED_DATABASE='u756742628_ilovemybody';
+if(PHP_SAPI!=='cli')exit(2);
+$config=require($argv[1]??'');
+if(isset($config['database'])&&is_array($config['database']))$config=$config['database'];
+$database=$config['db']??($config['name']??null);
+if($database!==EXPECTED_DATABASE)throw new RuntimeException('Unexpected database');
+$sqlPath=$argv[2]??'';
+if(!is_file($sqlPath))throw new RuntimeException('Phase 98 SQL missing');
+$pdo=new PDO('mysql:host='.$config['host'].';port='.($config['port']??3306).';dbname='.$database.';charset=utf8mb4',$config['user'],$config['pass']??$config['password'],[PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION,PDO::MYSQL_ATTR_MULTI_STATEMENTS=>true,PDO::ATTR_DEFAULT_FETCH_MODE=>PDO::FETCH_ASSOC]);
+$statement=$pdo->prepare(file_get_contents($sqlPath));
+$statement->execute();
+do{if($statement->columnCount())$statement->fetchAll();}while($statement->nextRowset());
+$statement->closeCursor();
+$models=$pdo->query('SELECT model_key,model_name,patient_experiment FROM ilb_psoriasis_protocol_model ORDER BY model_key')->fetchAll();
+$endpoints=$pdo->query('SELECT endpoint_key,state_key,model_a_required,model_b_required,universal_numeric_threshold FROM ilb_psoriasis_protocol_endpoint ORDER BY endpoint_key')->fetchAll();
+$gates=$pdo->query('SELECT gate_key,current_state,patient_use_authorized FROM ilb_psoriasis_protocol_gate ORDER BY gate_order')->fetchAll();
+$formulas=$pdo->query('SELECT formula_key,invented_coefficient_count,computation_state FROM ilb_psoriasis_protocol_formula ORDER BY formula_key')->fetchAll();
+$dataRequired=count(array_filter($gates,static fn(array $r):bool=>$r['current_state']==='DATA_REQUIRED'));
+$invented=array_sum(array_map('intval',array_column($formulas,'invented_coefficient_count')));
+$thresholds=count(array_filter($endpoints,static fn(array $r):bool=>$r['universal_numeric_threshold']!==null));
+if(count($models)!==2||count($endpoints)!==15||count($gates)!==8||count($formulas)!==5||$dataRequired!==8||$invented!==0||$thresholds!==0)throw new RuntimeException('Phase 98 invariant failed');
+echo json_encode(['database'=>$database,'phase'=>'P98_TWO_MODEL_DISEASE_MODIFICATION_PROTOCOL','models'=>$models,'model_count'=>count($models),'endpoints'=>$endpoints,'endpoint_count'=>count($endpoints),'gates'=>$gates,'gate_count'=>count($gates),'data_required_gates'=>$dataRequired,'formulas'=>$formulas,'formula_count'=>count($formulas),'universal_numeric_thresholds'=>$thresholds,'invented_coefficients'=>$invented,'specification_complete'=>true,'biological_result_available'=>false,'wetlab_measurements_loaded'=>0,'patient_experiment'=>false,'patient_use_authorized'=>false,'patient_tables_queried'=>false,'patient_rows_read'=>0,'patient_rows_modified'=>0,'verified'=>true],JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES),PHP_EOL;
