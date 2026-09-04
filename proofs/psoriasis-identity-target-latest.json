@@ -1,0 +1,22 @@
+{
+    "database": "u756742628_ilovemybody",
+    "phase": "P79_IDENTITY_TARGET",
+    "run_key": "P79_20260904_090853",
+    "rxnorm_exact_agents": 11,
+    "uniprot_verified_components": 8,
+    "eligible_target_mappings": 11,
+    "gate_counts": [
+        {
+            "status": "PASSED",
+            "row_count": 4
+        },
+        {
+            "status": "BLOCKED",
+            "row_count": 7
+        }
+    ],
+    "patient_tables_queried": false,
+    "patient_rows_read": 0,
+    "patient_rows_modified": 0,
+    "verified": true
+}
