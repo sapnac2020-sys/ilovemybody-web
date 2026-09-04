@@ -1,0 +1,119 @@
+{
+    "database": "u756742628_ilovemybody",
+    "phase": "P94_PARAMETER_IDENTIFIABILITY_AND_DECISION_GATE",
+    "resolution_plan_count": 10,
+    "resolution_plans": [
+        {
+            "parameter_key": "BARRIER_CANDIDATE_ID",
+            "resolution_class": "DESIGN_CHOICE",
+            "status": "OPEN",
+            "clinical_to_invitro_conversion_allowed": 0,
+            "patient_experiment_required": 0
+        },
+        {
+            "parameter_key": "IL17_BLOCK_CONCENTRATION",
+            "resolution_class": "REAGENT_SPECIFIC",
+            "status": "OPEN",
+            "clinical_to_invitro_conversion_allowed": 0,
+            "patient_experiment_required": 0
+        },
+        {
+            "parameter_key": "IL23_BLOCK_CONCENTRATION",
+            "resolution_class": "REAGENT_SPECIFIC",
+            "status": "OPEN",
+            "clinical_to_invitro_conversion_allowed": 0,
+            "patient_experiment_required": 0
+        },
+        {
+            "parameter_key": "INTERVENTION_DURATION",
+            "resolution_class": "DESIGN_CHOICE",
+            "status": "OPEN",
+            "clinical_to_invitro_conversion_allowed": 0,
+            "patient_experiment_required": 0
+        },
+        {
+            "parameter_key": "PASS_TOLERANCE",
+            "resolution_class": "PREREGISTRATION_REQUIRED",
+            "status": "OPEN",
+            "clinical_to_invitro_conversion_allowed": 0,
+            "patient_experiment_required": 0
+        },
+        {
+            "parameter_key": "RECHALLENGE_DURATION",
+            "resolution_class": "DESIGN_CHOICE",
+            "status": "OPEN",
+            "clinical_to_invitro_conversion_allowed": 0,
+            "patient_experiment_required": 0
+        },
+        {
+            "parameter_key": "RECHALLENGE_STIMULUS",
+            "resolution_class": "ASSAY_VALIDATION_REQUIRED",
+            "status": "OPEN",
+            "clinical_to_invitro_conversion_allowed": 0,
+            "patient_experiment_required": 0
+        },
+        {
+            "parameter_key": "RENEWAL_DURATION",
+            "resolution_class": "DESIGN_CHOICE",
+            "status": "OPEN",
+            "clinical_to_invitro_conversion_allowed": 0,
+            "patient_experiment_required": 0
+        },
+        {
+            "parameter_key": "WASHOUT_DETECTION_ASSAY",
+            "resolution_class": "REAGENT_SPECIFIC",
+            "status": "OPEN",
+            "clinical_to_invitro_conversion_allowed": 0,
+            "patient_experiment_required": 0
+        },
+        {
+            "parameter_key": "WASHOUT_DETECTION_LIMIT",
+            "resolution_class": "ASSAY_VALIDATION_REQUIRED",
+            "status": "OPEN",
+            "clinical_to_invitro_conversion_allowed": 0,
+            "patient_experiment_required": 0
+        }
+    ],
+    "decision_rule_count": 5,
+    "decision_rules": [
+        {
+            "rule_key": "R_CONTROL",
+            "outcome_class": "CONTROL_ONLY",
+            "claim_ceiling": "Control in this model.",
+            "invented_coefficient_count": 0
+        },
+        {
+            "rule_key": "R_CURE_PROHIBITED",
+            "outcome_class": "NO_CURE_CONCLUSION",
+            "claim_ceiling": "Never exceeds non-patient model evidence.",
+            "invented_coefficient_count": 0
+        },
+        {
+            "rule_key": "R_DISEASE_MODIFY",
+            "outcome_class": "DISEASE_MODIFICATION_CANDIDATE",
+            "claim_ceiling": "Disease-modification candidate in this model.",
+            "invented_coefficient_count": 0
+        },
+        {
+            "rule_key": "R_DURABLE_RESET",
+            "outcome_class": "DURABLE_RESET_CANDIDATE",
+            "claim_ceiling": "Durable-reset candidate in this model; not a human cure claim.",
+            "invented_coefficient_count": 0
+        },
+        {
+            "rule_key": "R_EXECUTABLE",
+            "outcome_class": "EXECUTABLE",
+            "claim_ceiling": "Protocol executable; no biological conclusion.",
+            "invented_coefficient_count": 0
+        }
+    ],
+    "open_execution_parameters": 10,
+    "experiment_executable": false,
+    "clinical_dose_conversions": 0,
+    "invented_coefficients": 0,
+    "patient_experiment_required": false,
+    "patient_tables_queried": false,
+    "patient_rows_read": 0,
+    "patient_rows_modified": 0,
+    "verified": true
+}
