@@ -177,6 +177,7 @@ CROSS JOIN (
  SELECT 'kon','association rate' UNION ALL SELECT 'koff','dissociation rate' UNION ALL
  SELECT 'L_total','declared target abundance or concentration'
 ) p
+WHERE 1=1
 ON DUPLICATE KEY UPDATE parameter_role=VALUES(parameter_role),required_flag=VALUES(required_flag);
 
 INSERT INTO ilb_psoriasis_persistence_state VALUES
