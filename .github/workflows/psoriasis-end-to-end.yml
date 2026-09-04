@@ -1,0 +1,56 @@
+name: Install psoriasis end-to-end research module
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - backend/phase_78_psoriasis_end_to_end.sql
+      - ops/run-psoriasis-end-to-end-migration.php
+      - .github/workflows/psoriasis-end-to-end.yml
+
+jobs:
+  migrate-and-verify:
+    runs-on: ubuntu-latest
+    permissions: {contents: read}
+    steps:
+      - uses: actions/checkout@v4
+      - run: php -l ops/run-psoriasis-end-to-end-migration.php
+      - name: Prepare SSH
+        env:
+          DEPLOY_BUNDLE: ${{ secrets.HOSTINGER_DEPLOY_BUNDLE }}
+        run: |
+          set -euo pipefail
+          test -n "$DEPLOY_BUNDLE"
+          mkdir -p "$HOME/.ssh"
+          chmod 700 "$HOME/.ssh"
+          printf '%s' "$DEPLOY_BUNDLE" | base64 --decode >"$RUNNER_TEMP/deploy.json"
+          jq -e '.host and .port and .user and .key' "$RUNNER_TEMP/deploy.json" >/dev/null
+          jq -r '.key' "$RUNNER_TEMP/deploy.json" >"$HOME/.ssh/id_ed25519"
+          chmod 600 "$HOME/.ssh/id_ed25519"
+          echo "DEPLOY_HOST=$(jq -r '.host' "$RUNNER_TEMP/deploy.json")" >>"$GITHUB_ENV"
+          echo "DEPLOY_PORT=$(jq -r '.port' "$RUNNER_TEMP/deploy.json")" >>"$GITHUB_ENV"
+          echo "DEPLOY_USER=$(jq -r '.user' "$RUNNER_TEMP/deploy.json")" >>"$GITHUB_ENV"
+          ssh-keyscan -p "$(jq -r '.port' "$RUNNER_TEMP/deploy.json")" "$(jq -r '.host' "$RUNNER_TEMP/deploy.json")" >>"$HOME/.ssh/known_hosts"
+      - name: Migrate production and verify gates
+        run: |
+          set -euo pipefail
+          tag="${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          scp -i "$HOME/.ssh/id_ed25519" -P "$DEPLOY_PORT" \
+            backend/phase_78_psoriasis_end_to_end.sql \
+            ops/run-psoriasis-end-to-end-migration.php \
+            "$DEPLOY_USER@$DEPLOY_HOST:/tmp/"
+          ssh -i "$HOME/.ssh/id_ed25519" -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" \
+            "php /tmp/run-psoriasis-end-to-end-migration.php \"\$HOME/domains/ilovemybody.in/ilmb-config.php\" /tmp/phase_78_psoriasis_end_to_end.sql" \
+            >"$RUNNER_TEMP/psoriasis-end-to-end-${tag}.json"
+          jq -e '.database=="u756742628_ilovemybody" and .mode=="governed_non_patient_research" and .patient_tables_queried==false and .patient_rows_read==0 and .patient_rows_modified==0 and .migration_verified==true and .readiness.research_structure_operational==1 and .readiness.patient_execution_enabled==0' "$RUNNER_TEMP/psoriasis-end-to-end-${tag}.json" >/dev/null
+          rm -f "$RUNNER_TEMP/psoriasis-end-to-end.json"
+          cp "$RUNNER_TEMP/psoriasis-end-to-end-${tag}.json" "$RUNNER_TEMP/psoriasis-end-to-end.json"
+          ssh -i "$HOME/.ssh/id_ed25519" -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" \
+            "rm -f /tmp/run-psoriasis-end-to-end-migration.php /tmp/phase_78_psoriasis_end_to_end.sql"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: psoriasis-end-to-end-proof
+          path: ${{ runner.temp }}/psoriasis-end-to-end.json
+          if-no-files-found: error
+          retention-days: 30
