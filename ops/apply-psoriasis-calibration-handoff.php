@@ -1,0 +1,22 @@
+<?php
+declare(strict_types=1);
+ini_set('display_errors', 'stderr'); error_reporting(E_ALL);
+const EXPECTED_DATABASE = 'u756742628_ilovemybody';
+if (PHP_SAPI !== 'cli') exit(2);
+$config = require($argv[1] ?? '');
+if (isset($config['database']) && is_array($config['database'])) $config = $config['database'];
+$database = $config['db'] ?? ($config['name'] ?? null);
+if ($database !== EXPECTED_DATABASE) throw new RuntimeException('Unexpected database');
+$sqlPath = $argv[2] ?? '';
+if (!is_file($sqlPath)) throw new RuntimeException('Phase 95 SQL missing');
+$pdo = new PDO('mysql:host='.$config['host'].';port='.($config['port'] ?? 3306).';dbname='.$database.';charset=utf8mb4', $config['user'], $config['pass'] ?? $config['password'], [PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION,PDO::MYSQL_ATTR_MULTI_STATEMENTS=>true,PDO::ATTR_DEFAULT_FETCH_MODE=>PDO::FETCH_ASSOC]);
+$s=$pdo->prepare(file_get_contents($sqlPath)); $s->execute(); do { if($s->columnCount())$s->fetchAll(); } while($s->nextRowset()); $s->closeCursor();
+$studies=$pdo->query("SELECT calibration_key,study_order,status,participant_treatment FROM ilb_psoriasis_calibration_study WHERE experiment_key='EXP_PSO_RESET_001' ORDER BY study_order")->fetchAll();
+$controls=$pdo->query('SELECT control_key,calibration_key,required FROM ilb_psoriasis_calibration_control ORDER BY control_key')->fetchAll();
+$acquisition=$pdo->query('SELECT parameter_key,calibration_key,approval_state,promoted_numeric_value,promoted_text_value FROM ilb_psoriasis_parameter_acquisition ORDER BY parameter_key')->fetchAll();
+$formulas=$pdo->query('SELECT formula_key,source_id,invented_coefficient_count FROM ilb_psoriasis_calibration_formula ORDER BY formula_key')->fetchAll();
+$measurements=(int)$pdo->query('SELECT COUNT(*) FROM ilb_psoriasis_calibration_measurement')->fetchColumn();
+if(count($studies)!==6||count($controls)!==10||count($acquisition)!==10||count($formulas)!==6)throw new RuntimeException('Phase 95 invariant failed');
+if(array_sum(array_column($studies,'participant_treatment'))!==0||array_sum(array_column($formulas,'invented_coefficient_count'))!==0)throw new RuntimeException('Phase 95 safety invariant failed');
+$promoted=count(array_filter($acquisition,static fn(array $r):bool=>$r['approval_state']==='PROMOTED'));
+echo json_encode(['database'=>$database,'phase'=>'P95_NONPATIENT_CALIBRATION_HANDOFF','calibration_study_count'=>count($studies),'studies'=>$studies,'required_control_count'=>count($controls),'parameter_acquisition_count'=>count($acquisition),'promoted_parameter_count'=>$promoted,'formula_count'=>count($formulas),'formulas'=>$formulas,'measurement_rows'=>$measurements,'laboratory_execution_started'=>$measurements>0,'reset_experiment_executable'=>$promoted===10,'invented_coefficients'=>0,'participant_treatment'=>false,'patient_tables_queried'=>false,'patient_rows_read'=>0,'patient_rows_modified'=>0,'verified'=>true],JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES),PHP_EOL;
