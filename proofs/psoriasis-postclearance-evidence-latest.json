@@ -1,0 +1,41 @@
+{
+  "phase": "P88_POSTCLEARANCE_HUMAN_TISSUE_EVIDENCE",
+  "scope": "population-level human post-clearance tissue evidence; no patient data",
+  "registered_sources": 3,
+  "state_decision": {
+    "R": "SUPPORTED",
+    "E": "CANDIDATE_UNRESOLVED",
+    "F": "CANDIDATE_UNRESOLVED",
+    "L": "UNRESOLVED"
+  },
+  "current_identifiable_path": "persistent resident T-cell memory -> IL-17/IL-22-capable response -> local psoriatic tissue response",
+  "non_conclusions": [
+    "R is not proven to be the sole root cause",
+    "no cure formula has been identified",
+    "the 248-probe mixed-tissue residual profile does not uniquely identify E or F",
+    "no treatment action is computation-eligible"
+  ],
+  "sources": [
+    {
+      "id": "PMCID:PMC3962894",
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC3962894/",
+      "state": "R",
+      "decision": "SUPPORTED"
+    },
+    {
+      "id": "PMID:29510191",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/29510191/",
+      "state": "R",
+      "decision": "SUPPORTED"
+    },
+    {
+      "id": "PMID:20861854",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/20861854/",
+      "state": "MULTI_STATE",
+      "decision": "CANDIDATE_UNRESOLVED",
+      "exact_registered_count": "248 probe sets"
+    }
+  ],
+  "computation_eligible_records": 0,
+  "patient_use_allowed": false
+}
