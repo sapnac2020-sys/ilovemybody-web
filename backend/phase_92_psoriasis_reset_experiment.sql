@@ -67,3 +67,5 @@ INSERT INTO ilb_psoriasis_experiment_formula VALUES
 ('F_DENOMINATOR_GATE','EXP_PSO_RESET_001','P_{j,t}-H_{j,t}\\neq0','The normalization is invalid when the experimental disease control does not differ from the healthy control for state j.',0,1)
 ON DUPLICATE KEY UPDATE experiment_key=VALUES(experiment_key),formula_latex=VALUES(formula_latex),definition=VALUES(definition),invented_coefficient_count=VALUES(invented_coefficient_count),computation_ready=VALUES(computation_ready);
 COMMIT;
+
+-- Deployment trigger: Phase 92 live verification.
