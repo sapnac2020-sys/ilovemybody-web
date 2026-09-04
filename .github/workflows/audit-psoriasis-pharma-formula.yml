@@ -1,0 +1,45 @@
+name: Audit psoriasis pharmaceutical formula readiness
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - ops/audit-psoriasis-pharma-formula.php
+      - .github/workflows/audit-psoriasis-pharma-formula.yml
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    permissions: {contents: read}
+    steps:
+      - uses: actions/checkout@v4
+      - run: php -l ops/audit-psoriasis-pharma-formula.php
+      - name: Prepare SSH
+        env:
+          DEPLOY_BUNDLE: ${{ secrets.HOSTINGER_DEPLOY_BUNDLE }}
+        run: |
+          set -euo pipefail
+          test -n "$DEPLOY_BUNDLE"
+          mkdir -p "$HOME/.ssh"
+          chmod 700 "$HOME/.ssh"
+          printf '%s' "$DEPLOY_BUNDLE" | base64 --decode >"$RUNNER_TEMP/deploy.json"
+          jq -e '.host and .port and .user and .key' "$RUNNER_TEMP/deploy.json" >/dev/null
+          jq -r '.key' "$RUNNER_TEMP/deploy.json" >"$HOME/.ssh/id_ed25519"
+          chmod 600 "$HOME/.ssh/id_ed25519"
+          echo "DEPLOY_HOST=$(jq -r '.host' "$RUNNER_TEMP/deploy.json")" >>"$GITHUB_ENV"
+          echo "DEPLOY_PORT=$(jq -r '.port' "$RUNNER_TEMP/deploy.json")" >>"$GITHUB_ENV"
+          echo "DEPLOY_USER=$(jq -r '.user' "$RUNNER_TEMP/deploy.json")" >>"$GITHUB_ENV"
+          ssh-keyscan -p "$(jq -r '.port' "$RUNNER_TEMP/deploy.json")" "$(jq -r '.host' "$RUNNER_TEMP/deploy.json")" >>"$HOME/.ssh/known_hosts"
+      - name: Run production read-only audit
+        run: |
+          set -euo pipefail
+          scp -i "$HOME/.ssh/id_ed25519" -P "$DEPLOY_PORT" ops/audit-psoriasis-pharma-formula.php "$DEPLOY_USER@$DEPLOY_HOST:/tmp/audit-psoriasis-pharma-${GITHUB_RUN_ID}.php"
+          ssh -i "$HOME/.ssh/id_ed25519" -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" "php /tmp/audit-psoriasis-pharma-${GITHUB_RUN_ID}.php \"\$HOME/domains/ilovemybody.in/ilmb-config.php\"; rm -f /tmp/audit-psoriasis-pharma-${GITHUB_RUN_ID}.php" >"$RUNNER_TEMP/psoriasis-pharma-formula-audit.json"
+          jq -e '.database=="u756742628_ilovemybody" and .mode=="read_only_non_patient_formula_audit" and .patient_tables_queried==false and .patient_rows_read==0 and .patient_rows_modified==0 and .audit_complete==true' "$RUNNER_TEMP/psoriasis-pharma-formula-audit.json" >/dev/null
+      - uses: actions/upload-artifact@v4
+        with:
+          name: psoriasis-pharma-formula-audit
+          path: ${{ runner.temp }}/psoriasis-pharma-formula-audit.json
+          if-no-files-found: error
+          retention-days: 30
