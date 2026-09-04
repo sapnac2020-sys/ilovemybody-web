@@ -1,6 +1,16 @@
 <?php
 declare(strict_types=1);
 
+ini_set('display_errors', 'stderr');
+ini_set('log_errors', '0');
+error_reporting(E_ALL);
+register_shutdown_function(static function (): void {
+    $error = error_get_last();
+    if ($error !== null && in_array($error['type'], [E_ERROR,E_PARSE,E_CORE_ERROR,E_COMPILE_ERROR,E_USER_ERROR], true)) {
+        fwrite(STDERR, json_encode(['fatal_type'=>$error['type'],'fatal_message'=>$error['message'],'fatal_file'=>basename($error['file']),'fatal_line'=>$error['line']], JSON_UNESCAPED_SLASHES).PHP_EOL);
+    }
+});
+
 const EXPECTED_DATABASE = 'u756742628_ilovemybody';
 if (PHP_SAPI !== 'cli') exit(2);
 $config = require($argv[1] ?? '');
@@ -51,4 +61,3 @@ echo json_encode([
  'patient_rows_modified'=>0,
  'migration_verified'=>true
 ],JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES),PHP_EOL;
-
