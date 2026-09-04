@@ -1,0 +1,10 @@
+{
+  "database": "u756742628_ilovemybody",
+  "mode": "governed_non_patient_research",
+  "migration_verified": false,
+  "exit_code": 255,
+  "error": "",
+  "patient_tables_queried": false,
+  "patient_rows_read": 0,
+  "patient_rows_modified": 0
+}
