@@ -1,0 +1,29 @@
+name: Deploy psoriasis published parameter rescue
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: [backend/phase_96_psoriasis_published_parameter_rescue.sql, ops/apply-psoriasis-published-parameter-rescue.php, .github/workflows/psoriasis-published-parameter-rescue.yml]
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions: {contents: write}
+    steps:
+      - uses: actions/checkout@v4
+      - run: php -l ops/apply-psoriasis-published-parameter-rescue.php
+      - name: Prepare SSH
+        env: {DEPLOY_BUNDLE: "${{ secrets.HOSTINGER_DEPLOY_BUNDLE }}"}
+        run: |
+          set -euo pipefail; printf '%s' "$DEPLOY_BUNDLE" | base64 --decode >"$RUNNER_TEMP/d.json"; mkdir -p "$HOME/.ssh"; chmod 700 "$HOME/.ssh"; jq -r '.key' "$RUNNER_TEMP/d.json" >"$HOME/.ssh/id_ed25519"; chmod 600 "$HOME/.ssh/id_ed25519"
+          echo "H=$(jq -r '.host' "$RUNNER_TEMP/d.json")" >>"$GITHUB_ENV"; echo "P=$(jq -r '.port' "$RUNNER_TEMP/d.json")" >>"$GITHUB_ENV"; echo "U=$(jq -r '.user' "$RUNNER_TEMP/d.json")" >>"$GITHUB_ENV"; ssh-keyscan -p "$(jq -r '.port' "$RUNNER_TEMP/d.json")" "$(jq -r '.host' "$RUNNER_TEMP/d.json")" >>"$HOME/.ssh/known_hosts"
+      - name: Apply and verify
+        run: |
+          set -euo pipefail; scp -i "$HOME/.ssh/id_ed25519" -P "$P" backend/phase_96_psoriasis_published_parameter_rescue.sql ops/apply-psoriasis-published-parameter-rescue.php "$U@$H:/tmp/"; set +e
+          ssh -i "$HOME/.ssh/id_ed25519" -p "$P" "$U@$H" "php /tmp/apply-psoriasis-published-parameter-rescue.php \"\$HOME/domains/ilovemybody.in/ilmb-config.php\" /tmp/phase_96_psoriasis_published_parameter_rescue.sql" >"$RUNNER_TEMP/p96.json" 2>"$RUNNER_TEMP/p96.err"; rc=$?; set -e
+          if [ "$rc" -ne 0 ]; then err="$(tail -c 3000 "$RUNNER_TEMP/p96.json"; tail -c 3000 "$RUNNER_TEMP/p96.err")"; jq -n --arg error "$err" --argjson exit_code "$rc" '{phase:"P96_PUBLISHED_PARAMETER_RESCUE",verified:false,exit_code:$exit_code,error:$error,patient_tables_queried:false,patient_rows_read:0,patient_rows_modified:0}' >"$RUNNER_TEMP/proof.json"; exit "$rc"; fi
+          jq -e '.candidate_records==7 and .previously_open_parameters_with_published_evidence==7 and .directly_promoted==0 and .new_numbers_discovered==true and .invented_values==0 and .verified==true' "$RUNNER_TEMP/p96.json" >/dev/null; cp "$RUNNER_TEMP/p96.json" "$RUNNER_TEMP/proof.json"
+      - name: Publish proof
+        if: always()
+        run: |
+          set -euo pipefail; test -f "$RUNNER_TEMP/proof.json"; mkdir -p proofs; cp "$RUNNER_TEMP/proof.json" proofs/psoriasis-published-parameter-rescue-latest.json; git config user.name "github-actions[bot]"; git config user.email "41898282+github-actions[bot]@users.noreply.github.com"; git add proofs/psoriasis-published-parameter-rescue-latest.json
+          if git diff --cached --quiet; then exit 0; fi; git commit -m "proof: verify psoriasis published parameter rescue [skip ci]"; git push origin HEAD:main
