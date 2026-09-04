@@ -1,0 +1,47 @@
+name: Deploy psoriasis Pareto candidate screen
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: [backend/phase_100_psoriasis_pareto_candidate_screen.sql, ops/apply-psoriasis-pareto-candidate-screen.php, .github/workflows/psoriasis-pareto-candidate-screen.yml]
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions: {contents: write}
+    steps:
+      - uses: actions/checkout@v4
+      - run: php -l ops/apply-psoriasis-pareto-candidate-screen.php
+      - name: Prepare SSH
+        env: {DEPLOY_BUNDLE: "${{ secrets.HOSTINGER_DEPLOY_BUNDLE }}"}
+        run: |
+          set -euo pipefail
+          printf '%s' "$DEPLOY_BUNDLE" | base64 --decode >"$RUNNER_TEMP/d.json"
+          mkdir -p "$HOME/.ssh"; chmod 700 "$HOME/.ssh"
+          jq -r '.key' "$RUNNER_TEMP/d.json" >"$HOME/.ssh/id_ed25519"; chmod 600 "$HOME/.ssh/id_ed25519"
+          echo "H=$(jq -r '.host' "$RUNNER_TEMP/d.json")" >>"$GITHUB_ENV"
+          echo "P=$(jq -r '.port' "$RUNNER_TEMP/d.json")" >>"$GITHUB_ENV"
+          echo "U=$(jq -r '.user' "$RUNNER_TEMP/d.json")" >>"$GITHUB_ENV"
+          ssh-keyscan -p "$(jq -r '.port' "$RUNNER_TEMP/d.json")" "$(jq -r '.host' "$RUNNER_TEMP/d.json")" >>"$HOME/.ssh/known_hosts"
+      - name: Apply and verify
+        run: |
+          set -euo pipefail
+          scp -i "$HOME/.ssh/id_ed25519" -P "$P" backend/phase_100_psoriasis_pareto_candidate_screen.sql ops/apply-psoriasis-pareto-candidate-screen.php "$U@$H:/tmp/"
+          set +e
+          ssh -i "$HOME/.ssh/id_ed25519" -p "$P" "$U@$H" "php /tmp/apply-psoriasis-pareto-candidate-screen.php \"\$HOME/domains/ilovemybody.in/ilmb-config.php\" /tmp/phase_100_psoriasis_pareto_candidate_screen.sql" >"$RUNNER_TEMP/p100.json" 2>"$RUNNER_TEMP/p100.err"
+          rc=$?; set -e
+          if [ "$rc" -ne 0 ]; then
+            err="$(tail -c 3000 "$RUNNER_TEMP/p100.json"; tail -c 3000 "$RUNNER_TEMP/p100.err")"
+            jq -n --arg error "$err" --argjson exit_code "$rc" '{phase:"P100_PARETO_CANDIDATE_SCREEN",verified:false,exit_code:$exit_code,error:$error,patient_tables_queried:false,patient_rows_read:0,patient_rows_modified:0}' >"$RUNNER_TEMP/proof.json"
+            exit "$rc"
+          fi
+          jq -e '.candidate_count==9 and .pareto_frontier_count>=1 and .durability_complete_candidates==0 and .treatment_recommendations==0 and .cure_claims==0 and .invented_weights==0 and .verified==true' "$RUNNER_TEMP/p100.json" >/dev/null
+          cp "$RUNNER_TEMP/p100.json" "$RUNNER_TEMP/proof.json"
+      - name: Publish proof
+        if: always()
+        run: |
+          set -euo pipefail
+          test -f "$RUNNER_TEMP/proof.json"; mkdir -p proofs; cp "$RUNNER_TEMP/proof.json" proofs/psoriasis-pareto-candidate-screen-latest.json
+          git config user.name "github-actions[bot]"; git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add proofs/psoriasis-pareto-candidate-screen-latest.json
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m "proof: verify psoriasis Pareto candidate screen [skip ci]"; git push origin HEAD:main
