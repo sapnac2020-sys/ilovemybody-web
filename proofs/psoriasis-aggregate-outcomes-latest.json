@@ -1,0 +1,40 @@
+{
+    "database": "u756742628_ilovemybody",
+    "phase": "P84_AGGREGATE_OUTCOMES",
+    "results_trial_links_scanned": 234,
+    "covered_agents": 11,
+    "aggregate_outcomes": 3825,
+    "by_class": [
+        {
+            "outcome_class": "PASI",
+            "outcome_count": 889,
+            "trial_count": 157
+        },
+        {
+            "outcome_class": "IGA_PGA",
+            "outcome_count": 468,
+            "trial_count": 114
+        },
+        {
+            "outcome_class": "DLQI",
+            "outcome_count": 180,
+            "trial_count": 80
+        },
+        {
+            "outcome_class": "WITHDRAWAL_RELAPSE",
+            "outcome_count": 99,
+            "trial_count": 27
+        },
+        {
+            "outcome_class": "OTHER",
+            "outcome_count": 2189,
+            "trial_count": 179
+        }
+    ],
+    "computation_eligible_outcomes": 0,
+    "participant_level_data_requested": false,
+    "patient_tables_queried": false,
+    "patient_rows_read": 0,
+    "patient_rows_modified": 0,
+    "verified": true
+}
