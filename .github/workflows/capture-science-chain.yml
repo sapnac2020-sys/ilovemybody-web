@@ -1,7 +1,7 @@
 name: Capture unmanaged science chain
 on:
   push:
-    branches: [main, govern-science-chain-psoriasis]
+    branches: [main, govern-science-chain-psoriasis, fix-science-chain-capture-path]
     paths:
       - scripts/capture_science_chain.php
       - scripts/psoriasis_skin_state.php
@@ -40,8 +40,8 @@ jobs:
         run: |
           set -euo pipefail
           scp -i "$HOME/.ssh/id_ed25519" -P "$DEPLOY_PORT" scripts/capture_science_chain.php "$DEPLOY_USER@$DEPLOY_HOST:/tmp/capture-science-chain-${GITHUB_RUN_ID}.php"
-          ssh -i "$HOME/.ssh/id_ed25519" -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" "php /tmp/capture-science-chain-${GITHUB_RUN_ID}.php \"\$HOME/domains/ilovemybody.in/ilmb-config.php\"; rm -f /tmp/capture-science-chain-${GITHUB_RUN_ID}.php" > "$RUNNER_TEMP/science-chain-live.json"
-          jq -e '.database=="u756742628_ilovemybody" and .read_only==true and .patient_rows_modified==0' "$RUNNER_TEMP/science-chain-live.json"
+          ssh -i "$HOME/.ssh/id_ed25519" -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" 'set -euo pipefail; p=$(find "$HOME/domains/ilovemybody.in" -type f -path "*/scripts/vitamin_d_direct_beam.php" -print -quit); php /tmp/capture-science-chain-'${GITHUB_RUN_ID}'.php "$HOME/domains/ilovemybody.in/ilmb-config.php" "$p"; rm -f /tmp/capture-science-chain-'${GITHUB_RUN_ID}'.php' > "$RUNNER_TEMP/science-chain-live.json"
+          jq -e '.database=="u756742628_ilovemybody" and .read_only==true and .patient_rows_modified==0 and .vitamin_d_direct_beam.exists==true' "$RUNNER_TEMP/science-chain-live.json"
       - uses: actions/upload-artifact@v4
         with:
           name: science-chain-governance-capture
