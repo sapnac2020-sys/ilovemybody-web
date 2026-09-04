@@ -21,7 +21,7 @@ jobs:
           set -euo pipefail; scp -i "$HOME/.ssh/id_ed25519" -P "$P" backend/phase_81_psoriasis_label_sections.sql ops/extract-psoriasis-label-sections.php "$U@$H:/tmp/"; set +e
           ssh -i "$HOME/.ssh/id_ed25519" -p "$P" "$U@$H" "php /tmp/extract-psoriasis-label-sections.php \"\$HOME/domains/ilovemybody.in/ilmb-config.php\" /tmp/phase_81_psoriasis_label_sections.sql" >"$RUNNER_TEMP/p81.json" 2>"$RUNNER_TEMP/p81.err"; rc=$?; set -e
           if [ "$rc" -ne 0 ]; then err="$(tail -c 3000 "$RUNNER_TEMP/p81.json"; tail -c 3000 "$RUNNER_TEMP/p81.err")"; jq -n --arg error "$err" --argjson exit_code "$rc" '{phase:"P81_LABEL_SECTIONS",verified:false,exit_code:$exit_code,error:$error,patient_tables_queried:false,patient_rows_read:0,patient_rows_modified:0}' >"$RUNNER_TEMP/proof.json"; exit "$rc"; fi
-          jq -e '.registered_labels>=11 and .exact_sections>0 and .coverage_cells==88 and .verified==true and .patient_rows_read==0 and .patient_rows_modified==0' "$RUNNER_TEMP/p81.json" >/dev/null; cp "$RUNNER_TEMP/p81.json" "$RUNNER_TEMP/proof.json"
+          jq -e '.registered_labels>=11 and .covered_agents==11 and .exact_sections>0 and .coverage_cells==88 and .verified==true and .patient_rows_read==0 and .patient_rows_modified==0' "$RUNNER_TEMP/p81.json" >/dev/null; cp "$RUNNER_TEMP/p81.json" "$RUNNER_TEMP/proof.json"
       - name: Publish durable proof
         if: always()
         run: |
