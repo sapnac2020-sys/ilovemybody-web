@@ -1,10 +1,69 @@
 {
-  "phase": "P83_AGGREGATE_TRIALS",
-  "verified": false,
-  "exit_code": 255,
-  "error": "Fatal error: Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'canonical_name' in 'SELECT' in /tmp/refresh-psoriasis-aggregate-trials.php:9\nStack trace:\n#0 /tmp/refresh-psoriasis-aggregate-trials.php(9): PDO->query()\n#1 {main}\n  thrown in /tmp/refresh-psoriasis-aggregate-trials.php on line 9",
-  "participant_level_data_requested": false,
-  "patient_tables_queried": false,
-  "patient_rows_read": 0,
-  "patient_rows_modified": 0
+    "database": "u756742628_ilovemybody",
+    "phase": "P83_AGGREGATE_TRIALS",
+    "covered_agents": 11,
+    "aggregate_trial_links": 460,
+    "by_agent": [
+        {
+            "agent_key": "ADALIMUMAB",
+            "trial_count": 72,
+            "results_count": "35"
+        },
+        {
+            "agent_key": "BIMEKIZUMAB",
+            "trial_count": 31,
+            "results_count": "18"
+        },
+        {
+            "agent_key": "BRODALUMAB",
+            "trial_count": 14,
+            "results_count": "6"
+        },
+        {
+            "agent_key": "ETANERCEPT",
+            "trial_count": 76,
+            "results_count": "42"
+        },
+        {
+            "agent_key": "GUSELKUMAB",
+            "trial_count": 40,
+            "results_count": "19"
+        },
+        {
+            "agent_key": "INFLIXIMAB",
+            "trial_count": 29,
+            "results_count": "16"
+        },
+        {
+            "agent_key": "IXEKIZUMAB",
+            "trial_count": 29,
+            "results_count": "16"
+        },
+        {
+            "agent_key": "RISANKIZUMAB",
+            "trial_count": 38,
+            "results_count": "22"
+        },
+        {
+            "agent_key": "SECUKINUMAB",
+            "trial_count": 66,
+            "results_count": "31"
+        },
+        {
+            "agent_key": "TILDRAKIZUMAB",
+            "trial_count": 16,
+            "results_count": "5"
+        },
+        {
+            "agent_key": "USTEKINUMAB",
+            "trial_count": 49,
+            "results_count": "24"
+        }
+    ],
+    "computation_eligible_records": 0,
+    "participant_level_data_requested": false,
+    "patient_tables_queried": false,
+    "patient_rows_read": 0,
+    "patient_rows_modified": 0,
+    "verified": true
 }
