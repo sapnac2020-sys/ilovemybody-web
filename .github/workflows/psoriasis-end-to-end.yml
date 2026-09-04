@@ -48,7 +48,7 @@ jobs:
           rc=$?
           set -e
           if [ "$rc" -ne 0 ]; then
-            error_text="$(tail -c 6000 "$RUNNER_TEMP/psoriasis-end-to-end-${tag}.err")"
+            error_text="$(tail -c 3000 "$RUNNER_TEMP/psoriasis-end-to-end-${tag}.json"; tail -c 3000 "$RUNNER_TEMP/psoriasis-end-to-end-${tag}.err")"
             jq -n --arg database "u756742628_ilovemybody" --arg error "$error_text" --argjson exit_code "$rc" \
               '{database:$database,mode:"governed_non_patient_research",migration_verified:false,exit_code:$exit_code,error:$error,patient_tables_queried:false,patient_rows_read:0,patient_rows_modified:0}' \
               >"$RUNNER_TEMP/psoriasis-end-to-end.json"
