@@ -67,3 +67,5 @@ INSERT INTO ilb_psoriasis_modification_gate VALUES
 (8,'G8_RECHALLENGE','After a prespecified inflammatory rechallenge, the model does not return to the psoriatic attractor more readily than healthy control.','The system remains relapse-prone.',0)
 ON DUPLICATE KEY UPDATE gate_order=VALUES(gate_order),required_result=VALUES(required_result),failure_meaning=VALUES(failure_meaning),patient_experiment=VALUES(patient_experiment);
 COMMIT;
+
+-- Deployment trigger: Phase 89 live verification.
