@@ -49,7 +49,7 @@ INSERT INTO ilb_psoriasis_mechanism_node
 (node_key,node_type,label,external_system,external_id,compartment,source_url,identity_status,computation_eligible,status) VALUES
 ('IXEKIZUMAB','DRUG','Ixekizumab','RXNORM','1745099','systemic/extracellular','https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=ac96658a-d7dc-4c7c-8928-2adcdf4318b2','EXACT',1,'active'),
 ('DENDRITIC_CELL','CELL','Activated dendritic cell','CL','CL:0000451','skin/lymphoid interface','https://pubmed.ncbi.nlm.nih.gov/23291100/','EXACT',1,'active'),
-('IL23','CYTOKINE','Interleukin-23','REACTOME','R-HSA-9020956','extracellular','https://reactome.org/content/detail/R-HSA-9020956','PATHWAY_LEVEL',1,'active'),
+('IL23','CYTOKINE','Interleukin-23',NULL,NULL,'extracellular','https://pubmed.ncbi.nlm.nih.gov/23291100/','UNRESOLVED',1,'active'),
 ('TH17','CELL','T helper 17 cell','CL','CL:0000899','skin/immune compartment','https://pubmed.ncbi.nlm.nih.gov/23291100/','EXACT',1,'active'),
 ('IL17A','CYTOKINE','Interleukin-17A','UNIPROT','Q16552','extracellular','https://www.uniprot.org/uniprotkb/Q16552/entry','EXACT',1,'active'),
 ('IL17_RECEPTOR','RECEPTOR','IL17RA/IL17RC receptor complex','REACTOME','R-HSA-447246','plasma membrane','https://reactome.org/content/detail/R-HSA-447246','PATHWAY_LEVEL',1,'active'),
