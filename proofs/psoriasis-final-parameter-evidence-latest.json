@@ -1,0 +1,136 @@
+{
+    "database": "u756742628_ilovemybody",
+    "phase": "P97_FINAL_PUBLISHED_PARAMETER_EVIDENCE",
+    "new_evidence_records": 6,
+    "newly_covered_parameter_count": 4,
+    "new_evidence": [
+        {
+            "candidate_key": "P97_IL23_GUS_IC80",
+            "parameter_key": "IL23_BLOCK_CONCENTRATION",
+            "numeric_value": "20.00000000",
+            "unit": "pM",
+            "compatibility": "NOT_COMPATIBLE",
+            "promotion_allowed": 0
+        },
+        {
+            "candidate_key": "P97_IL23_RZB_IC80",
+            "parameter_key": "IL23_BLOCK_CONCENTRATION",
+            "numeric_value": "12.00000000",
+            "unit": "pM",
+            "compatibility": "NOT_COMPATIBLE",
+            "promotion_allowed": 0
+        },
+        {
+            "candidate_key": "P97_PASS_TOLERANCE_FACT",
+            "parameter_key": "PASS_TOLERANCE",
+            "numeric_value": null,
+            "unit": null,
+            "compatibility": "NOT_COMPATIBLE",
+            "promotion_allowed": 0
+        },
+        {
+            "candidate_key": "P97_WASHOUT_GUS_ELISA_RANGE",
+            "parameter_key": "WASHOUT_DETECTION_ASSAY",
+            "numeric_value": "0.08000000",
+            "unit": "ng/mL",
+            "compatibility": "NOT_COMPATIBLE",
+            "promotion_allowed": 0
+        },
+        {
+            "candidate_key": "P97_WASHOUT_RZB_ELISA",
+            "parameter_key": "WASHOUT_DETECTION_ASSAY",
+            "numeric_value": "5.00000000",
+            "unit": "ng/mL",
+            "compatibility": "NOT_COMPATIBLE",
+            "promotion_allowed": 0
+        },
+        {
+            "candidate_key": "P97_WASHOUT_RZB_LLOQ",
+            "parameter_key": "WASHOUT_DETECTION_LIMIT",
+            "numeric_value": "5.00000000",
+            "unit": "ng/mL",
+            "compatibility": "NOT_COMPATIBLE",
+            "promotion_allowed": 0
+        }
+    ],
+    "completion_gates": [
+        {
+            "parameter_key": "BARRIER_CANDIDATE_ID",
+            "published_candidate_count": 1,
+            "exact_numeric_candidate_count": 0,
+            "same_model_candidate_count": 0,
+            "gate_state": "BRIDGE_REQUIRED"
+        },
+        {
+            "parameter_key": "IL17_BLOCK_CONCENTRATION",
+            "published_candidate_count": 1,
+            "exact_numeric_candidate_count": 1,
+            "same_model_candidate_count": 0,
+            "gate_state": "BRIDGE_REQUIRED"
+        },
+        {
+            "parameter_key": "IL23_BLOCK_CONCENTRATION",
+            "published_candidate_count": 3,
+            "exact_numeric_candidate_count": 2,
+            "same_model_candidate_count": 0,
+            "gate_state": "BRIDGE_REQUIRED"
+        },
+        {
+            "parameter_key": "INTERVENTION_DURATION",
+            "published_candidate_count": 1,
+            "exact_numeric_candidate_count": 1,
+            "same_model_candidate_count": 0,
+            "gate_state": "BRIDGE_REQUIRED"
+        },
+        {
+            "parameter_key": "PASS_TOLERANCE",
+            "published_candidate_count": 1,
+            "exact_numeric_candidate_count": 0,
+            "same_model_candidate_count": 0,
+            "gate_state": "DATA_REQUIRED"
+        },
+        {
+            "parameter_key": "RECHALLENGE_DURATION",
+            "published_candidate_count": 1,
+            "exact_numeric_candidate_count": 1,
+            "same_model_candidate_count": 0,
+            "gate_state": "BRIDGE_REQUIRED"
+        },
+        {
+            "parameter_key": "RECHALLENGE_STIMULUS",
+            "published_candidate_count": 1,
+            "exact_numeric_candidate_count": 0,
+            "same_model_candidate_count": 0,
+            "gate_state": "BRIDGE_REQUIRED"
+        },
+        {
+            "parameter_key": "RENEWAL_DURATION",
+            "published_candidate_count": 1,
+            "exact_numeric_candidate_count": 1,
+            "same_model_candidate_count": 0,
+            "gate_state": "BRIDGE_REQUIRED"
+        },
+        {
+            "parameter_key": "WASHOUT_DETECTION_ASSAY",
+            "published_candidate_count": 2,
+            "exact_numeric_candidate_count": 2,
+            "same_model_candidate_count": 0,
+            "gate_state": "BRIDGE_REQUIRED"
+        },
+        {
+            "parameter_key": "WASHOUT_DETECTION_LIMIT",
+            "published_candidate_count": 1,
+            "exact_numeric_candidate_count": 1,
+            "same_model_candidate_count": 0,
+            "gate_state": "BRIDGE_REQUIRED"
+        }
+    ],
+    "bridge_required_parameters": 9,
+    "data_required_parameters": 1,
+    "automatically_promoted": 0,
+    "invented_values": 0,
+    "patient_tables_queried": false,
+    "patient_rows_read": 0,
+    "patient_rows_modified": 0,
+    "verified": true
+}
