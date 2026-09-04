@@ -37,3 +37,5 @@ INSERT INTO ilb_psoriasis_experiment_parameter VALUES
 ('PASS_TOLERANCE','EXP_PSO_RESET_001',NULL,'Preregistered equivalence tolerance against healthy control',NULL,NULL,NULL,NULL,NULL,'UNRESOLVED',1)
 ON DUPLICATE KEY UPDATE stage_key=VALUES(stage_key),parameter_name=VALUES(parameter_name),numeric_value=VALUES(numeric_value),unit=VALUES(unit),text_value=VALUES(text_value),source_id=VALUES(source_id),source_url=VALUES(source_url),resolution=VALUES(resolution),required_for_execution=VALUES(required_for_execution);
 COMMIT;
+
+-- Deployment trigger: Phase 93 live verification.
