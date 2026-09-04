@@ -1,0 +1,71 @@
+name: Deploy governed published psoriasis model
+
+concurrency:
+  group: ilmb-production-correlation-migrations
+  cancel-in-progress: false
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - backend/phase_77_psoriasis_published_model_registry.sql
+      - ops/run-psoriasis-published-model-migration.php
+      - sources/psoriasis/Shmarov_2022_psor_v8_4.xml
+      - scripts/psoriasis_skin_state.php
+      - .github/workflows/deploy-psoriasis-published-model.yml
+
+jobs:
+  migrate-verify:
+    runs-on: ubuntu-latest
+    permissions: {contents: read}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Static and source verification
+        run: |
+          set -euo pipefail
+          php -l ops/run-psoriasis-published-model-migration.php
+          php -l scripts/psoriasis_skin_state.php
+          test "$(sha256sum sources/psoriasis/Shmarov_2022_psor_v8_4.xml | cut -d' ' -f1)" = "99db820fca593cde4d4e8c0519ef63f946be24d1a4d5329c48c78cf3203ef1c9"
+          php scripts/psoriasis_skin_state.php --self-test >"$RUNNER_TEMP/reduced-model.json"
+          jq -e '.passed==true and .governance.patient_execution_allowed==false and .governance.provenance_status=="ASSUMPTION_BASED_REDUCED_MODEL"' "$RUNNER_TEMP/reduced-model.json"
+      - name: Prepare SSH
+        env:
+          DEPLOY_BUNDLE: ${{ secrets.HOSTINGER_DEPLOY_BUNDLE }}
+        run: |
+          set -euo pipefail
+          test -n "$DEPLOY_BUNDLE"
+          mkdir -p "$HOME/.ssh"
+          chmod 700 "$HOME/.ssh"
+          printf '%s' "$DEPLOY_BUNDLE" | base64 --decode >"$RUNNER_TEMP/deploy.json"
+          jq -e '.host and .port and .user and .key' "$RUNNER_TEMP/deploy.json" >/dev/null
+          jq -r '.key' "$RUNNER_TEMP/deploy.json" >"$HOME/.ssh/id_ed25519"
+          chmod 600 "$HOME/.ssh/id_ed25519"
+          echo "DEPLOY_HOST=$(jq -r '.host' "$RUNNER_TEMP/deploy.json")" >>"$GITHUB_ENV"
+          echo "DEPLOY_PORT=$(jq -r '.port' "$RUNNER_TEMP/deploy.json")" >>"$GITHUB_ENV"
+          echo "DEPLOY_USER=$(jq -r '.user' "$RUNNER_TEMP/deploy.json")" >>"$GITHUB_ENV"
+          ssh-keyscan -p "$(jq -r '.port' "$RUNNER_TEMP/deploy.json")" "$(jq -r '.host' "$RUNNER_TEMP/deploy.json")" >>"$HOME/.ssh/known_hosts"
+      - name: Migrate and verify production
+        run: |
+          set -euo pipefail
+          bundle="$RUNNER_TEMP/p77.tgz"
+          tar -czf "$bundle" backend/phase_77_psoriasis_published_model_registry.sql ops/run-psoriasis-published-model-migration.php sources/psoriasis/Shmarov_2022_psor_v8_4.xml scripts/psoriasis_skin_state.php
+          scp -i "$HOME/.ssh/id_ed25519" -P "$DEPLOY_PORT" "$bundle" "$DEPLOY_USER@$DEPLOY_HOST:/tmp/p77-${GITHUB_RUN_ID}.tgz"
+          ssh -i "$HOME/.ssh/id_ed25519" -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" "RUN_ID='${GITHUB_RUN_ID}' bash -s" <<'REMOTE' >"$RUNNER_TEMP/production-proof.json"
+          set -euo pipefail
+          work="/tmp/p77-$RUN_ID"
+          mkdir -p "$work"
+          tar -xzf "/tmp/p77-$RUN_ID.tgz" -C "$work"
+          php "$work/ops/run-psoriasis-published-model-migration.php" +            "$HOME/domains/ilovemybody.in/ilmb-config.php" +            "$work/backend/phase_77_psoriasis_published_model_registry.sql" +            "$work/sources/psoriasis/Shmarov_2022_psor_v8_4.xml"
+          install -m 600 "$work/scripts/psoriasis_skin_state.php" "$HOME/domains/ilovemybody.in/private/app/scripts/psoriasis_skin_state.php"
+          rm -rf "$work" "/tmp/p77-$RUN_ID.tgz"
+          REMOTE
+          jq -e '.database=="u756742628_ilovemybody" and .source_artifact_exact==true and .species==25 and .parameters==62 and .reactions==35 and .reaction_participants==72 and .ready_for_research_reproduction==true and .ready_for_patient_use==false and .patient_execution_enabled==0 and .patient_rows_modified==0' "$RUNNER_TEMP/production-proof.json"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: psoriasis-published-model-governance
+          path: |
+            ${{ runner.temp }}/production-proof.json
+            ${{ runner.temp }}/reduced-model.json
+          if-no-files-found: error
+          retention-days: 30
