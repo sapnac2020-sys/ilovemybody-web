@@ -33,4 +33,5 @@ jobs:
           mkdir -p "$HOME/.ssh"; jq -r '.key' "$RUNNER_TEMP/deploy.json" > "$HOME/.ssh/id_ed25519"; chmod 600 "$HOME/.ssh/id_ed25519"
           host="$(jq -r '.host' "$RUNNER_TEMP/deploy.json")"; port="$(jq -r '.port' "$RUNNER_TEMP/deploy.json")"; user="$(jq -r '.user' "$RUNNER_TEMP/deploy.json")"
           scp -o StrictHostKeyChecking=accept-new -i "$HOME/.ssh/id_ed25519" -P "$port" app/psoriasis-intake.php app/psoriasis-intake-api.php "$user@$host:domains/ilovemybody.in/public_html/app/"
-          curl --fail --max-time 30 -s https://ilovemybody.in/app/psoriasis-intake.php | grep -q '<h1>404</h1>'
+          body="$(curl --max-time 30 -sS https://ilovemybody.in/app/psoriasis-intake.php)"
+          grep -q '<h1>404</h1>' <<<"$body"
