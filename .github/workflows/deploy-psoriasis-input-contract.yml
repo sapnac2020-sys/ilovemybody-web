@@ -1,0 +1,41 @@
+name: Deploy psoriasis hospital input contract
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - backend/phase_103_psoriasis_input_contract.sql
+      - ops/verify-psoriasis-input-contract.php
+      - .github/workflows/deploy-psoriasis-input-contract.yml
+permissions:
+  contents: read
+concurrency:
+  group: ilmb-psoriasis-input-contract-production
+  cancel-in-progress: false
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - run: php -l ops/verify-psoriasis-input-contract.php
+      - name: Apply guarded input contract
+        env:
+          DEPLOY_BUNDLE: ${{ secrets.HOSTINGER_DEPLOY_BUNDLE }}
+        run: |
+          set -euo pipefail
+          test -n "$DEPLOY_BUNDLE"
+          mkdir -p "$HOME/.ssh"; chmod 700 "$HOME/.ssh"
+          printf '%s' "$DEPLOY_BUNDLE" | base64 --decode > "$RUNNER_TEMP/deploy.json"
+          jq -e '.host and .port and .user and .key' "$RUNNER_TEMP/deploy.json" >/dev/null
+          jq -r '.key' "$RUNNER_TEMP/deploy.json" > "$HOME/.ssh/id_ed25519"; chmod 600 "$HOME/.ssh/id_ed25519"
+          host="$(jq -r '.host' "$RUNNER_TEMP/deploy.json")"; port="$(jq -r '.port' "$RUNNER_TEMP/deploy.json")"; user="$(jq -r '.user' "$RUNNER_TEMP/deploy.json")"
+          ssh_args=(-o IdentitiesOnly=yes -o BatchMode=yes -o StrictHostKeyChecking=accept-new -i "$HOME/.ssh/id_ed25519" -p "$port")
+          tar -czf - backend/phase_103_psoriasis_input_contract.sql ops/verify-psoriasis-input-contract.php | ssh "${ssh_args[@]}" "$user@$host" 'mkdir -p "$HOME/private/ilmb-psoriasis-input" && tar -xzf - -C "$HOME/private/ilmb-psoriasis-input"'
+          ssh "${ssh_args[@]}" "$user@$host" 'bash -se' <<'REMOTE'
+          set -euo pipefail
+          root="$HOME/private/ilmb-psoriasis-input"
+          config="$(find "$HOME/domains/ilovemybody.in" -maxdepth 5 -type f -name ilmb-config.php -print -quit)"
+          test -s "$config"
+          php "$root/ops/verify-psoriasis-input-contract.php" "$config" "$root/backend/phase_103_psoriasis_input_contract.sql" | tee "$root/latest-proof.json"
+          REMOTE
