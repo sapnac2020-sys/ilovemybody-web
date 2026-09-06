@@ -1,0 +1,54 @@
+name: Deploy universal ILMB health graph
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - backend/phase_101_universal_health_graph.sql
+      - ops/verify-universal-health-graph.php
+      - .github/workflows/deploy-universal-health-graph.yml
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ilmb-universal-health-graph-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate PHP
+        run: php -l ops/verify-universal-health-graph.php
+      - name: Prepare Hostinger SSH
+        env:
+          DEPLOY_BUNDLE: ${{ secrets.HOSTINGER_DEPLOY_BUNDLE }}
+        run: |
+          set -euo pipefail
+          test -n "$DEPLOY_BUNDLE"
+          mkdir -p "$HOME/.ssh"
+          chmod 700 "$HOME/.ssh"
+          printf '%s' "$DEPLOY_BUNDLE" | base64 --decode > "$RUNNER_TEMP/deploy.json"
+          jq -e '.host and .port and .user and .key' "$RUNNER_TEMP/deploy.json" >/dev/null
+          jq -r '.key' "$RUNNER_TEMP/deploy.json" > "$HOME/.ssh/id_ed25519"
+          chmod 600 "$HOME/.ssh/id_ed25519"
+          echo "DEPLOY_HOST=$(jq -r '.host' "$RUNNER_TEMP/deploy.json")" >> "$GITHUB_ENV"
+          echo "DEPLOY_PORT=$(jq -r '.port' "$RUNNER_TEMP/deploy.json")" >> "$GITHUB_ENV"
+          echo "DEPLOY_USER=$(jq -r '.user' "$RUNNER_TEMP/deploy.json")" >> "$GITHUB_ENV"
+      - name: Upload and apply guarded migration
+        run: |
+          set -euo pipefail
+          ssh_args=(-o IdentitiesOnly=yes -o BatchMode=yes -o StrictHostKeyChecking=accept-new -o ConnectTimeout=30 -i "$HOME/.ssh/id_ed25519" -p "$DEPLOY_PORT")
+          tar -czf - backend/phase_101_universal_health_graph.sql ops/verify-universal-health-graph.php | \
+            ssh "${ssh_args[@]}" "$DEPLOY_USER@$DEPLOY_HOST" 'mkdir -p "$HOME/private/ilmb-universal-graph" && tar -xzf - -C "$HOME/private/ilmb-universal-graph"'
+          ssh "${ssh_args[@]}" "$DEPLOY_USER@$DEPLOY_HOST" 'bash -se' <<'REMOTE'
+          set -euo pipefail
+          root="$HOME/private/ilmb-universal-graph"
+          config="$(find "$HOME/domains/ilovemybody.in" -maxdepth 5 -type f -name ilmb-config.php -print -quit)"
+          test -s "$config"
+          php "$root/ops/verify-universal-health-graph.php" "$config" "$root/backend/phase_101_universal_health_graph.sql" | tee "$root/latest-proof.json"
+          REMOTE
