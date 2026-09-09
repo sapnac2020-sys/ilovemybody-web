@@ -52,7 +52,7 @@ jobs:
           root="$HOME/private/ilmb-emdr-modality"
           config="$(find "$HOME/domains/ilovemybody.in" -maxdepth 5 -type f -name ilmb-config.php -print -quit)"
           test -s "$config"
-          php "$root/ops/verify-emdr-modality.php" "$config" "$root/backend/phase_105_emdr_modality.sql" | tee "$root/latest-proof.json"
+          php "$root/ops/verify-emdr-modality.php" "$config" "$root/backend/phase_105_emdr_modality.sql" 2>&1 | tee "$root/latest-proof.json"
           REMOTE
             then
               run_ok=1; break
