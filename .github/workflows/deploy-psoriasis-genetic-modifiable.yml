@@ -1,0 +1,45 @@
+name: Deploy Phase 107 psoriasis genetic-modifiable pathway
+
+on:
+  workflow_dispatch:
+    inputs:
+      phase106_verified:
+        description: 'Type VERIFIED after Phase 106 psoriasis encyclopedia verifier has passed in production'
+        required: true
+        type: string
+
+jobs:
+  deploy:
+    if: ${{ inputs.phase106_verified == 'VERIFIED' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate Phase 107 files
+        run: |
+          test -f backend/phase_107_psoriasis_genetic_modifiable_pathway.sql
+          test -f ops/verify-psoriasis-genetic-modifiable.php
+          php -l ops/verify-psoriasis-genetic-modifiable.php
+
+      - name: Upload Phase 107 SQL and verifier
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.HOSTINGER_SSH_HOST }}
+          username: ${{ secrets.HOSTINGER_SSH_USER }}
+          password: ${{ secrets.HOSTINGER_SSH_PASSWORD }}
+          port: ${{ secrets.HOSTINGER_SSH_PORT }}
+          source: "backend/phase_107_psoriasis_genetic_modifiable_pathway.sql,ops/verify-psoriasis-genetic-modifiable.php"
+          target: ${{ secrets.HOSTINGER_APP_PATH }}
+
+      - name: Run production verifier
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.HOSTINGER_SSH_HOST }}
+          username: ${{ secrets.HOSTINGER_SSH_USER }}
+          password: ${{ secrets.HOSTINGER_SSH_PASSWORD }}
+          port: ${{ secrets.HOSTINGER_SSH_PORT }}
+          script: |
+            cd "${{ secrets.HOSTINGER_APP_PATH }}"
+            php ops/verify-psoriasis-genetic-modifiable.php | tee latest-phase107-proof.json
+            grep -q '"ok": true' latest-phase107-proof.json
