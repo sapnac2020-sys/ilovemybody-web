@@ -1,0 +1,41 @@
+name: Deploy Phase 111 psoriasis keratinocyte geometry
+
+on:
+  workflow_dispatch:
+    inputs:
+      phase110_verified:
+        description: 'Type VERIFIED after Phase 110 verifier has passed in production'
+        required: true
+        type: string
+
+jobs:
+  deploy:
+    if: ${{ inputs.phase110_verified == 'VERIFIED' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate files
+        run: |
+          test -f backend/phase_111_psoriasis_keratinocyte_geometry.sql
+          test -f ops/verify-psoriasis-keratinocyte-geometry.php
+          php -l ops/verify-psoriasis-keratinocyte-geometry.php
+      - name: Upload
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.HOSTINGER_SSH_HOST }}
+          username: ${{ secrets.HOSTINGER_SSH_USER }}
+          password: ${{ secrets.HOSTINGER_SSH_PASSWORD }}
+          port: ${{ secrets.HOSTINGER_SSH_PORT }}
+          source: "backend/phase_111_psoriasis_keratinocyte_geometry.sql,ops/verify-psoriasis-keratinocyte-geometry.php"
+          target: ${{ secrets.HOSTINGER_APP_PATH }}
+      - name: Verify production
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.HOSTINGER_SSH_HOST }}
+          username: ${{ secrets.HOSTINGER_SSH_USER }}
+          password: ${{ secrets.HOSTINGER_SSH_PASSWORD }}
+          port: ${{ secrets.HOSTINGER_SSH_PORT }}
+          script: |
+            cd "${{ secrets.HOSTINGER_APP_PATH }}"
+            php ops/verify-psoriasis-keratinocyte-geometry.php | tee latest-phase111-proof.json
+            grep -q '"ok": true' latest-phase111-proof.json
