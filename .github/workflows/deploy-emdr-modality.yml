@@ -18,24 +18,46 @@ jobs:
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
-      - run: php -l ops/verify-emdr-modality.php
+      - name: Validate verifier
+        run: php -l ops/verify-emdr-modality.php
       - name: Apply guarded EMDR modality migration
         env:
           DEPLOY_BUNDLE: ${{ secrets.HOSTINGER_DEPLOY_BUNDLE }}
         run: |
           set -euo pipefail
           test -n "$DEPLOY_BUNDLE"
-          mkdir -p "$HOME/.ssh"; chmod 700 "$HOME/.ssh"
           printf '%s' "$DEPLOY_BUNDLE" | base64 --decode > "$RUNNER_TEMP/deploy.json"
           jq -e '.host and .port and .user and .key' "$RUNNER_TEMP/deploy.json" >/dev/null
+          mkdir -p "$HOME/.ssh"; chmod 700 "$HOME/.ssh"
           jq -r '.key' "$RUNNER_TEMP/deploy.json" > "$HOME/.ssh/id_ed25519"; chmod 600 "$HOME/.ssh/id_ed25519"
           host="$(jq -r '.host' "$RUNNER_TEMP/deploy.json")"; port="$(jq -r '.port' "$RUNNER_TEMP/deploy.json")"; user="$(jq -r '.user' "$RUNNER_TEMP/deploy.json")"
-          ssh_args=(-o IdentitiesOnly=yes -o BatchMode=yes -o StrictHostKeyChecking=accept-new -i "$HOME/.ssh/id_ed25519" -p "$port")
-          tar -czf - backend/phase_105_emdr_modality.sql ops/verify-emdr-modality.php | ssh "${ssh_args[@]}" "$user@$host" 'mkdir -p "$HOME/private/ilmb-emdr-modality" && tar -xzf - -C "$HOME/private/ilmb-emdr-modality"'
-          ssh "${ssh_args[@]}" "$user@$host" 'bash -se' <<'REMOTE'
+          common=(-o StrictHostKeyChecking=accept-new -o IdentitiesOnly=yes -o BatchMode=yes -o ConnectTimeout=20 -o ServerAliveInterval=20 -o ServerAliveCountMax=3 -i "$HOME/.ssh/id_ed25519")
+
+          upload_ok=0
+          for attempt in 1 2 3; do
+            if ssh "${common[@]}" -p "$port" "$user@$host" 'mkdir -p "$HOME/private/ilmb-emdr-modality/backend" "$HOME/private/ilmb-emdr-modality/ops"' \
+              && scp "${common[@]}" -P "$port" backend/phase_105_emdr_modality.sql "$user@$host:private/ilmb-emdr-modality/backend/phase_105_emdr_modality.sql" \
+              && scp "${common[@]}" -P "$port" ops/verify-emdr-modality.php "$user@$host:private/ilmb-emdr-modality/ops/verify-emdr-modality.php"; then
+              upload_ok=1; break
+            fi
+            echo "SSH upload attempt $attempt failed; retrying..." >&2
+            sleep $((attempt*5))
+          done
+          test "$upload_ok" -eq 1
+
+          run_ok=0
+          for attempt in 1 2 3; do
+            if ssh "${common[@]}" -p "$port" "$user@$host" 'bash -se' <<'REMOTE'
           set -euo pipefail
           root="$HOME/private/ilmb-emdr-modality"
           config="$(find "$HOME/domains/ilovemybody.in" -maxdepth 5 -type f -name ilmb-config.php -print -quit)"
           test -s "$config"
           php "$root/ops/verify-emdr-modality.php" "$config" "$root/backend/phase_105_emdr_modality.sql" | tee "$root/latest-proof.json"
           REMOTE
+            then
+              run_ok=1; break
+            fi
+            echo "Remote verification attempt $attempt failed; retrying..." >&2
+            sleep $((attempt*5))
+          done
+          test "$run_ok" -eq 1
