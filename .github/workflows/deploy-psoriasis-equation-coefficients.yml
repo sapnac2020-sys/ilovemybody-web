@@ -1,0 +1,45 @@
+name: Deploy Phase 108 psoriasis equation coefficients
+
+on:
+  workflow_dispatch:
+    inputs:
+      phase107_verified:
+        description: 'Type VERIFIED after Phase 107 psoriasis genetic-modifiable verifier has passed in production'
+        required: true
+        type: string
+
+jobs:
+  deploy:
+    if: ${{ inputs.phase107_verified == 'VERIFIED' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate Phase 108 files
+        run: |
+          test -f backend/phase_108_psoriasis_equation_coefficients.sql
+          test -f ops/verify-psoriasis-equation-coefficients.php
+          php -l ops/verify-psoriasis-equation-coefficients.php
+
+      - name: Upload Phase 108 SQL and verifier
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.HOSTINGER_SSH_HOST }}
+          username: ${{ secrets.HOSTINGER_SSH_USER }}
+          password: ${{ secrets.HOSTINGER_SSH_PASSWORD }}
+          port: ${{ secrets.HOSTINGER_SSH_PORT }}
+          source: "backend/phase_108_psoriasis_equation_coefficients.sql,ops/verify-psoriasis-equation-coefficients.php"
+          target: ${{ secrets.HOSTINGER_APP_PATH }}
+
+      - name: Run production verifier
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.HOSTINGER_SSH_HOST }}
+          username: ${{ secrets.HOSTINGER_SSH_USER }}
+          password: ${{ secrets.HOSTINGER_SSH_PASSWORD }}
+          port: ${{ secrets.HOSTINGER_SSH_PORT }}
+          script: |
+            cd "${{ secrets.HOSTINGER_APP_PATH }}"
+            php ops/verify-psoriasis-equation-coefficients.php | tee latest-phase108-proof.json
+            grep -q '"ok": true' latest-phase108-proof.json
