@@ -1,0 +1,60 @@
+name: Deploy psoriasis production through Phase 127
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - backend/phase_*psoriasis*.sql
+      - ops/deploy-psoriasis-through-127.php
+      - .github/workflows/deploy-psoriasis-through-127.yml
+  workflow_dispatch:
+
+concurrency:
+  group: ilmb-psoriasis-production-through-127
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate deployment bundle
+        run: |
+          set -euo pipefail
+          php -l ops/deploy-psoriasis-through-127.php
+          test -f backend/phase_106_psoriasis_encyclopedia.sql
+          test -f backend/phase_118_psoriasis_keratinocyte_compartments.sql
+          test -f backend/phase_124_psoriasis_multisystem_control_matrix.sql
+          test -f backend/phase_125_psoriasis_minimal_control_set.sql
+          test -f backend/phase_126_psoriasis_cross_modality_intersections.sql
+          test -f backend/phase_127_psoriasis_intersection_derived_stack.sql
+
+      - name: Upload psoriasis SQL and consolidated migrator
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.HOSTINGER_SSH_HOST }}
+          username: ${{ secrets.HOSTINGER_SSH_USER }}
+          password: ${{ secrets.HOSTINGER_SSH_PASSWORD }}
+          port: ${{ secrets.HOSTINGER_SSH_PORT }}
+          source: "backend,ops/deploy-psoriasis-through-127.php"
+          target: ${{ secrets.HOSTINGER_APP_PATH }}
+
+      - name: Apply and verify production DB
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.HOSTINGER_SSH_HOST }}
+          username: ${{ secrets.HOSTINGER_SSH_USER }}
+          password: ${{ secrets.HOSTINGER_SSH_PASSWORD }}
+          port: ${{ secrets.HOSTINGER_SSH_PORT }}
+          script: |
+            set -e
+            cd "${{ secrets.HOSTINGER_APP_PATH }}"
+            php ops/deploy-psoriasis-through-127.php | tee latest-psoriasis-phase127-production-proof.json
+            grep -q '"ok": true' latest-psoriasis-phase127-production-proof.json
+            grep -q '"phase127_stack_rows": 4' latest-psoriasis-phase127-production-proof.json
