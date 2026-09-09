@@ -1,0 +1,76 @@
+name: Deploy Phase 106 psoriasis encyclopedia
+on:
+  workflow_dispatch:
+    inputs:
+      phase105_verified:
+        description: 'Type VERIFIED after Phase 105 EMDR verifier has passed in production'
+        required: true
+        type: string
+permissions:
+  contents: read
+concurrency:
+  group: ilmb-psoriasis-encyclopedia-production
+  cancel-in-progress: false
+jobs:
+  deploy:
+    if: ${{ inputs.phase105_verified == 'VERIFIED' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate verifier
+        run: php -l ops/verify-psoriasis-encyclopedia.php
+      - name: Validate Phase 106 source files
+        run: |
+          set -euo pipefail
+          test -s backend/phase_106_psoriasis_encyclopedia.sql
+          test -s backend/phase_106b_psoriasis_encyclopedia_clinical.sql
+          test -s backend/phase_106c1_psoriasis_encyclopedia_biology.sql
+          test -s backend/phase_106c2_psoriasis_encyclopedia_pathways.sql
+          test -s backend/phase_106c3_psoriasis_encyclopedia_differential_measurements.sql
+          test -s backend/phase_106d1_psoriasis_encyclopedia_treatments.sql
+          test -s backend/phase_106d2_psoriasis_encyclopedia_modalities_safety_research.sql
+          test -s backend/phase_106d3_psoriasis_encyclopedia_sources_inputs_view.sql
+      - name: Apply guarded Phase 106 migration
+        env:
+          DEPLOY_BUNDLE: ${{ secrets.HOSTINGER_DEPLOY_BUNDLE }}
+        run: |
+          set -euo pipefail
+          test -n "$DEPLOY_BUNDLE"
+          printf '%s' "$DEPLOY_BUNDLE" | base64 --decode > "$RUNNER_TEMP/deploy.json"
+          jq -e '.host and .port and .user and .key' "$RUNNER_TEMP/deploy.json" >/dev/null
+          mkdir -p "$HOME/.ssh"; chmod 700 "$HOME/.ssh"
+          jq -r '.key' "$RUNNER_TEMP/deploy.json" > "$HOME/.ssh/id_ed25519"; chmod 600 "$HOME/.ssh/id_ed25519"
+          host="$(jq -r '.host' "$RUNNER_TEMP/deploy.json")"; port="$(jq -r '.port' "$RUNNER_TEMP/deploy.json")"; user="$(jq -r '.user' "$RUNNER_TEMP/deploy.json")"
+          common=(-o StrictHostKeyChecking=accept-new -o IdentitiesOnly=yes -o BatchMode=yes -o ConnectTimeout=20 -o ServerAliveInterval=20 -o ServerAliveCountMax=3 -i "$HOME/.ssh/id_ed25519")
+          root='private/ilmb-psoriasis-encyclopedia'
+          ssh "${common[@]}" -p "$port" "$user@$host" "mkdir -p \"\$HOME/$root/backend\" \"\$HOME/$root/ops\""
+          for f in \
+            backend/phase_106_psoriasis_encyclopedia.sql \
+            backend/phase_106b_psoriasis_encyclopedia_clinical.sql \
+            backend/phase_106c1_psoriasis_encyclopedia_biology.sql \
+            backend/phase_106c2_psoriasis_encyclopedia_pathways.sql \
+            backend/phase_106c3_psoriasis_encyclopedia_differential_measurements.sql \
+            backend/phase_106d1_psoriasis_encyclopedia_treatments.sql \
+            backend/phase_106d2_psoriasis_encyclopedia_modalities_safety_research.sql \
+            backend/phase_106d3_psoriasis_encyclopedia_sources_inputs_view.sql; do
+            scp "${common[@]}" -P "$port" "$f" "$user@$host:$root/backend/$(basename "$f")"
+          done
+          scp "${common[@]}" -P "$port" ops/verify-psoriasis-encyclopedia.php "$user@$host:$root/ops/verify-psoriasis-encyclopedia.php"
+          ssh "${common[@]}" -p "$port" "$user@$host" 'bash -se' <<'REMOTE'
+          set -euo pipefail
+          root="$HOME/private/ilmb-psoriasis-encyclopedia"
+          config="$(find "$HOME/domains/ilovemybody.in" -maxdepth 5 -type f -name ilmb-config.php -print -quit)"
+          test -s "$config"
+          combined="$root/backend/phase_106_combined.sql"
+          cat \
+            "$root/backend/phase_106_psoriasis_encyclopedia.sql" \
+            "$root/backend/phase_106b_psoriasis_encyclopedia_clinical.sql" \
+            "$root/backend/phase_106c1_psoriasis_encyclopedia_biology.sql" \
+            "$root/backend/phase_106c2_psoriasis_encyclopedia_pathways.sql" \
+            "$root/backend/phase_106c3_psoriasis_encyclopedia_differential_measurements.sql" \
+            "$root/backend/phase_106d1_psoriasis_encyclopedia_treatments.sql" \
+            "$root/backend/phase_106d2_psoriasis_encyclopedia_modalities_safety_research.sql" \
+            "$root/backend/phase_106d3_psoriasis_encyclopedia_sources_inputs_view.sql" > "$combined"
+          php "$root/ops/verify-psoriasis-encyclopedia.php" "$config" "$combined" | tee "$root/latest-proof.json"
+          REMOTE
