@@ -4,17 +4,14 @@ $out=['ok'=>false,'stage'=>'init'];
 try {
     $pdo=null;
     $dbPhp=__DIR__.'/../backend/db.php';
-    if (is_file($dbPhp)) {
-        require $dbPhp;
-    }
+    if (is_file($dbPhp)) require $dbPhp;
     if (!($pdo instanceof PDO)) {
         $home=getenv('HOME') ?: '';
-        $candidates=glob($home.'/domains/ilovemybody.in/**/ilmb-config.php', GLOB_BRACE);
-        if (!$candidates) {
-            $it=new RecursiveIteratorIterator(new RecursiveDirectoryIterator($home.'/domains/ilovemybody.in', FilesystemIterator::SKIP_DOTS));
-            foreach ($it as $f) {
-                if ($f->getFilename()==='ilmb-config.php') { $candidates[]=$f->getPathname(); break; }
-            }
+        $candidates=[];
+        $root=$home.'/domains/ilovemybody.in';
+        $it=new RecursiveIteratorIterator(new RecursiveDirectoryIterator($root, FilesystemIterator::SKIP_DOTS));
+        foreach ($it as $f) {
+            if ($f->getFilename()==='ilmb-config.php') { $candidates[]=$f->getPathname(); break; }
         }
         if (!$candidates) throw new RuntimeException('No ilmb-config.php found');
         $c=require $candidates[0];
@@ -29,11 +26,18 @@ try {
     $selected=[];
     foreach($files as $file){
         $base=basename($file);
-        if(!preg_match('/^phase_(\d+)/',$base,$m)) continue;
+        if(!preg_match('/^phase_(\d+)([a-z]?)(\d*)_/i',$base,$m)) continue;
         $phase=(int)$m[1];
-        if($phase>=106 && $phase<=127) $selected[]=$file;
+        if($phase<106 || $phase>127) continue;
+        $letter=strtolower($m[2] ?? '');
+        $subnum=($m[3] ?? '')==='' ? 0 : (int)$m[3];
+        // Base phase first, then b, c1/c2/c3, d1... in deterministic dependency order.
+        $letterRank=$letter==='' ? 0 : (ord($letter)-ord('a')+1);
+        $selected[]=['file'=>$file,'phase'=>$phase,'letterRank'=>$letterRank,'subnum'=>$subnum,'base'=>$base];
     }
-    usort($selected,fn($a,$b)=>strnatcasecmp(basename($a),basename($b)));
+    usort($selected,static function($a,$b){
+        return [$a['phase'],$a['letterRank'],$a['subnum'],$a['base']] <=> [$b['phase'],$b['letterRank'],$b['subnum'],$b['base']];
+    });
     if(!$selected) throw new RuntimeException('No psoriasis SQL selected for phases 106-127');
 
     $pdo->exec("CREATE TABLE IF NOT EXISTS ilb_psoriasis_deployment_ledger (
@@ -46,7 +50,8 @@ try {
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
 
     $applied=[]; $total=0;
-    foreach($selected as $file){
+    foreach($selected as $entry){
+        $file=$entry['file'];
         $sql=file_get_contents($file);
         if($sql===false) throw new RuntimeException('Cannot read '.basename($file));
         $parts=array_values(array_filter(array_map('trim',preg_split('/;\s*(?:\r?\n|$)/',$sql))));
@@ -63,16 +68,18 @@ try {
         $applied[]=['file'=>basename($file),'statements'=>$n];
     }
 
-    $critical=['ilb_psoriasis_keratinocyte_compartment','ilb_psoriasis_control_branch','ilb_psoriasis_candidate_stack'];
+    $critical=['ilb_psoriasis_phenotype','ilb_psoriasis_keratinocyte_compartment','ilb_psoriasis_control_branch','ilb_psoriasis_candidate_stack'];
+    $verified=[];
     foreach($critical as $t){
         $q=$pdo->prepare("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema=DATABASE() AND table_name=?");
         $q->execute([$t]);
         if((int)$q->fetchColumn()!==1) throw new RuntimeException('Critical table missing: '.$t);
+        $verified[$t]=true;
     }
     $stack=(int)$pdo->query("SELECT COUNT(*) FROM ilb_psoriasis_candidate_stack WHERE stack_name='ILMB_INTERSECTION_STACK_V1'")->fetchColumn();
     if($stack<4) throw new RuntimeException('Phase 127 candidate stack incomplete');
     $ledger=(int)$pdo->query("SELECT COUNT(*) FROM ilb_psoriasis_deployment_ledger WHERE deployment_status='APPLIED'")->fetchColumn();
-    $out=['ok'=>true,'stage'=>'complete','database'=>$pdo->query('SELECT DATABASE()')->fetchColumn(),'phase_range'=>'106-127','files_applied'=>count($applied),'statements_applied'=>$total,'deployment_ledger_rows'=>$ledger,'phase127_stack_rows'=>$stack,'applied'=>$applied];
+    $out=['ok'=>true,'stage'=>'complete','database'=>$pdo->query('SELECT DATABASE()')->fetchColumn(),'phase_range'=>'106-127','files_applied'=>count($applied),'statements_applied'=>$total,'deployment_ledger_rows'=>$ledger,'critical_tables'=>$verified,'phase127_stack_rows'=>$stack,'applied'=>$applied];
     echo json_encode($out,JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES);
 }catch(Throwable $e){
     $out=['ok'=>false,'stage'=>'fatal','exception'=>$e->getMessage(),'file'=>$e->getFile(),'line'=>$e->getLine()];
