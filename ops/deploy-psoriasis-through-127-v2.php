@@ -21,7 +21,6 @@ try {
         $pdo=new PDO($dsn,$c['user'],$c['pass'],[PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION,PDO::ATTR_DEFAULT_FETCH_MODE=>PDO::FETCH_ASSOC]);
     }
 
-    // Preserve legacy production data while appending the Phase-106 canonical fields.
     $table='ilb_psoriasis_treatment_class';
     $exists=$pdo->prepare("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema=DATABASE() AND table_name=?");
     $exists->execute([$table]);
@@ -66,10 +65,17 @@ try {
         $sql=file_get_contents($file);
         if($sql===false) throw new RuntimeException('Cannot read '.basename($file));
 
-        // Phase 107 source has two narrative rows missing the directness field.
-        // Preserve their governed semantics by inserting INDIRECT before HYPOTHESIS.
         if(basename($file)==='phase_107_psoriasis_genetic_modifiable_pathway.sql'){
-            $sql=str_replace("'UNSPECIFIED','HYPOTHESIS','RESEARCH_ONLY'","'UNSPECIFIED','INDIRECT','HYPOTHESIS','RESEARCH_ONLY'",$sql);
+            $replacements=[
+              "'INDIRECT','PRELIMINARY','Do not claim a specific acupuncture point" => "'INDIRECT','PRELIMINARY','RESEARCH_ONLY','Do not claim a specific acupuncture point",
+              "'INDIRECT','SUPPORTED','Nutrition is not a universal psoriasis cure" => "'INDIRECT','SUPPORTED','CONDITIONAL','Nutrition is not a universal psoriasis cure",
+              "'INDIRECT','SUPPORTED','Sleep optimization may modify" => "'INDIRECT','SUPPORTED','CONDITIONAL','Sleep optimization may modify",
+              "'INDIRECT','SUPPORTED','Exercise may improve" => "'INDIRECT','SUPPORTED','CONDITIONAL','Exercise may improve",
+              "'DIRECT','ESTABLISHED','UV phototherapy is a conventional" => "'DIRECT','ESTABLISHED','ROUTINE','UV phototherapy is a conventional",
+              "'DIRECT','ESTABLISHED','Barrier care supports" => "'DIRECT','ESTABLISHED','ROUTINE','Barrier care supports",
+              "'UNSPECIFIED','HYPOTHESIS','RESEARCH_ONLY'" => "'UNSPECIFIED','INDIRECT','HYPOTHESIS','RESEARCH_ONLY'"
+            ];
+            $sql=str_replace(array_keys($replacements),array_values($replacements),$sql);
         }
 
         $parts=array_values(array_filter(array_map('trim',preg_split('/;\s*(?:\r?\n|$)/',$sql))));
