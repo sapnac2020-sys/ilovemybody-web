@@ -1,0 +1,100 @@
+name: Deploy psoriasis production through Phase 127 v2
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - ops/deploy-psoriasis-through-127-v2.php
+      - .github/workflows/deploy-psoriasis-through-127-v2.yml
+  workflow_dispatch:
+
+concurrency:
+  group: ilmb-psoriasis-production-through-127-v2
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate v2 migrator and source files
+        run: |
+          set -euo pipefail
+          php -l ops/deploy-psoriasis-through-127-v2.php
+          test -f backend/phase_106_psoriasis_encyclopedia.sql
+          test -f backend/phase_118_psoriasis_keratinocyte_compartments.sql
+          test -f backend/phase_124_psoriasis_multisystem_control_matrix.sql
+          test -f backend/phase_125_psoriasis_minimal_control_set.sql
+          test -f backend/phase_126_psoriasis_cross_modality_intersections.sql
+          test -f backend/phase_127_psoriasis_intersection_derived_stack.sql
+
+      - name: Prepare SSH identity
+        env:
+          DEPLOY_BUNDLE: ${{ secrets.HOSTINGER_DEPLOY_BUNDLE }}
+        run: |
+          set -euo pipefail
+          test -n "$DEPLOY_BUNDLE"
+          mkdir -p "$HOME/.ssh"
+          chmod 700 "$HOME/.ssh"
+          printf '%s' "$DEPLOY_BUNDLE" | base64 --decode > "$RUNNER_TEMP/deploy.json"
+          jq -e '.host and .port and .user and .key' "$RUNNER_TEMP/deploy.json" >/dev/null
+          jq -r '.key' "$RUNNER_TEMP/deploy.json" > "$HOME/.ssh/id_ed25519"
+          chmod 600 "$HOME/.ssh/id_ed25519"
+          echo "DEPLOY_HOST=$(jq -r '.host' "$RUNNER_TEMP/deploy.json")" >> "$GITHUB_ENV"
+          echo "DEPLOY_PORT=$(jq -r '.port' "$RUNNER_TEMP/deploy.json")" >> "$GITHUB_ENV"
+          echo "DEPLOY_USER=$(jq -r '.user' "$RUNNER_TEMP/deploy.json)" >> "$GITHUB_ENV"
+          cat > "$HOME/.ssh/config" <<'SSHCONFIG'
+          Host *
+            StrictHostKeyChecking accept-new
+            ConnectTimeout 30
+            ServerAliveInterval 15
+          SSHCONFIG
+          chmod 600 "$HOME/.ssh/config"
+
+      - name: Package psoriasis SQL and v2 migrator
+        run: |
+          set -euo pipefail
+          tar -czf "$RUNNER_TEMP/ilmb-psoriasis-${GITHUB_SHA}.tgz" backend/phase_*psoriasis*.sql ops/deploy-psoriasis-through-127-v2.php
+
+      - name: Upload package
+        run: |
+          set -euo pipefail
+          scp -o IdentitiesOnly=yes -o BatchMode=yes -i "$HOME/.ssh/id_ed25519" -P "$DEPLOY_PORT" "$RUNNER_TEMP/ilmb-psoriasis-${GITHUB_SHA}.tgz" "$DEPLOY_USER@$DEPLOY_HOST:ilmb-psoriasis-${GITHUB_SHA}.tgz"
+
+      - name: Apply and verify production DB
+        run: |
+          set -euo pipefail
+          ssh -o IdentitiesOnly=yes -o BatchMode=yes -i "$HOME/.ssh/id_ed25519" -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" "SITE_SHA='$GITHUB_SHA' bash -s" <<'REMOTE'
+          set -euo pipefail
+          TARGET="$HOME/domains/ilovemybody.in/public_html"
+          PACKAGE="$HOME/ilmb-psoriasis-${SITE_SHA}.tgz"
+          echo "TARGET=$TARGET"
+          test -d "$TARGET"
+          test -f "$PACKAGE"
+          CONFIG="$(find "$HOME/domains/ilovemybody.in" -maxdepth 6 -type f -name 'ilmb-config.php' -print -quit 2>/dev/null)"
+          if test -z "$CONFIG" || ! test -s "$CONFIG"; then
+            echo "::error::ilmb-config.php not found under ILMB domain"
+            exit 1
+          fi
+          echo "DB config located"
+          mkdir -p "$TARGET/backend" "$TARGET/ops"
+          tar -xzf "$PACKAGE" -C "$TARGET"
+          test -s "$TARGET/ops/deploy-psoriasis-through-127-v2.php"
+          cd "$TARGET"
+          set +e
+          php ops/deploy-psoriasis-through-127-v2.php > latest-psoriasis-phase127-production-proof.json 2> latest-psoriasis-phase127-production-error.log
+          code=$?
+          set -e
+          cat latest-psoriasis-phase127-production-proof.json || true
+          if test -s latest-psoriasis-phase127-production-error.log; then cat latest-psoriasis-phase127-production-error.log; fi
+          test "$code" -eq 0
+          grep -q '"ok": true' latest-psoriasis-phase127-production-proof.json
+          grep -Eq '"phase127_stack_rows": [4-9][0-9]*' latest-psoriasis-phase127-production-proof.json
+          rm -f "$PACKAGE"
+          REMOTE
