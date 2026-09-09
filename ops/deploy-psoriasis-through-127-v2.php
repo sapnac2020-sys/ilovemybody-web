@@ -7,8 +7,8 @@ try {
     if (is_file($dbPhp)) require $dbPhp;
     if (!($pdo instanceof PDO)) {
         $home=getenv('HOME') ?: '';
-        $candidates=[];
         $root=$home.'/domains/ilovemybody.in';
+        $candidates=[];
         $it=new RecursiveIteratorIterator(new RecursiveDirectoryIterator($root, FilesystemIterator::SKIP_DOTS));
         foreach ($it as $f) {
             if ($f->getFilename()==='ilmb-config.php') { $candidates[]=$f->getPathname(); break; }
@@ -21,6 +21,28 @@ try {
         $pdo=new PDO($dsn,$c['user'],$c['pass'],[PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION,PDO::ATTR_DEFAULT_FETCH_MODE=>PDO::FETCH_ASSOC]);
     }
 
+    // Additive compatibility shim for a legacy pre-Phase-106 table with the same name.
+    // Existing columns/data are preserved; only missing canonical columns are appended.
+    $table='ilb_psoriasis_treatment_class';
+    $exists=$pdo->prepare("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema=DATABASE() AND table_name=?");
+    $exists->execute([$table]);
+    if((int)$exists->fetchColumn()===1){
+        $canonical=[
+          'class_id'=>'VARCHAR(32) NULL',
+          'class_name'=>'VARCHAR(255) NULL',
+          'route_or_type'=>'VARCHAR(160) NULL',
+          'mechanism_summary'=>'TEXT NULL',
+          'typical_role'=>'TEXT NULL',
+          'major_safety_theme'=>'TEXT NULL',
+          'governance_text'=>'TEXT NULL',
+          'source_url'=>'TEXT NULL'
+        ];
+        $cols=$pdo->query("SELECT column_name FROM information_schema.columns WHERE table_schema=DATABASE() AND table_name='ilb_psoriasis_treatment_class'")->fetchAll(PDO::FETCH_COLUMN);
+        foreach($canonical as $name=>$ddl){
+            if(!in_array($name,$cols,true)) $pdo->exec("ALTER TABLE ilb_psoriasis_treatment_class ADD COLUMN `$name` $ddl");
+        }
+    }
+
     $files=glob(__DIR__.'/../backend/phase_*psoriasis*.sql');
     if (!$files) throw new RuntimeException('No psoriasis phase SQL files found');
     $selected=[];
@@ -31,7 +53,6 @@ try {
         if($phase<106 || $phase>127) continue;
         $letter=strtolower($m[2] ?? '');
         $subnum=($m[3] ?? '')==='' ? 0 : (int)$m[3];
-        // Base phase first, then b, c1/c2/c3, d1... in deterministic dependency order.
         $letterRank=$letter==='' ? 0 : (ord($letter)-ord('a')+1);
         $selected[]=['file'=>$file,'phase'=>$phase,'letterRank'=>$letterRank,'subnum'=>$subnum,'base'=>$base];
     }
@@ -68,7 +89,7 @@ try {
         $applied[]=['file'=>basename($file),'statements'=>$n];
     }
 
-    $critical=['ilb_psoriasis_phenotype','ilb_psoriasis_keratinocyte_compartment','ilb_psoriasis_control_branch','ilb_psoriasis_candidate_stack'];
+    $critical=['ilb_psoriasis_phenotype','ilb_psoriasis_treatment_class','ilb_psoriasis_keratinocyte_compartment','ilb_psoriasis_control_branch','ilb_psoriasis_candidate_stack'];
     $verified=[];
     foreach($critical as $t){
         $q=$pdo->prepare("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema=DATABASE() AND table_name=?");
