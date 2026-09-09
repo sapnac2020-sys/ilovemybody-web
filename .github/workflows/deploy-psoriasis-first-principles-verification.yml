@@ -1,0 +1,41 @@
+name: Deploy Phase 109 psoriasis first-principles verification
+
+on:
+  workflow_dispatch:
+    inputs:
+      phase108_verified:
+        description: 'Type VERIFIED after Phase 108 verifier has passed in production'
+        required: true
+        type: string
+
+jobs:
+  deploy:
+    if: ${{ inputs.phase108_verified == 'VERIFIED' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate files
+        run: |
+          test -f backend/phase_109_psoriasis_first_principles_verification.sql
+          test -f ops/verify-psoriasis-first-principles.php
+          php -l ops/verify-psoriasis-first-principles.php
+      - name: Upload
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.HOSTINGER_SSH_HOST }}
+          username: ${{ secrets.HOSTINGER_SSH_USER }}
+          password: ${{ secrets.HOSTINGER_SSH_PASSWORD }}
+          port: ${{ secrets.HOSTINGER_SSH_PORT }}
+          source: "backend/phase_109_psoriasis_first_principles_verification.sql,ops/verify-psoriasis-first-principles.php"
+          target: ${{ secrets.HOSTINGER_APP_PATH }}
+      - name: Run production verifier
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.HOSTINGER_SSH_HOST }}
+          username: ${{ secrets.HOSTINGER_SSH_USER }}
+          password: ${{ secrets.HOSTINGER_SSH_PASSWORD }}
+          port: ${{ secrets.HOSTINGER_SSH_PORT }}
+          script: |
+            cd "${{ secrets.HOSTINGER_APP_PATH }}"
+            php ops/verify-psoriasis-first-principles.php | tee latest-phase109-proof.json
+            grep -q '"ok": true' latest-phase109-proof.json
