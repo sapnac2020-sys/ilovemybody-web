@@ -1,0 +1,46 @@
+name: Deploy Phase 117 psoriasis end-to-end closure
+
+on:
+  workflow_dispatch:
+    inputs:
+      phase116_verified:
+        description: 'Type VERIFIED after Phase 116 primitive-closure verifier has passed in production'
+        required: true
+        type: string
+
+jobs:
+  deploy:
+    if: ${{ inputs.phase116_verified == 'VERIFIED' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate Phase 117 files
+        run: |
+          test -f backend/phase_117_psoriasis_end_to_end_closure.sql
+          test -f ops/verify-psoriasis-end-to-end.php
+          test -f docs/PSORIASIS_END_TO_END_HANDOVER.md
+          php -l ops/verify-psoriasis-end-to-end.php
+
+      - name: Upload Phase 117 SQL and verifier
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.HOSTINGER_SSH_HOST }}
+          username: ${{ secrets.HOSTINGER_SSH_USER }}
+          password: ${{ secrets.HOSTINGER_SSH_PASSWORD }}
+          port: ${{ secrets.HOSTINGER_SSH_PORT }}
+          source: "backend/phase_117_psoriasis_end_to_end_closure.sql,ops/verify-psoriasis-end-to-end.php"
+          target: ${{ secrets.HOSTINGER_APP_PATH }}
+
+      - name: Run production verifier
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.HOSTINGER_SSH_HOST }}
+          username: ${{ secrets.HOSTINGER_SSH_USER }}
+          password: ${{ secrets.HOSTINGER_SSH_PASSWORD }}
+          port: ${{ secrets.HOSTINGER_SSH_PORT }}
+          script: |
+            cd "${{ secrets.HOSTINGER_APP_PATH }}"
+            php ops/verify-psoriasis-end-to-end.php | tee latest-phase117-proof.json
+            grep -q '"ok": true' latest-phase117-proof.json
