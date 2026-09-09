@@ -21,26 +21,18 @@ try {
         $pdo=new PDO($dsn,$c['user'],$c['pass'],[PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION,PDO::ATTR_DEFAULT_FETCH_MODE=>PDO::FETCH_ASSOC]);
     }
 
-    // Additive compatibility shim for a legacy pre-Phase-106 table with the same name.
-    // Existing columns/data are preserved; only missing canonical columns are appended.
+    // Preserve legacy production data while appending the Phase-106 canonical fields.
     $table='ilb_psoriasis_treatment_class';
     $exists=$pdo->prepare("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema=DATABASE() AND table_name=?");
     $exists->execute([$table]);
     if((int)$exists->fetchColumn()===1){
         $canonical=[
-          'class_id'=>'VARCHAR(32) NULL',
-          'class_name'=>'VARCHAR(255) NULL',
-          'route_or_type'=>'VARCHAR(160) NULL',
-          'mechanism_summary'=>'TEXT NULL',
-          'typical_role'=>'TEXT NULL',
-          'major_safety_theme'=>'TEXT NULL',
-          'governance_text'=>'TEXT NULL',
-          'source_url'=>'TEXT NULL'
+          'class_id'=>'VARCHAR(32) NULL','class_name'=>'VARCHAR(255) NULL','route_or_type'=>'VARCHAR(160) NULL',
+          'mechanism_summary'=>'TEXT NULL','typical_role'=>'TEXT NULL','major_safety_theme'=>'TEXT NULL',
+          'governance_text'=>'TEXT NULL','source_url'=>'TEXT NULL'
         ];
         $cols=$pdo->query("SELECT column_name FROM information_schema.columns WHERE table_schema=DATABASE() AND table_name='ilb_psoriasis_treatment_class'")->fetchAll(PDO::FETCH_COLUMN);
-        foreach($canonical as $name=>$ddl){
-            if(!in_array($name,$cols,true)) $pdo->exec("ALTER TABLE ilb_psoriasis_treatment_class ADD COLUMN `$name` $ddl");
-        }
+        foreach($canonical as $name=>$ddl) if(!in_array($name,$cols,true)) $pdo->exec("ALTER TABLE ilb_psoriasis_treatment_class ADD COLUMN `$name` $ddl");
     }
 
     $files=glob(__DIR__.'/../backend/phase_*psoriasis*.sql');
@@ -56,9 +48,7 @@ try {
         $letterRank=$letter==='' ? 0 : (ord($letter)-ord('a')+1);
         $selected[]=['file'=>$file,'phase'=>$phase,'letterRank'=>$letterRank,'subnum'=>$subnum,'base'=>$base];
     }
-    usort($selected,static function($a,$b){
-        return [$a['phase'],$a['letterRank'],$a['subnum'],$a['base']] <=> [$b['phase'],$b['letterRank'],$b['subnum'],$b['base']];
-    });
+    usort($selected,static fn($a,$b)=>[$a['phase'],$a['letterRank'],$a['subnum'],$a['base']] <=> [$b['phase'],$b['letterRank'],$b['subnum'],$b['base']]);
     if(!$selected) throw new RuntimeException('No psoriasis SQL selected for phases 106-127');
 
     $pdo->exec("CREATE TABLE IF NOT EXISTS ilb_psoriasis_deployment_ledger (
@@ -75,6 +65,13 @@ try {
         $file=$entry['file'];
         $sql=file_get_contents($file);
         if($sql===false) throw new RuntimeException('Cannot read '.basename($file));
+
+        // Phase 107 source has two narrative rows missing the directness field.
+        // Preserve their governed semantics by inserting INDIRECT before HYPOTHESIS.
+        if(basename($file)==='phase_107_psoriasis_genetic_modifiable_pathway.sql'){
+            $sql=str_replace("'UNSPECIFIED','HYPOTHESIS','RESEARCH_ONLY'","'UNSPECIFIED','INDIRECT','HYPOTHESIS','RESEARCH_ONLY'",$sql);
+        }
+
         $parts=array_values(array_filter(array_map('trim',preg_split('/;\s*(?:\r?\n|$)/',$sql))));
         $n=0;
         foreach($parts as $stmt){
