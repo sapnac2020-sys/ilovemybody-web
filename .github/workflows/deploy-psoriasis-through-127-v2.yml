@@ -42,19 +42,18 @@ jobs:
           test -n "$DEPLOY_BUNDLE"
           mkdir -p "$HOME/.ssh"
           chmod 700 "$HOME/.ssh"
-          printf '%s' "$DEPLOY_BUNDLE" | base64 --decode > "$RUNNER_TEMP/deploy.json"
-          jq -e '.host and .port and .user and .key' "$RUNNER_TEMP/deploy.json" >/dev/null
-          jq -r '.key' "$RUNNER_TEMP/deploy.json" > "$HOME/.ssh/id_ed25519"
+          DEPLOY_JSON="$RUNNER_TEMP/deploy.json"
+          printf '%s' "$DEPLOY_BUNDLE" | base64 --decode > "$DEPLOY_JSON"
+          jq -e '.host and .port and .user and .key' "$DEPLOY_JSON" >/dev/null
+          jq -r '.key' "$DEPLOY_JSON" > "$HOME/.ssh/id_ed25519"
           chmod 600 "$HOME/.ssh/id_ed25519"
-          echo "DEPLOY_HOST=$(jq -r '.host' "$RUNNER_TEMP/deploy.json")" >> "$GITHUB_ENV"
-          echo "DEPLOY_PORT=$(jq -r '.port' "$RUNNER_TEMP/deploy.json")" >> "$GITHUB_ENV"
-          echo "DEPLOY_USER=$(jq -r '.user' "$RUNNER_TEMP/deploy.json)" >> "$GITHUB_ENV"
-          cat > "$HOME/.ssh/config" <<'SSHCONFIG'
-          Host *
-            StrictHostKeyChecking accept-new
-            ConnectTimeout 30
-            ServerAliveInterval 15
-          SSHCONFIG
+          HOST_VALUE=`jq -r '.host' "$DEPLOY_JSON"`
+          PORT_VALUE=`jq -r '.port' "$DEPLOY_JSON"`
+          USER_VALUE=`jq -r '.user' "$DEPLOY_JSON"`
+          printf 'DEPLOY_HOST=%s\n' "$HOST_VALUE" >> "$GITHUB_ENV"
+          printf 'DEPLOY_PORT=%s\n' "$PORT_VALUE" >> "$GITHUB_ENV"
+          printf 'DEPLOY_USER=%s\n' "$USER_VALUE" >> "$GITHUB_ENV"
+          printf '%s\n' 'Host *' '  StrictHostKeyChecking accept-new' '  ConnectTimeout 30' '  ServerAliveInterval 15' > "$HOME/.ssh/config"
           chmod 600 "$HOME/.ssh/config"
 
       - name: Package psoriasis SQL and v2 migrator
