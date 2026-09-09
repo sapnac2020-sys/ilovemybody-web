@@ -1,0 +1,41 @@
+name: Deploy Phase 118 psoriasis keratinocyte compartments
+
+on:
+  workflow_dispatch:
+    inputs:
+      phase117_verified:
+        description: 'Type VERIFIED after Phase 117 end-to-end verifier has passed in production'
+        required: true
+        type: string
+
+jobs:
+  deploy:
+    if: ${{ inputs.phase117_verified == 'VERIFIED' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate Phase 118 files
+        run: |
+          test -f backend/phase_118_psoriasis_keratinocyte_compartments.sql
+          test -f ops/verify-psoriasis-keratinocyte-compartments.php
+          php -l ops/verify-psoriasis-keratinocyte-compartments.php
+      - name: Upload
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.HOSTINGER_SSH_HOST }}
+          username: ${{ secrets.HOSTINGER_SSH_USER }}
+          password: ${{ secrets.HOSTINGER_SSH_PASSWORD }}
+          port: ${{ secrets.HOSTINGER_SSH_PORT }}
+          source: "backend/phase_118_psoriasis_keratinocyte_compartments.sql,ops/verify-psoriasis-keratinocyte-compartments.php"
+          target: ${{ secrets.HOSTINGER_APP_PATH }}
+      - name: Verify production
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.HOSTINGER_SSH_HOST }}
+          username: ${{ secrets.HOSTINGER_SSH_USER }}
+          password: ${{ secrets.HOSTINGER_SSH_PASSWORD }}
+          port: ${{ secrets.HOSTINGER_SSH_PORT }}
+          script: |
+            cd "${{ secrets.HOSTINGER_APP_PATH }}"
+            php ops/verify-psoriasis-keratinocyte-compartments.php | tee latest-phase118-proof.json
+            grep -q '"ok": true' latest-phase118-proof.json
