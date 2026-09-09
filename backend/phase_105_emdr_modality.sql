@@ -130,8 +130,8 @@ INSERT INTO ilb_modality_pathway_link(
 (SHA2('EMDR:PSO:P05:N1',256),@emdr_id,'PSO-001','PSO-P05','N1','TARGETS','NORMALIZE','ESTABLISHED','CONDITIONAL','EMDR directly targets distressing memory processing and the associated learned threat response; this is the primary modality target.'),
 (SHA2('EMDR:PSO:P05:N2',256),@emdr_id,'PSO-001','PSO-P05','N2','MODULATES','DOWN','SUPPORTED','CONDITIONAL','Reduced trauma-related distress may reduce central threat/arousal responses; autonomic effects should be measured rather than assumed.'),
 (SHA2('EMDR:PSO:P04:N5',256),@emdr_id,'PSO-001','PSO-P04','N5','HYPOTHESIZED_DOWNSTREAM_EFFECT','DOWN','HYPOTHESIS','RESEARCH_ONLY','A downstream reduction in peripheral neuroimmune drive is a research hypothesis and is not an established clinical effect of EMDR.'),
-(SHA2('EMDR:PSO:P01:I4',256),@emdr_id,'PSO-001','PSO-P01','I4','HYPOTHESIZED_DOWNSTREAM_EFFECT','DOWN','HYPOTHESIS','No direct IL-17-lowering effect of EMDR is established; any downstream immune change must be measured.'),
-(SHA2('EMDR:PSO:P02:K1',256),@emdr_id,'PSO-001','PSO-P02','K1','HYPOTHESIZED_DOWNSTREAM_EFFECT','NORMALIZE','HYPOTHESIS','Keratinocyte normalization after EMDR is not established and must never be inferred from improved distress alone.')
+(SHA2('EMDR:PSO:P01:I4',256),@emdr_id,'PSO-001','PSO-P01','I4','HYPOTHESIZED_DOWNSTREAM_EFFECT','DOWN','HYPOTHESIS','RESEARCH_ONLY','No direct IL-17-lowering effect of EMDR is established; any downstream immune change must be measured.'),
+(SHA2('EMDR:PSO:P02:K1',256),@emdr_id,'PSO-001','PSO-P02','K1','HYPOTHESIZED_DOWNSTREAM_EFFECT','NORMALIZE','HYPOTHESIS','RESEARCH_ONLY','Keratinocyte normalization after EMDR is not established and must never be inferred from improved distress alone.')
 ON DUPLICATE KEY UPDATE evidence_status=VALUES(evidence_status),clinical_use_status=VALUES(clinical_use_status),statement_text=VALUES(statement_text);
 
 INSERT INTO ilb_modality_protocol_step(protocol_step_id,modality_id,protocol_code,step_no,step_name,purpose_text,measurement_checkpoint,safety_checkpoint) VALUES
