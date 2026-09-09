@@ -1,0 +1,45 @@
+name: Deploy Phase 115 psoriasis master formula closure
+
+on:
+  workflow_dispatch:
+    inputs:
+      phase114_verified:
+        description: 'Type VERIFIED after Phase 114 verifier has passed in production'
+        required: true
+        type: string
+
+jobs:
+  deploy:
+    if: ${{ inputs.phase114_verified == 'VERIFIED' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate Phase 115 files
+        run: |
+          test -f backend/phase_115_psoriasis_master_formula_closure.sql
+          test -f ops/verify-psoriasis-master-formula.php
+          php -l ops/verify-psoriasis-master-formula.php
+
+      - name: Upload Phase 115 SQL and verifier
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.HOSTINGER_SSH_HOST }}
+          username: ${{ secrets.HOSTINGER_SSH_USER }}
+          password: ${{ secrets.HOSTINGER_SSH_PASSWORD }}
+          port: ${{ secrets.HOSTINGER_SSH_PORT }}
+          source: "backend/phase_115_psoriasis_master_formula_closure.sql,ops/verify-psoriasis-master-formula.php"
+          target: ${{ secrets.HOSTINGER_APP_PATH }}
+
+      - name: Run production verifier
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.HOSTINGER_SSH_HOST }}
+          username: ${{ secrets.HOSTINGER_SSH_USER }}
+          password: ${{ secrets.HOSTINGER_SSH_PASSWORD }}
+          port: ${{ secrets.HOSTINGER_SSH_PORT }}
+          script: |
+            cd "${{ secrets.HOSTINGER_APP_PATH }}"
+            php ops/verify-psoriasis-master-formula.php | tee latest-phase115-proof.json
+            grep -q '"ok": true' latest-phase115-proof.json
