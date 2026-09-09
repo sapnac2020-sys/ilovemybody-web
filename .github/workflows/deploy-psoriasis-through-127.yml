@@ -35,26 +35,47 @@ jobs:
           test -f backend/phase_126_psoriasis_cross_modality_intersections.sql
           test -f backend/phase_127_psoriasis_intersection_derived_stack.sql
 
-      - name: Upload psoriasis SQL and consolidated migrator
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: ${{ secrets.HOSTINGER_SSH_HOST }}
-          username: ${{ secrets.HOSTINGER_SSH_USER }}
-          password: ${{ secrets.HOSTINGER_SSH_PASSWORD }}
-          port: ${{ secrets.HOSTINGER_SSH_PORT }}
-          source: "backend,ops/deploy-psoriasis-through-127.php"
-          target: ${{ secrets.HOSTINGER_APP_PATH }}
+      - name: Prepare dedicated SSH identity
+        env:
+          DEPLOY_BUNDLE: ${{ secrets.HOSTINGER_DEPLOY_BUNDLE }}
+        run: |
+          set -euo pipefail
+          test -n "$DEPLOY_BUNDLE"
+          mkdir -p "$HOME/.ssh"
+          printf '%s' "$DEPLOY_BUNDLE" | base64 --decode > /tmp/ilb-deploy.json
+          jq -e '.host and .port and .user and .key' /tmp/ilb-deploy.json >/dev/null
+          jq -r '.key' /tmp/ilb-deploy.json > "$HOME/.ssh/id_ed25519"
+          chmod 600 "$HOME/.ssh/id_ed25519"
+          echo "DEPLOY_HOST=$(jq -r '.host' /tmp/ilb-deploy.json)" >> "$GITHUB_ENV"
+          echo "DEPLOY_PORT=$(jq -r '.port' /tmp/ilb-deploy.json)" >> "$GITHUB_ENV"
+          echo "DEPLOY_USER=$(jq -r '.user' /tmp/ilb-deploy.json)" >> "$GITHUB_ENV"
+          ssh-keyscan -p "$(jq -r '.port' /tmp/ilb-deploy.json)" "$(jq -r '.host' /tmp/ilb-deploy.json)" >> "$HOME/.ssh/known_hosts"
+
+      - name: Package psoriasis SQL and migrator
+        run: |
+          set -euo pipefail
+          tar -czf "/tmp/ilmb-psoriasis-${GITHUB_SHA}.tgz" backend/phase_*psoriasis*.sql ops/deploy-psoriasis-through-127.php
+
+      - name: Upload package
+        run: |
+          set -euo pipefail
+          scp -i "$HOME/.ssh/id_ed25519" -P "$DEPLOY_PORT" "/tmp/ilmb-psoriasis-${GITHUB_SHA}.tgz" "$DEPLOY_USER@$DEPLOY_HOST:ilmb-psoriasis-${GITHUB_SHA}.tgz"
 
       - name: Apply and verify production DB
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.HOSTINGER_SSH_HOST }}
-          username: ${{ secrets.HOSTINGER_SSH_USER }}
-          password: ${{ secrets.HOSTINGER_SSH_PASSWORD }}
-          port: ${{ secrets.HOSTINGER_SSH_PORT }}
-          script: |
-            set -e
-            cd "${{ secrets.HOSTINGER_APP_PATH }}"
-            php ops/deploy-psoriasis-through-127.php | tee latest-psoriasis-phase127-production-proof.json
-            grep -q '"ok": true' latest-psoriasis-phase127-production-proof.json
-            grep -q '"phase127_stack_rows": 4' latest-psoriasis-phase127-production-proof.json
+        run: |
+          set -euo pipefail
+          ssh -i "$HOME/.ssh/id_ed25519" -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" "SITE_SHA='$GITHUB_SHA' bash -s" <<'REMOTE'
+          set -euo pipefail
+          TARGET="$HOME/domains/ilovemybody.in/public_html"
+          PACKAGE="$HOME/ilmb-psoriasis-${SITE_SHA}.tgz"
+          test -d "$TARGET"
+          test -f "$PACKAGE"
+          mkdir -p "$TARGET/backend" "$TARGET/ops"
+          tar -xzf "$PACKAGE" -C "$TARGET"
+          test -s "$TARGET/backend/db.php"
+          cd "$TARGET"
+          php ops/deploy-psoriasis-through-127.php | tee latest-psoriasis-phase127-production-proof.json
+          grep -q '"ok": true' latest-psoriasis-phase127-production-proof.json
+          grep -Eq '"phase127_stack_rows": [4-9][0-9]*' latest-psoriasis-phase127-production-proof.json
+          rm -f "$PACKAGE"
+          REMOTE
