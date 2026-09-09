@@ -180,7 +180,7 @@ SELECT
   COUNT(DISTINCT s.protocol_step_id) AS protocol_steps,
   COUNT(DISTINCT ml.modality_measurement_id) AS measurement_links,
   COUNT(DISTINCT e.evidence_id) AS evidence_records,
-  SUM(CASE WHEN p.evidence_status='HYPOTHESIS' THEN 1 ELSE 0 END) AS hypothesis_links
+  COUNT(DISTINCT CASE WHEN p.evidence_status='HYPOTHESIS' THEN p.modality_pathway_id END) AS hypothesis_links
 FROM ilb_modality_definition m
 LEFT JOIN ilb_modality_pathway_link p ON p.modality_id=m.modality_id AND p.disease_code='PSO-001'
 LEFT JOIN ilb_modality_protocol_step s ON s.modality_id=m.modality_id AND s.protocol_code='EMDR_8_PHASE'
