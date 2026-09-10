@@ -1,0 +1,36 @@
+{
+  "version": 1,
+  "modules": [
+    {
+      "pattern": "ILMB_Psoriasis_Drug_Target_Measurement_Intake_*.xlsx",
+      "system_id": "SYS-018",
+      "mode": "configured_sheets",
+      "include_sheets": [
+        "01_DRUG_MASTER",
+        "02_DRUG_TARGET_MAP",
+        "03_LOINC_QUEUE",
+        "04_DB_IMPORT_MAP"
+      ],
+      "sheet_keys": {
+        "01_DRUG_MASTER": ["Drug Key"],
+        "02_DRUG_TARGET_MAP": ["Drug Key", "Target Node"],
+        "03_LOINC_QUEUE": ["Measurement Key"],
+        "04_DB_IMPORT_MAP": ["Sheet", "Column", "Target DB Object"]
+      },
+      "row_gates": {
+        "01_DRUG_MASTER": {
+          "required": ["Drug Key", "Generic Drug", "Primary Psoriasis Target", "Target Verification"]
+        },
+        "02_DRUG_TARGET_MAP": {
+          "required": ["Drug Key", "Drug", "Target Node", "ILMB State Variable", "Equation Term Affected", "Validation Status"]
+        },
+        "03_LOINC_QUEUE": {
+          "required": ["Measurement Key", "Measurement Name", "Model Node", "LOINC Status"]
+        },
+        "04_DB_IMPORT_MAP": {
+          "required": ["Sheet", "Column", "Target DB Object", "Target Field / Role", "Rule", "Status"]
+        }
+      }
+    }
+  ]
+}
