@@ -40,22 +40,31 @@ jobs:
           echo "DEPLOY_USER=$(jq -r '.user' "$RUNNER_TEMP/deploy.json")" >> "$GITHUB_ENV"
           ssh-keyscan -p "$(jq -r '.port' "$RUNNER_TEMP/deploy.json")" "$(jq -r '.host' "$RUNNER_TEMP/deploy.json")" >> "$HOME/.ssh/known_hosts" 2>/dev/null || true
 
-      - name: Stage psoriasis drug-target-measurement workbook
+      - name: Upload commit-pinned psoriasis registry
         run: |
           set -euo pipefail
-          ssh -o IdentitiesOnly=yes -o BatchMode=yes -i "$HOME/.ssh/id_ed25519" -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" 'bash -s' <<'REMOTE'
+          scp -o IdentitiesOnly=yes -o BatchMode=yes -i "$HOME/.ssh/id_ed25519" -P "$DEPLOY_PORT" \
+            ops/excel-sync/config/modules_psoriasis_intake.json \
+            "$DEPLOY_USER@$DEPLOY_HOST:/tmp/ilmb-psoriasis-modules-$GITHUB_SHA.json"
+
+      - name: Stage psoriasis intake workbooks
+        run: |
+          set -euo pipefail
+          ssh -o IdentitiesOnly=yes -o BatchMode=yes -i "$HOME/.ssh/id_ed25519" -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" "GITHUB_SHA='$GITHUB_SHA' bash -s" <<'REMOTE'
           set -euo pipefail
           ROOT="$HOME/private/ilmb-excel-sync"
           CURRENT="$ROOT/current"
+          REGISTRY="/tmp/ilmb-psoriasis-modules-$GITHUB_SHA.json"
           test -L "$CURRENT"
           test -s "$CURRENT/ilmb-sync.env"
-          test -s "$CURRENT/config/modules_psoriasis_intake.json"
+          test -s "$REGISTRY"
           set -a
           . "$CURRENT/ilmb-sync.env"
           set +a
-          export ILMB_MODULE_CONFIG="$CURRENT/config/modules_psoriasis_intake.json"
+          export ILMB_MODULE_CONFIG="$REGISTRY"
           "$CURRENT/.venv/bin/ilmb-sync" doctor
-          "$CURRENT/.venv/bin/ilmb-sync" scan --dry-run > "$CURRENT/psoriasis-drug-intake-dry-run.json"
-          "$CURRENT/.venv/bin/ilmb-sync" scan > "$CURRENT/psoriasis-drug-intake-stage.json"
-          cat "$CURRENT/psoriasis-drug-intake-stage.json"
+          "$CURRENT/.venv/bin/ilmb-sync" scan --dry-run > "$CURRENT/psoriasis-intake-dry-run.json"
+          "$CURRENT/.venv/bin/ilmb-sync" scan > "$CURRENT/psoriasis-intake-stage.json"
+          cat "$CURRENT/psoriasis-intake-stage.json"
+          rm -f "$REGISTRY"
           REMOTE
