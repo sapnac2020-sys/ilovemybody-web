@@ -1,5 +1,5 @@
 {
-  "version": 2,
+  "version": 3,
   "modules": [
     {
       "pattern": "ILMB_Psoriasis_Drug_Target_Measurement_Intake_*.xlsx",
@@ -52,6 +52,43 @@
         "30_CONVERGENCE_ENGINE": {"required": ["Relationship Key","Modality Key","Body Coordinate","Environment State","Formula Eligibility","Convergence Key"]},
         "32_MASTER_MODALITY_REGISTRY": {"required": ["Modality Key","Modality Family","Specific Modality / Intervention","Input Type","Formula Eligibility","Human Data Pre-Formula","Status"]},
         "34_END_TO_END_GATES": {"required": ["Gate","Object","Status","Current State"]}
+      }
+    },
+    {
+      "pattern": "ILMB_PSORIASIS_END_TO_END_MASTER_*.xlsx",
+      "system_id": "SYS-018",
+      "mode": "configured_sheets",
+      "include_sheets": [
+        "77_FORMULA_FAMILY_LIBRARY",
+        "78_140_MODALITY_FORMULA_REGISTER",
+        "79_FORMULA_REGISTER_SUMMARY",
+        "80_FORMULA_NULLS",
+        "81_FORMULA_DB_CONTRACT",
+        "82_FORMULA_FAMILY_COVERAGE"
+      ],
+      "sheet_keys": {
+        "77_FORMULA_FAMILY_LIBRARY": ["Family ID"],
+        "78_140_MODALITY_FORMULA_REGISTER": ["Modality Key"],
+        "79_FORMULA_REGISTER_SUMMARY": ["Metric"],
+        "80_FORMULA_NULLS": ["Modality Key"],
+        "81_FORMULA_DB_CONTRACT": ["DB Table"],
+        "82_FORMULA_FAMILY_COVERAGE": ["Formula Family ID"]
+      },
+      "row_gates": {
+        "77_FORMULA_FAMILY_LIBRARY": {
+          "required": ["Family ID","Formula Family","Physical Abstraction","Canonical Equation"]
+        },
+        "78_140_MODALITY_FORMULA_REGISTER": {
+          "required": ["Modality Key","Modality","Family","Formula Family ID(s)","Closure Status","Human Data Used?","Formula Record Status"]
+        },
+        "80_FORMULA_NULLS": {
+          "required": ["Modality Key","Modality","Family","Closure Status","What Is Required Before Formula Exists"]
+        }
+      },
+      "promotion_defaults": {
+        "computation_eligible": 0,
+        "human_data_pre_formula": 0,
+        "formula_first": true
       }
     }
   ]
