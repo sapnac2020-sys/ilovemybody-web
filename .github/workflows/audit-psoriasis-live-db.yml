@@ -1,0 +1,95 @@
+name: Audit Psoriasis Live DB
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/audit-psoriasis-live-db.yml
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Prepare SSH identity
+        env:
+          DEPLOY_BUNDLE: ${{ secrets.HOSTINGER_DEPLOY_BUNDLE }}
+        run: |
+          set -euo pipefail
+          test -n "$DEPLOY_BUNDLE"
+          mkdir -p "$HOME/.ssh"
+          chmod 700 "$HOME/.ssh"
+          printf '%s' "$DEPLOY_BUNDLE" | base64 --decode > "$RUNNER_TEMP/deploy.json"
+          jq -e '.host and .port and .user and .key' "$RUNNER_TEMP/deploy.json" >/dev/null
+          jq -r '.key' "$RUNNER_TEMP/deploy.json" > "$HOME/.ssh/id_ed25519"
+          chmod 600 "$HOME/.ssh/id_ed25519"
+          echo "DEPLOY_HOST=$(jq -r '.host' "$RUNNER_TEMP/deploy.json")" >> "$GITHUB_ENV"
+          echo "DEPLOY_PORT=$(jq -r '.port' "$RUNNER_TEMP/deploy.json")" >> "$GITHUB_ENV"
+          echo "DEPLOY_USER=$(jq -r '.user' "$RUNNER_TEMP/deploy.json")" >> "$GITHUB_ENV"
+          cat > "$HOME/.ssh/config" <<'SSHCONFIG'
+          Host *
+            StrictHostKeyChecking accept-new
+            ConnectTimeout 30
+            ServerAliveInterval 15
+          SSHCONFIG
+          chmod 600 "$HOME/.ssh/config"
+
+      - name: Query live psoriasis DB read-only
+        run: |
+          set -euo pipefail
+          ssh -o IdentitiesOnly=yes -o BatchMode=yes -i "$HOME/.ssh/id_ed25519" -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" 'php -r '\''
+          $configPath="";
+          $it=new RecursiveIteratorIterator(new RecursiveDirectoryIterator(getenv("HOME")."/domains/ilovemybody.in",FilesystemIterator::SKIP_DOTS));
+          foreach($it as $f){ if($f->getFilename()==="ilmb-config.php"){ $configPath=$f->getPathname(); break; } }
+          if(!$configPath){fwrite(STDERR,"config not found\n");exit(2);} 
+          $c=require $configPath;
+          $db=$c["db"]??$c["name"]??"";
+          $pdo=new PDO("mysql:host=".$c["host"].";port=".($c["port"]??3306).";dbname=".$db.";charset=utf8mb4",$c["user"],$c["pass"]??$c["password"],[PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION,PDO::ATTR_DEFAULT_FETCH_MODE=>PDO::FETCH_ASSOC]);
+          $tables=[
+            "ilb_psoriasis_pharma_parameter",
+            "ilb_psoriasis_persistence_state",
+            "ilb_psoriasis_release_gate",
+            "ilb_psoriasis_aggregate_measurement",
+            "ilb_psoriasis_mechanism_edge",
+            "ilb_psoriasis_modality_reference",
+            "ilb_psoriasis_modality_verdict",
+            "ilb_psoriasis_system_equation"
+          ];
+          $out=["database"=>$db,"generated_at_utc"=>gmdate("c"),"tables"=>[]];
+          foreach($tables as $t){
+            $exists=$pdo->prepare("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema=DATABASE() AND table_name=?");
+            $exists->execute([$t]);
+            if(!(int)$exists->fetchColumn()){ $out["tables"][$t]=["exists"=>false]; continue; }
+            $cols=$pdo->query("SHOW COLUMNS FROM `".$t."`")->fetchAll();
+            $colNames=array_map(fn($r)=>$r["Field"],$cols);
+            $count=(int)$pdo->query("SELECT COUNT(*) FROM `".$t."`")->fetchColumn();
+            $entry=["exists"=>true,"count"=>$count,"columns"=>$colNames];
+            if($t==="ilb_psoriasis_aggregate_measurement"){
+              $hasM=in_array("measurement_title",$colNames,true); $hasC=in_array("class_title",$colNames,true);
+              if($hasM&&$hasC){
+                $q=$pdo->query("SELECT SUM(COALESCE(TRIM(measurement_title),'')<>'' OR COALESCE(TRIM(class_title),'')<>'') AS with_title, SUM(COALESCE(TRIM(measurement_title),'')='' AND COALESCE(TRIM(class_title),'')='') AS both_empty FROM `".$t."`")->fetch();
+                $entry["title_counts"]=["with_title"=>(int)$q["with_title"],"both_empty"=>(int)$q["both_empty"]];
+              }
+            } else {
+              $limit=min($count,5000);
+              $entry["rows"]=$pdo->query("SELECT * FROM `".$t."` LIMIT ".$limit)->fetchAll();
+            }
+            $out["tables"][$t]=$entry;
+          }
+          echo json_encode($out,JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT),"\n";
+          '\''' > psoriasis-live-audit.json
+          jq -e '.tables | length == 8' psoriasis-live-audit.json >/dev/null
+          jq '{database,generated_at_utc,summary:(.tables|map_values({exists,count,title_counts}))}' psoriasis-live-audit.json
+
+      - name: Upload audit artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: psoriasis-live-db-audit
+          path: psoriasis-live-audit.json
+          retention-days: 7
