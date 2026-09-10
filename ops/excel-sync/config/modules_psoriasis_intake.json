@@ -1,35 +1,57 @@
 {
-  "version": 1,
+  "version": 2,
   "modules": [
     {
       "pattern": "ILMB_Psoriasis_Drug_Target_Measurement_Intake_*.xlsx",
       "system_id": "SYS-018",
       "mode": "configured_sheets",
-      "include_sheets": [
-        "01_DRUG_MASTER",
-        "02_DRUG_TARGET_MAP",
-        "03_LOINC_QUEUE",
-        "04_DB_IMPORT_MAP"
-      ],
+      "include_sheets": ["01_DRUG_MASTER","02_DRUG_TARGET_MAP","03_LOINC_QUEUE","04_DB_IMPORT_MAP"],
       "sheet_keys": {
         "01_DRUG_MASTER": ["Drug Key"],
         "02_DRUG_TARGET_MAP": ["Drug Key", "Target Node"],
         "03_LOINC_QUEUE": ["Measurement Key"],
         "04_DB_IMPORT_MAP": ["Sheet", "Column", "Target DB Object"]
+      }
+    },
+    {
+      "pattern": "ILMB_Psoriasis_END_TO_END_*.xlsx",
+      "system_id": "SYS-018",
+      "mode": "configured_sheets",
+      "include_sheets": [
+        "24_BODY_COORD_STANDARD",
+        "25_ENVIRONMENT_STATES",
+        "26_PSO_BODY_MAP",
+        "27_MODALITY_BODY_COORD",
+        "28_STANDARD_CODE_SYSTEMS",
+        "29_FORMULA_VAR_CONTRACT",
+        "30_CONVERGENCE_ENGINE",
+        "31_OPEN_GAPS_RESOLUTION",
+        "32_MASTER_MODALITY_REGISTRY",
+        "33_DB_INGEST_CONTRACT",
+        "34_END_TO_END_GATES"
+      ],
+      "sheet_keys": {
+        "24_BODY_COORD_STANDARD": ["Coordinate Level"],
+        "25_ENVIRONMENT_STATES": ["Environment Code"],
+        "26_PSO_BODY_MAP": ["Node Key"],
+        "27_MODALITY_BODY_COORD": ["Modality Key"],
+        "28_STANDARD_CODE_SYSTEMS": ["Domain", "Standard"],
+        "29_FORMULA_VAR_CONTRACT": ["Variable Field"],
+        "30_CONVERGENCE_ENGINE": ["Relationship Key"],
+        "31_OPEN_GAPS_RESOLUTION": ["Gap / Primitive"],
+        "32_MASTER_MODALITY_REGISTRY": ["Modality Key"],
+        "33_DB_INGEST_CONTRACT": ["Sheet"],
+        "34_END_TO_END_GATES": ["Gate"]
       },
       "row_gates": {
-        "01_DRUG_MASTER": {
-          "required": ["Drug Key", "Generic Drug", "Primary Psoriasis Target", "Target Verification"]
-        },
-        "02_DRUG_TARGET_MAP": {
-          "required": ["Drug Key", "Drug", "Target Node", "ILMB State Variable", "Equation Term Affected", "Validation Status"]
-        },
-        "03_LOINC_QUEUE": {
-          "required": ["Measurement Key", "Measurement Name", "Model Node", "LOINC Status"]
-        },
-        "04_DB_IMPORT_MAP": {
-          "required": ["Sheet", "Column", "Target DB Object", "Target Field / Role", "Rule", "Status"]
-        }
+        "24_BODY_COORD_STANDARD": {"required": ["Coordinate Level","ILMB Code Prefix","Meaning","Formula Role"]},
+        "25_ENVIRONMENT_STATES": {"required": ["Environment Code","Environment Class","Canonical Variable","Physical Meaning","Formula-First Status"]},
+        "26_PSO_BODY_MAP": {"required": ["Node Key","Body System","Equation Variable","Standardization Status","Formula Status"]},
+        "27_MODALITY_BODY_COORD": {"required": ["Modality Key","Modality","Physical/Chemical Input","Formula Eligibility","Convergence Eligibility"]},
+        "29_FORMULA_VAR_CONTRACT": {"required": ["Variable Field","Required Content","Validation Rule"]},
+        "30_CONVERGENCE_ENGINE": {"required": ["Relationship Key","Modality Key","Body Coordinate","Environment State","Formula Eligibility","Convergence Key"]},
+        "32_MASTER_MODALITY_REGISTRY": {"required": ["Modality Key","Modality Family","Specific Modality / Intervention","Input Type","Formula Eligibility","Human Data Pre-Formula","Status"]},
+        "34_END_TO_END_GATES": {"required": ["Gate","Object","Status","Current State"]}
       }
     }
   ]
