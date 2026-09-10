@@ -1,0 +1,61 @@
+name: Stage ILMB Psoriasis Drug Intake
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - ops/excel-sync/config/modules_psoriasis_intake.json
+      - .github/workflows/stage-psoriasis-drug-intake.yml
+
+concurrency:
+  group: ilovemybody-psoriasis-drug-intake-stage
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  stage:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Prepare SSH identity
+        env:
+          DEPLOY_BUNDLE: ${{ secrets.HOSTINGER_DEPLOY_BUNDLE }}
+        run: |
+          set -euo pipefail
+          test -n "$DEPLOY_BUNDLE"
+          mkdir -p "$HOME/.ssh"
+          chmod 700 "$HOME/.ssh"
+          printf '%s' "$DEPLOY_BUNDLE" | base64 --decode > "$RUNNER_TEMP/deploy.json"
+          jq -e '.host and .port and .user and .key' "$RUNNER_TEMP/deploy.json" >/dev/null
+          jq -r '.key' "$RUNNER_TEMP/deploy.json" > "$HOME/.ssh/id_ed25519"
+          chmod 600 "$HOME/.ssh/id_ed25519"
+          echo "DEPLOY_HOST=$(jq -r '.host' "$RUNNER_TEMP/deploy.json")" >> "$GITHUB_ENV"
+          echo "DEPLOY_PORT=$(jq -r '.port' "$RUNNER_TEMP/deploy.json")" >> "$GITHUB_ENV"
+          echo "DEPLOY_USER=$(jq -r '.user' "$RUNNER_TEMP/deploy.json")" >> "$GITHUB_ENV"
+          ssh-keyscan -p "$(jq -r '.port' "$RUNNER_TEMP/deploy.json")" "$(jq -r '.host' "$RUNNER_TEMP/deploy.json")" >> "$HOME/.ssh/known_hosts" 2>/dev/null || true
+
+      - name: Stage psoriasis drug-target-measurement workbook
+        run: |
+          set -euo pipefail
+          ssh -o IdentitiesOnly=yes -o BatchMode=yes -i "$HOME/.ssh/id_ed25519" -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" 'bash -s' <<'REMOTE'
+          set -euo pipefail
+          ROOT="$HOME/private/ilmb-excel-sync"
+          CURRENT="$ROOT/current"
+          test -L "$CURRENT"
+          test -s "$CURRENT/ilmb-sync.env"
+          test -s "$CURRENT/config/modules_psoriasis_intake.json"
+          set -a
+          . "$CURRENT/ilmb-sync.env"
+          set +a
+          export ILMB_MODULE_CONFIG="$CURRENT/config/modules_psoriasis_intake.json"
+          "$CURRENT/.venv/bin/ilmb-sync" doctor
+          "$CURRENT/.venv/bin/ilmb-sync" scan --dry-run > "$CURRENT/psoriasis-drug-intake-dry-run.json"
+          "$CURRENT/.venv/bin/ilmb-sync" scan > "$CURRENT/psoriasis-drug-intake-stage.json"
+          cat "$CURRENT/psoriasis-drug-intake-stage.json"
+          REMOTE
