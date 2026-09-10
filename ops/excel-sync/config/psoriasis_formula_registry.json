@@ -1,0 +1,51 @@
+{
+  "version": 1,
+  "system_id": "SYS-018",
+  "pattern": "ILMB_PSORIASIS_END_TO_END_MASTER_v5*.xlsx",
+  "mode": "configured_sheets",
+  "include_sheets": [
+    "77_FORMULA_FAMILY_LIBRARY",
+    "78_140_MODALITY_FORMULA_REGISTER",
+    "80_FORMULA_NULLS",
+    "81_FORMULA_DB_CONTRACT"
+  ],
+  "sheet_keys": {
+    "77_FORMULA_FAMILY_LIBRARY": ["Family ID"],
+    "78_140_MODALITY_FORMULA_REGISTER": ["Modality Key"],
+    "80_FORMULA_NULLS": ["Modality Key"],
+    "81_FORMULA_DB_CONTRACT": ["DB Table"]
+  },
+  "row_gates": {
+    "77_FORMULA_FAMILY_LIBRARY": {
+      "required": ["Family ID", "Formula Family", "Canonical Equation"]
+    },
+    "78_140_MODALITY_FORMULA_REGISTER": {
+      "required": [
+        "Modality Key",
+        "Modality",
+        "Family",
+        "Formula Family ID(s)",
+        "Closure Status",
+        "Human Data Used?",
+        "Formula Record Status"
+      ],
+      "allowed_values": {
+        "Human Data Used?": ["NO"],
+        "Formula Record Status": ["FORMULA_PRESENT", "FORMULA_NULL_BY_GOVERNANCE"]
+      }
+    },
+    "80_FORMULA_NULLS": {
+      "required": ["Modality Key", "Modality", "Closure Status", "What Is Required Before Formula Exists"]
+    }
+  },
+  "promotion_defaults": {
+    "computation_eligible": 0,
+    "human_data_pre_formula": 0,
+    "formula_first": true
+  },
+  "target_tables": {
+    "77_FORMULA_FAMILY_LIBRARY": "ilb_psoriasis_formula_family",
+    "78_140_MODALITY_FORMULA_REGISTER": "ilb_psoriasis_modality_formula",
+    "80_FORMULA_NULLS": "ilb_psoriasis_formula_null_reason"
+  }
+}
