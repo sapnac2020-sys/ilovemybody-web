@@ -1,0 +1,19 @@
+{
+    "deleted": [],
+    "blocked": [
+        {
+            "table": "ilb_gita_formula_test",
+            "reason": "guard_failed",
+            "rows": 0,
+            "dependencies": {
+                "incoming": 0,
+                "outgoing": 0,
+                "viewRefs": 1,
+                "triggerRefs": 0,
+                "routineRefs": 0
+            }
+        }
+    ],
+    "deleted_count": 0,
+    "blocked_count": 1
+}
