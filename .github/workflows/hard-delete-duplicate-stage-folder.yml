@@ -1,4 +1,4 @@
-name: Hard Delete Confirmed Duplicate Stage Folder
+name: Hard Delete Confirmed Duplicate Stage Files
 
 on:
   workflow_dispatch:
@@ -36,7 +36,7 @@ jobs:
             IdentitiesOnly yes
           SSHCONFIG
           chmod 600 "$HOME/.ssh/config"
-      - name: Verify every staged file is byte-identical to live app, then hard delete
+      - name: Hard delete only byte-identical staged files
         run: |
           set -euo pipefail
           ssh -i "$HOME/.ssh/id_ed25519" -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" 'bash -s' <<'REMOTE'
@@ -45,36 +45,32 @@ jobs:
           STAGE="$BASE/stage-1e30f23f840711ed53f7"
           APP="$BASE/app"
           if [ ! -d "$STAGE" ]; then
-            echo '{"stage_folder":"already_absent","deleted":false}'
+            echo '{"stage_folder":"already_absent","duplicates_deleted":0,"unique_retained":0}'
             exit 0
           fi
           list="/tmp/ilmb-stage-files-$$.txt"
           find "$STAGE" -type f -print > "$list"
-          mismatch=0
-          count=0
+          deleted=0
+          retained=0
           while IFS= read -r f; do
             [ -n "$f" ] || continue
-            count=$((count+1))
             rel="${f#$STAGE/}"
             target="$APP/$rel"
-            if [ ! -f "$target" ]; then
-              echo "UNMATCHED:$rel"
-              mismatch=1
-              continue
+            if [ -f "$target" ]; then
+              a=$(sha256sum "$f" | awk '{print $1}')
+              b=$(sha256sum "$target" | awk '{print $1}')
+              if [ "$a" = "$b" ]; then
+                rm -f "$f"
+                deleted=$((deleted+1))
+                echo "DELETED_DUPLICATE:$rel"
+                continue
+              fi
             fi
-            a=$(sha256sum "$f" | awk '{print $1}')
-            b=$(sha256sum "$target" | awk '{print $1}')
-            if [ "$a" != "$b" ]; then
-              echo "DIFFERENT:$rel"
-              mismatch=1
-            fi
+            retained=$((retained+1))
+            echo "RETAINED_UNIQUE:$rel"
           done < "$list"
           rm -f "$list"
-          if [ "$mismatch" -ne 0 ]; then
-            echo 'Stage folder contains non-duplicate files; refusing hard delete.' >&2
-            exit 9
-          fi
-          rm -rf "$STAGE"
-          test ! -e "$STAGE"
-          printf '{"stage_folder":"deleted","files_deleted":%s}\n' "$count"
+          find "$STAGE" -depth -type d -empty -delete || true
+          if [ -d "$STAGE" ] && [ -z "$(find "$STAGE" -mindepth 1 -print -quit)" ]; then rmdir "$STAGE"; fi
+          printf '{"duplicates_deleted":%s,"unique_retained":%s,"stage_folder_remaining":%s}\n' "$deleted" "$retained" "$([ -d "$STAGE" ] && echo true || echo false)"
           REMOTE
