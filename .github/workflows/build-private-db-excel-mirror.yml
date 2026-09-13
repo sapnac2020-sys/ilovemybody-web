@@ -48,7 +48,7 @@ jobs:
         run: |
           set -euo pipefail
           package="$RUNNER_TEMP/private-mirror-src.tgz"
-          tar -C ops/excel-sync -czf "$package" src/ilmb_sync/private_mirror.py src/ilmb_sync/db.py src/ilmb_sync/__init__.py
+          tar -C ops/excel-sync -czf "$package" src/ilmb_sync
           remote="/tmp/ilmb-private-mirror-${GITHUB_RUN_ID}.tgz"
           uploaded=false
           for attempt in 1 2 3 4 5; do
