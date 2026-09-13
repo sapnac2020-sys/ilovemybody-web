@@ -1,10 +1,11 @@
 -- Bootstrap the new Formula Master from ILMB's existing governed equation registry.
--- This is an index/snapshot with provenance; it does not replace the legacy registry.
+-- This migration is applied once by the ILMB migration ledger.
+-- It indexes/snapshots existing governed formulas; it does not replace the legacy registry.
 
 ALTER TABLE ilmb_formula_master
-  ADD COLUMN IF NOT EXISTS source_system VARCHAR(64) NULL AFTER evidence_class,
-  ADD COLUMN IF NOT EXISTS source_record_key VARCHAR(191) NULL AFTER source_system,
-  ADD UNIQUE KEY IF NOT EXISTS uq_ilmb_formula_source (source_system, source_record_key);
+  ADD COLUMN source_system VARCHAR(64) NULL AFTER evidence_class,
+  ADD COLUMN source_record_key VARCHAR(191) NULL AFTER source_system,
+  ADD UNIQUE KEY uq_ilmb_formula_source (source_system, source_record_key);
 
 INSERT INTO ilmb_formula_master (
   formula_key, formula_name, formula_domain, output_parameter_id,
