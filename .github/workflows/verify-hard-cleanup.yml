@@ -1,0 +1,51 @@
+name: Verify ILMB Hard Cleanup
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/verify-hard-cleanup.yml
+
+permissions:
+  contents: write
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Prepare SSH
+        env:
+          DEPLOY_BUNDLE: ${{ secrets.HOSTINGER_DEPLOY_BUNDLE }}
+        run: |
+          set -euo pipefail
+          mkdir -p "$HOME/.ssh"; chmod 700 "$HOME/.ssh"
+          printf '%s' "$DEPLOY_BUNDLE" | base64 --decode > "$RUNNER_TEMP/deploy.json"
+          jq -r '.key' "$RUNNER_TEMP/deploy.json" > "$HOME/.ssh/id_ed25519"; chmod 600 "$HOME/.ssh/id_ed25519"
+          echo "DEPLOY_HOST=$(jq -r '.host' "$RUNNER_TEMP/deploy.json")" >> "$GITHUB_ENV"
+          echo "DEPLOY_PORT=$(jq -r '.port' "$RUNNER_TEMP/deploy.json")" >> "$GITHUB_ENV"
+          echo "DEPLOY_USER=$(jq -r '.user' "$RUNNER_TEMP/deploy.json")" >> "$GITHUB_ENV"
+          cat > "$HOME/.ssh/config" <<'EOF'
+          Host *
+            StrictHostKeyChecking accept-new
+            ConnectTimeout 25
+            ServerAliveInterval 15
+            ServerAliveCountMax 4
+            IdentitiesOnly yes
+          EOF
+      - name: Run guarded cleanup verification
+        run: |
+          set -euo pipefail
+          scp -i "$HOME/.ssh/id_ed25519" -P "$DEPLOY_PORT" ops/hard-cleanup-confirmed.php "$DEPLOY_USER@$DEPLOY_HOST:/tmp/ilmb-hard-cleanup-confirmed.php"
+          ssh -i "$HOME/.ssh/id_ed25519" -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" 'CONFIG=$(find "$HOME/domains/ilovemybody.in" -maxdepth 5 -type f -name ilmb-config.php -print -quit); php /tmp/ilmb-hard-cleanup-confirmed.php "$CONFIG"; rm -f /tmp/ilmb-hard-cleanup-confirmed.php' | tee "$RUNNER_TEMP/verify-hard-cleanup.json"
+      - name: Record verification
+        run: |
+          set -euo pipefail
+          cp "$RUNNER_TEMP/verify-hard-cleanup.json" docs/audits/HARD_CLEANUP_DB_VERIFY.json
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git pull --rebase origin main
+          git add docs/audits/HARD_CLEANUP_DB_VERIFY.json
+          if ! git diff --cached --quiet; then git commit -m 'docs: record DB hard-clean verification'; git push; fi
