@@ -96,6 +96,22 @@ CREATE TABLE IF NOT EXISTS ilmb_parameter_duplicate_candidate (
     CONSTRAINT fk_ilmb_duplicate_right FOREIGN KEY (right_parameter_id) REFERENCES ilmb_parameter_master(parameter_id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+CREATE TABLE IF NOT EXISTS ilmb_formula_duplicate_candidate (
+    formula_duplicate_candidate_id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    left_formula_id BIGINT UNSIGNED NOT NULL,
+    right_formula_id BIGINT UNSIGNED NOT NULL,
+    reason_code ENUM('NORMALIZED_EXPRESSION','SAME_OUTPUT_AND_INPUTS','SAME_SOURCE_KEY','MANUAL') NOT NULL,
+    confidence DECIMAL(6,5) NULL,
+    evidence_json JSON NULL,
+    disposition ENUM('OPEN','SAME','DISTINCT','MERGED','IGNORED') NOT NULL DEFAULT 'OPEN',
+    reviewed_at DATETIME NULL,
+    reviewed_by VARCHAR(191) NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY uq_ilmb_formula_duplicate_pair (left_formula_id,right_formula_id,reason_code),
+    CONSTRAINT fk_ilmb_formula_duplicate_left FOREIGN KEY (left_formula_id) REFERENCES ilmb_formula_master(formula_id) ON DELETE CASCADE,
+    CONSTRAINT fk_ilmb_formula_duplicate_right FOREIGN KEY (right_formula_id) REFERENCES ilmb_formula_master(formula_id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 CREATE TABLE IF NOT EXISTS ilmb_body_need_run (
     body_need_run_id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     subject_key VARCHAR(191) NOT NULL,
@@ -104,7 +120,7 @@ CREATE TABLE IF NOT EXISTS ilmb_body_need_run (
     input_snapshot_json JSON NOT NULL,
     output_value DECIMAL(30,12) NULL,
     output_ucum_unit VARCHAR(64) NULL,
-    execution_status ENUM('READY','BLOCKED_MISSING_INPUT','BLOCKED_UNVERIFIED_TARGET','BLOCKED_UNIT_MISMATCH','COMPUTED','ERROR') NOT NULL,
+    execution_status ENUM('READY','BLOCKED_MISSING_INPUT','BLOCKED_UNVERIFIED_FORMULA','BLOCKED_UNVERIFIED_TARGET','BLOCKED_UNIT_MISMATCH','COMPUTED','ERROR') NOT NULL,
     blocking_reason TEXT NULL,
     provenance_json JSON NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -120,7 +136,11 @@ SELECT p.parameter_id,p.parameter_key,p.canonical_name,p.parameter_domain,p.valu
  MAX(CASE WHEN i.identifier_system='CL' AND i.verification_status='APPROVED' THEN i.identifier_code END) AS cl_code,
  MAX(CASE WHEN i.identifier_system='GO' AND i.verification_status='APPROVED' THEN i.identifier_code END) AS go_code,
  MAX(CASE WHEN i.identifier_system='HPO' AND i.verification_status='APPROVED' THEN i.identifier_code END) AS hpo_code,
- MAX(CASE WHEN i.identifier_system='REACTOME' AND i.verification_status='APPROVED' THEN i.identifier_code END) AS reactome_code
+ MAX(CASE WHEN i.identifier_system='REACTOME' AND i.verification_status='APPROVED' THEN i.identifier_code END) AS reactome_code,
+ MAX(CASE WHEN i.identifier_system='RXNORM' AND i.verification_status='APPROVED' THEN i.identifier_code END) AS rxnorm_code,
+ MAX(CASE WHEN i.identifier_system='SNOMED_CT' AND i.verification_status='APPROVED' THEN i.identifier_code END) AS snomed_ct_code,
+ MAX(CASE WHEN i.identifier_system='UNIPROT' AND i.verification_status='APPROVED' THEN i.identifier_code END) AS uniprot_code,
+ MAX(CASE WHEN i.identifier_system='HGNC' AND i.verification_status='APPROVED' THEN i.identifier_code END) AS hgnc_code
 FROM ilmb_parameter_master p
 LEFT JOIN ilmb_parameter_identifier i ON i.parameter_id=p.parameter_id
 WHERE p.status <> 'DEPRECATED'
