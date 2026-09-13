@@ -13,6 +13,7 @@ from ilmb_sync.body_need import (
     duplicate_candidates,
     evaluate_formula,
     export_formula_master_xlsx,
+    formula_duplicate_candidates,
     formula_symbols,
     normalized_expression,
 )
@@ -33,10 +34,7 @@ class BodyNeedTests(unittest.TestCase):
             expression="target-measured",
             formula_status="APPROVED",
             unit_checked=True,
-            input_specs=[
-                FormulaInputSpec("target", "TARGET", True, "mg"),
-                FormulaInputSpec("measured", "MEASURED", True, "mg"),
-            ],
+            input_specs=[FormulaInputSpec("target", "TARGET", True, "mg"), FormulaInputSpec("measured", "MEASURED", True, "mg")],
             observations={
                 "target": {"value": 10, "unit": "mg", "verified_source": False},
                 "measured": {"value": 4, "unit": "mg", "verified_source": True},
@@ -71,17 +69,32 @@ class BodyNeedTests(unittest.TestCase):
         self.assertIn("SAME_IDENTIFIER", reasons)
         self.assertIn("NORMALIZED_NAME_UNIT", reasons)
 
+    def test_formula_duplicate_signals(self):
+        formulas = [
+            {"formula_id": 10, "expression_text": "target-measured", "output_parameter_id": 3},
+            {"formula_id": 11, "expression_text": "target - measured", "output_parameter_id": 3},
+        ]
+        inputs = [
+            {"formula_id": 10, "parameter_id": 1, "role": "TARGET", "expected_ucum_unit": "mg"},
+            {"formula_id": 10, "parameter_id": 2, "role": "MEASURED", "expected_ucum_unit": "mg"},
+            {"formula_id": 11, "parameter_id": 1, "role": "TARGET", "expected_ucum_unit": "mg"},
+            {"formula_id": 11, "parameter_id": 2, "role": "MEASURED", "expected_ucum_unit": "mg"},
+        ]
+        reasons = {x["reason"] for x in formula_duplicate_candidates(formulas, inputs)}
+        self.assertIn("NORMALIZED_EXPRESSION", reasons)
+        self.assertIn("SAME_OUTPUT_AND_INPUTS", reasons)
+
     def test_export_workbook(self):
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp) / "formula-master.xlsx"
             export_formula_master_xlsx(
                 path,
                 parameters=[{"parameter_id": 1, "parameter_key": "sodium"}],
-                identifiers=[], formulas=[], formula_inputs=[], duplicates=[])
+                identifiers=[], formulas=[], formula_inputs=[], duplicates=[], formula_duplicates=[])
             wb = load_workbook(path, read_only=True)
             self.assertEqual(
                 wb.sheetnames,
-                ["Parameters", "Identifiers", "Formula_Master", "Formula_Inputs", "Duplicate_Candidates", "Body_Need_Template"],
+                ["Parameters", "Identifiers", "Formula_Master", "Formula_Inputs", "Duplicate_Candidates", "Formula_Duplicates", "Body_Need_Template"],
             )
 
 
