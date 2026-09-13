@@ -7,6 +7,7 @@ on:
   push:
     branches: [main]
     paths:
+      - ops/excel-sync/src/ilmb_sync/private_mirror.py
       - .github/workflows/build-private-db-excel-mirror.yml
 
 concurrency:
@@ -34,30 +35,56 @@ jobs:
           echo "DEPLOY_HOST=$(jq -r '.host' "$RUNNER_TEMP/deploy.json")" >> "$GITHUB_ENV"
           echo "DEPLOY_PORT=$(jq -r '.port' "$RUNNER_TEMP/deploy.json")" >> "$GITHUB_ENV"
           echo "DEPLOY_USER=$(jq -r '.user' "$RUNNER_TEMP/deploy.json")" >> "$GITHUB_ENV"
-          for attempt in 1 2 3 4 5; do ssh-keyscan -T 15 -p "$(jq -r '.port' "$RUNNER_TEMP/deploy.json")" "$(jq -r '.host' "$RUNNER_TEMP/deploy.json")" >> "$HOME/.ssh/known_hosts" 2>/dev/null && break; sleep 5; done
+          cat > "$HOME/.ssh/config" <<'SSHCONFIG'
+          Host *
+            StrictHostKeyChecking accept-new
+            ConnectTimeout 20
+            ServerAliveInterval 15
+            ServerAliveCountMax 8
+            IdentitiesOnly yes
+          SSHCONFIG
+          chmod 600 "$HOME/.ssh/config"
+      - name: Upload mirror module
+        run: |
+          set -euo pipefail
+          package="$RUNNER_TEMP/private-mirror-src.tgz"
+          tar -C ops/excel-sync -czf "$package" src/ilmb_sync/private_mirror.py src/ilmb_sync/db.py src/ilmb_sync/__init__.py
+          remote="/tmp/ilmb-private-mirror-${GITHUB_RUN_ID}.tgz"
+          uploaded=false
+          for attempt in 1 2 3 4 5; do
+            if scp -i "$HOME/.ssh/id_ed25519" -P "$DEPLOY_PORT" "$package" "$DEPLOY_USER@$DEPLOY_HOST:$remote"; then uploaded=true; break; fi
+            sleep $((attempt * 5))
+          done
+          test "$uploaded" = true
+          echo "REMOTE_PACKAGE=$remote" >> "$GITHUB_ENV"
       - name: Generate private full DB mirror
         run: |
           set -euo pipefail
-          ssh -o IdentitiesOnly=yes -o BatchMode=yes -o ServerAliveInterval=15 -o ServerAliveCountMax=8 -i "$HOME/.ssh/id_ed25519" -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" 'bash -s' <<'REMOTE' | tee "$RUNNER_TEMP/full-db-mirror-result.json"
+          ssh -i "$HOME/.ssh/id_ed25519" -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" "REMOTE_PACKAGE='$REMOTE_PACKAGE' bash -s" <<'REMOTE' | tee "$RUNNER_TEMP/full-db-mirror-result.json"
           set -euo pipefail
           ROOT="$HOME/private/ilmb-excel-sync"
           CURRENT="$ROOT/current"
           EXCHANGE="$HOME/ilmb-data-exchange"
+          WORK="/tmp/ilmb-private-mirror-run-$$"
+          mkdir -p "$WORK"
+          tar -xzf "$REMOTE_PACKAGE" -C "$WORK"
           test -L "$CURRENT"
           test -s "$CURRENT/ilmb-sync.env"
+          test -x "$CURRENT/.venv/bin/python"
           set -a; . "$CURRENT/ilmb-sync.env"; set +a
-          "$CURRENT/.venv/bin/ilmb-private-mirror" full-db --output-root "$EXCHANGE" --tables-per-workbook 20
+          PYTHONPATH="$WORK/src" "$CURRENT/.venv/bin/python" -m ilmb_sync.private_mirror full-db --output-root "$EXCHANGE" --tables-per-workbook 20
           test -s "$EXCHANGE/db-mirror/current/00_CONTROL_ROOM.xlsx"
           test -s "$EXCHANGE/db-mirror/current/manifest.json"
+          rm -rf "$WORK" "$REMOTE_PACKAGE"
           REMOTE
       - name: Publish metadata receipt only
         run: |
           set -euo pipefail
           python - <<'PY'
-          import json, pathlib
-          p=pathlib.Path('${{ runner.temp }}/full-db-mirror-result.json')
-          text=p.read_text().strip().splitlines()[-1]
-          d=json.loads(text)
+          import json, pathlib, os
+          p=pathlib.Path(os.environ['RUNNER_TEMP'])/'full-db-mirror-result.json'
+          lines=[x for x in p.read_text().splitlines() if x.strip()]
+          d=json.loads(lines[-1])
           safe={
             'generated_at_utc':d.get('generated_at_utc'),
             'base_tables':d.get('base_tables'),
