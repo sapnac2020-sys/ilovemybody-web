@@ -1,5 +1,6 @@
 <?php
 declare(strict_types=1);
+// Post-hard-clean verification refresh: 2026-09-13.
 
 function rows(PDO $pdo, string $sql): array { return $pdo->query($sql)->fetchAll(PDO::FETCH_ASSOC); }
 function scalar(PDO $pdo, string $sql): int { return (int)$pdo->query($sql)->fetchColumn(); }
