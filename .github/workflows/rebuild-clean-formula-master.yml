@@ -1,0 +1,67 @@
+name: Rebuild Clean ILMB Formula Master
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/rebuild-clean-formula-master.yml
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Prepare SSH
+        env:
+          DEPLOY_BUNDLE: ${{ secrets.HOSTINGER_DEPLOY_BUNDLE }}
+        run: |
+          set -euo pipefail
+          mkdir -p "$HOME/.ssh"; chmod 700 "$HOME/.ssh"
+          printf '%s' "$DEPLOY_BUNDLE" | base64 --decode > "$RUNNER_TEMP/deploy.json"
+          jq -r '.key' "$RUNNER_TEMP/deploy.json" > "$HOME/.ssh/id_ed25519"; chmod 600 "$HOME/.ssh/id_ed25519"
+          echo "DEPLOY_HOST=$(jq -r '.host' "$RUNNER_TEMP/deploy.json")" >> "$GITHUB_ENV"
+          echo "DEPLOY_PORT=$(jq -r '.port' "$RUNNER_TEMP/deploy.json")" >> "$GITHUB_ENV"
+          echo "DEPLOY_USER=$(jq -r '.user' "$RUNNER_TEMP/deploy.json")" >> "$GITHUB_ENV"
+          cat > "$HOME/.ssh/config" <<'EOF'
+          Host *
+            StrictHostKeyChecking accept-new
+            ConnectTimeout 25
+            ServerAliveInterval 15
+            ServerAliveCountMax 4
+            IdentitiesOnly yes
+          EOF
+      - name: Export live master JSON
+        run: |
+          set -euo pipefail
+          scp -i "$HOME/.ssh/id_ed25519" -P "$DEPLOY_PORT" ops/export-body-need-master.php "$DEPLOY_USER@$DEPLOY_HOST:/tmp/export-body-need-master.php"
+          ssh -i "$HOME/.ssh/id_ed25519" -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" 'CONFIG=$(find "$HOME/domains/ilovemybody.in" -maxdepth 5 -type f -name ilmb-config.php -print -quit); php /tmp/export-body-need-master.php "$CONFIG"; rm -f /tmp/export-body-need-master.php' > "$RUNNER_TEMP/body-need-master-live.json"
+          jq -e '.parameters and .identifiers and .formulas and .formula_inputs' "$RUNNER_TEMP/body-need-master-live.json" >/dev/null
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Build workbook
+        run: |
+          python -m pip install --disable-pip-version-check openpyxl
+          PYTHONPATH=ops/excel-sync/src python - <<'PY'
+          import json, os
+          from pathlib import Path
+          from ilmb_sync.body_need import duplicate_candidates, formula_duplicate_candidates, export_formula_master_xlsx
+          d=json.loads((Path(os.environ['RUNNER_TEMP'])/'body-need-master-live.json').read_text())
+          pd=duplicate_candidates(d['parameters'],d['identifiers'],d['formulas'])
+          fd=formula_duplicate_candidates(d['formulas'],d['formula_inputs'])
+          out=Path(os.environ['RUNNER_TEMP'])/'ILMB_Formula_Master_Live.xlsx'
+          export_formula_master_xlsx(out,parameters=d['parameters'],identifiers=d['identifiers'],formulas=d['formulas'],formula_inputs=d['formula_inputs'],duplicates=pd,formula_duplicates=fd)
+          receipt={'parameters':len(d['parameters']),'identifiers':len(d['identifiers']),'formulas':len(d['formulas']),'formula_inputs':len(d['formula_inputs']),'parameter_duplicate_candidates':len(pd),'formula_duplicate_candidates':len(fd)}
+          (Path(os.environ['RUNNER_TEMP'])/'FORMULA_MASTER_CLEAN_RECEIPT.json').write_text(json.dumps(receipt,indent=2))
+          print(json.dumps(receipt))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ILMB-Clean-Formula-Master
+          path: |
+            ${{ runner.temp }}/ILMB_Formula_Master_Live.xlsx
+            ${{ runner.temp }}/FORMULA_MASTER_CLEAN_RECEIPT.json
+          if-no-files-found: error
+          retention-days: 30
