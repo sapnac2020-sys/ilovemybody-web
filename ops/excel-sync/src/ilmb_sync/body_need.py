@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import ast
 import base64
+import hashlib
 import json
 import re
 import urllib.parse
@@ -43,7 +44,7 @@ def normalized_expression(expression: str) -> str:
 
 def _validate_ast(node: ast.AST) -> None:
     for item in ast.walk(node):
-        if isinstance(item, ast.Expression | ast.Load | ast.Constant | ast.Name):
+        if isinstance(item, (ast.Expression, ast.Load, ast.Constant, ast.Name)):
             continue
         if isinstance(item, ast.BinOp) and isinstance(item.op, _ALLOWED_BINOPS):
             continue
@@ -81,10 +82,14 @@ def evaluate_formula(expression: str, values: dict[str, int | float | Decimal]) 
             return value if isinstance(node.op, ast.UAdd) else -value
         if isinstance(node, ast.BinOp):
             left, right = walk(node.left), walk(node.right)
-            if isinstance(node.op, ast.Add): return left + right
-            if isinstance(node.op, ast.Sub): return left - right
-            if isinstance(node.op, ast.Mult): return left * right
-            if isinstance(node.op, ast.Div): return left / right
+            if isinstance(node.op, ast.Add):
+                return left + right
+            if isinstance(node.op, ast.Sub):
+                return left - right
+            if isinstance(node.op, ast.Mult):
+                return left * right
+            if isinstance(node.op, ast.Div):
+                return left / right
             if isinstance(node.op, ast.Pow):
                 if right != int(right):
                     raise FormulaError("Only integer exponents are supported")
@@ -143,27 +148,111 @@ def duplicate_candidates(parameters: Iterable[dict[str, Any]], identifiers: Iter
             continue
         by_identifier.setdefault((str(row["identifier_system"]), str(row["identifier_code"])), []).append(int(row["parameter_id"]))
     for key, ids in by_identifier.items():
-        for i, left in enumerate(sorted(set(ids))):
-            for right in sorted(set(ids))[i + 1:]:
-                found[(left, right, "SAME_IDENTIFIER")] = {"left_parameter_id": left, "right_parameter_id": right, "reason": "SAME_IDENTIFIER", "confidence": 1.0, "evidence": {"system": key[0], "code": key[1]}}
+        unique_ids = sorted(set(ids))
+        for i, left in enumerate(unique_ids):
+            for right in unique_ids[i + 1:]:
+                found[(left, right, "SAME_IDENTIFIER")] = {
+                    "left_parameter_id": left,
+                    "right_parameter_id": right,
+                    "reason": "SAME_IDENTIFIER",
+                    "confidence": 1.0,
+                    "evidence": {"system": key[0], "code": key[1]},
+                }
 
     by_name_unit: dict[tuple[str, str], list[int]] = {}
     by_source: dict[tuple[str, str], list[int]] = {}
     for pid, p in params.items():
         name_key = (normalize_name(str(p.get("canonical_name", ""))), str(p.get("canonical_ucum_unit") or ""))
-        if name_key[0]: by_name_unit.setdefault(name_key, []).append(pid)
+        if name_key[0]:
+            by_name_unit.setdefault(name_key, []).append(pid)
         if p.get("source_system") and p.get("source_record_key"):
             by_source.setdefault((str(p["source_system"]), str(p["source_record_key"])), []).append(pid)
     for key, ids in by_name_unit.items():
-        for i, left in enumerate(sorted(set(ids))):
-            for right in sorted(set(ids))[i + 1:]:
-                found[(left, right, "NORMALIZED_NAME_UNIT")] = {"left_parameter_id": left, "right_parameter_id": right, "reason": "NORMALIZED_NAME_UNIT", "confidence": 0.85, "evidence": {"normalized_name": key[0], "unit": key[1]}}
+        unique_ids = sorted(set(ids))
+        for i, left in enumerate(unique_ids):
+            for right in unique_ids[i + 1:]:
+                found[(left, right, "NORMALIZED_NAME_UNIT")] = {
+                    "left_parameter_id": left,
+                    "right_parameter_id": right,
+                    "reason": "NORMALIZED_NAME_UNIT",
+                    "confidence": 0.85,
+                    "evidence": {"normalized_name": key[0], "unit": key[1]},
+                }
     for key, ids in by_source.items():
-        for i, left in enumerate(sorted(set(ids))):
-            for right in sorted(set(ids))[i + 1:]:
-                found[(left, right, "SAME_SOURCE_KEY")] = {"left_parameter_id": left, "right_parameter_id": right, "reason": "SAME_SOURCE_KEY", "confidence": 0.98, "evidence": {"source_system": key[0], "source_key": key[1]}}
+        unique_ids = sorted(set(ids))
+        for i, left in enumerate(unique_ids):
+            for right in unique_ids[i + 1:]:
+                found[(left, right, "SAME_SOURCE_KEY")] = {
+                    "left_parameter_id": left,
+                    "right_parameter_id": right,
+                    "reason": "SAME_SOURCE_KEY",
+                    "confidence": 0.98,
+                    "evidence": {"source_system": key[0], "source_key": key[1]},
+                }
 
     return sorted(found.values(), key=lambda x: (x["left_parameter_id"], x["right_parameter_id"], x["reason"]))
+
+
+def formula_duplicate_candidates(formulas: Iterable[dict[str, Any]], formula_inputs: Iterable[dict[str, Any]]) -> list[dict[str, Any]]:
+    formulas_by_id = {int(row["formula_id"]): row for row in formulas}
+    inputs_by_formula: dict[int, list[tuple[int, str, str]]] = {}
+    for row in formula_inputs:
+        fid = int(row["formula_id"])
+        inputs_by_formula.setdefault(fid, []).append(
+            (int(row["parameter_id"]), str(row.get("role") or ""), str(row.get("expected_ucum_unit") or ""))
+        )
+
+    found: dict[tuple[int, int, str], dict[str, Any]] = {}
+    by_expression: dict[str, list[int]] = {}
+    for fid, row in formulas_by_id.items():
+        expression = str(row.get("expression_text") or "").strip()
+        if not expression:
+            continue
+        try:
+            normalized = normalized_expression(expression)
+        except (FormulaError, SyntaxError, ValueError):
+            continue
+        by_expression.setdefault(normalized, []).append(fid)
+
+    for normalized, ids in by_expression.items():
+        unique_ids = sorted(set(ids))
+        digest = hashlib.sha256(normalized.encode("utf-8")).hexdigest()
+        for i, left in enumerate(unique_ids):
+            for right in unique_ids[i + 1:]:
+                found[(left, right, "NORMALIZED_EXPRESSION")] = {
+                    "left_formula_id": left,
+                    "right_formula_id": right,
+                    "reason": "NORMALIZED_EXPRESSION",
+                    "confidence": 0.97,
+                    "evidence": {"normalized_expression_sha256": digest},
+                }
+
+    by_signature: dict[tuple[Any, tuple[tuple[int, str, str], ...]], list[int]] = {}
+    for fid, row in formulas_by_id.items():
+        signature = (
+            row.get("output_parameter_id"),
+            tuple(sorted(inputs_by_formula.get(fid, []))),
+        )
+        if signature[0] is None and not signature[1]:
+            continue
+        by_signature.setdefault(signature, []).append(fid)
+
+    for signature, ids in by_signature.items():
+        unique_ids = sorted(set(ids))
+        for i, left in enumerate(unique_ids):
+            for right in unique_ids[i + 1:]:
+                found[(left, right, "SAME_OUTPUT_AND_INPUTS")] = {
+                    "left_formula_id": left,
+                    "right_formula_id": right,
+                    "reason": "SAME_OUTPUT_AND_INPUTS",
+                    "confidence": 0.90,
+                    "evidence": {
+                        "output_parameter_id": signature[0],
+                        "input_signature": [list(x) for x in signature[1]],
+                    },
+                }
+
+    return sorted(found.values(), key=lambda x: (x["left_formula_id"], x["right_formula_id"], x["reason"]))
 
 
 def _json_request(url: str, *, username: str | None = None, password: str | None = None, timeout: int = 30) -> dict[str, Any]:
@@ -188,6 +277,7 @@ def export_formula_master_xlsx(
     formulas: Iterable[dict[str, Any]],
     formula_inputs: Iterable[dict[str, Any]],
     duplicates: Iterable[dict[str, Any]],
+    formula_duplicates: Iterable[dict[str, Any]] = (),
 ) -> Path:
     path = Path(output_path)
     wb = Workbook()
@@ -199,19 +289,24 @@ def export_formula_master_xlsx(
         "Formula_Master": list(formulas),
         "Formula_Inputs": list(formula_inputs),
         "Duplicate_Candidates": list(duplicates),
+        "Formula_Duplicates": list(formula_duplicates),
     }
     for title, rows in datasets.items():
         ws = wb.create_sheet(title)
         headers: list[str] = []
         for row in rows:
             for key in row:
-                if key not in headers: headers.append(key)
+                if key not in headers:
+                    headers.append(key)
         if not headers:
             headers = ["status"]
             rows = [{"status": "NO_ROWS"}]
         ws.append(headers)
         for row in rows:
-            ws.append([json.dumps(row.get(h), ensure_ascii=False) if isinstance(row.get(h), (dict, list)) else row.get(h) for h in headers])
+            ws.append([
+                json.dumps(row.get(h), ensure_ascii=False) if isinstance(row.get(h), (dict, list)) else row.get(h)
+                for h in headers
+            ])
         ws.freeze_panes = "A2"
         ws.auto_filter.ref = ws.dimensions
 
