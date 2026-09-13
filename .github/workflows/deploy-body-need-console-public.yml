@@ -1,0 +1,90 @@
+name: Deploy ILMB Body Need Console and Public Layer
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - body-needs.html
+      - api/body-needs-public.php
+      - app/body-need-api.php
+      - app/body-need-console.php
+      - .github/workflows/deploy-body-need-console-public.yml
+
+concurrency:
+  group: ilovemybody-body-need-ui
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate files
+        run: |
+          set -euo pipefail
+          test -s body-needs.html
+          test -s api/body-needs-public.php
+          test -s app/body-need-api.php
+          test -s app/body-need-console.php
+          php -l api/body-needs-public.php
+          php -l app/body-need-api.php
+          php -l app/body-need-console.php
+          grep -q 'BODY NEED ENGINE' body-needs.html
+          grep -q 'Body Need / Formula Master' app/body-need-console.php
+      - name: Prepare SSH
+        env:
+          DEPLOY_BUNDLE: ${{ secrets.HOSTINGER_DEPLOY_BUNDLE }}
+        run: |
+          set -euo pipefail
+          test -n "$DEPLOY_BUNDLE"
+          mkdir -p "$HOME/.ssh"; chmod 700 "$HOME/.ssh"
+          printf '%s' "$DEPLOY_BUNDLE" | base64 --decode > "$RUNNER_TEMP/deploy.json"
+          jq -e '.host and .port and .user and .key' "$RUNNER_TEMP/deploy.json" >/dev/null
+          jq -r '.key' "$RUNNER_TEMP/deploy.json" > "$HOME/.ssh/id_ed25519"; chmod 600 "$HOME/.ssh/id_ed25519"
+          echo "DEPLOY_HOST=$(jq -r '.host' "$RUNNER_TEMP/deploy.json")" >> "$GITHUB_ENV"
+          echo "DEPLOY_PORT=$(jq -r '.port' "$RUNNER_TEMP/deploy.json")" >> "$GITHUB_ENV"
+          echo "DEPLOY_USER=$(jq -r '.user' "$RUNNER_TEMP/deploy.json")" >> "$GITHUB_ENV"
+          for attempt in 1 2 3 4 5; do ssh-keyscan -T 15 -p "$(jq -r '.port' "$RUNNER_TEMP/deploy.json")" "$(jq -r '.host' "$RUNNER_TEMP/deploy.json")" >> "$HOME/.ssh/known_hosts" 2>/dev/null && break; sleep 5; done
+      - name: Deploy narrow package
+        run: |
+          set -euo pipefail
+          tar -czf "$RUNNER_TEMP/body-need-ui.tgz" body-needs.html api/body-needs-public.php app/body-need-api.php app/body-need-console.php
+          cat "$RUNNER_TEMP/body-need-ui.tgz" | ssh -o IdentitiesOnly=yes -i "$HOME/.ssh/id_ed25519" -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" 'bash -s' <<'REMOTE'
+          REMOTE
+        shell: bash
+      - name: Upload and install package
+        run: |
+          set -euo pipefail
+          remote="/tmp/ilmb-body-need-ui-${GITHUB_RUN_ID}.tgz"
+          scp -o IdentitiesOnly=yes -i "$HOME/.ssh/id_ed25519" -P "$DEPLOY_PORT" "$RUNNER_TEMP/body-need-ui.tgz" "$DEPLOY_USER@$DEPLOY_HOST:$remote"
+          ssh -o IdentitiesOnly=yes -i "$HOME/.ssh/id_ed25519" -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" "REMOTE_PACKAGE='$remote' bash -s" <<'REMOTE'
+          set -euo pipefail
+          TARGET="$HOME/domains/ilovemybody.in/public_html"
+          STAGE="/tmp/ilmb-body-need-ui-stage-$$"
+          mkdir -p "$STAGE" "$TARGET/api" "$TARGET/app"
+          tar -xzf "$REMOTE_PACKAGE" -C "$STAGE"
+          test -s "$STAGE/body-needs.html"
+          test -s "$STAGE/api/body-needs-public.php"
+          test -s "$STAGE/app/body-need-api.php"
+          test -s "$STAGE/app/body-need-console.php"
+          cp -p "$STAGE/body-needs.html" "$TARGET/body-needs.html"
+          cp -p "$STAGE/api/body-needs-public.php" "$TARGET/api/body-needs-public.php"
+          cp -p "$STAGE/app/body-need-api.php" "$TARGET/app/body-need-api.php"
+          cp -p "$STAGE/app/body-need-console.php" "$TARGET/app/body-need-console.php"
+          chmod 644 "$TARGET/body-needs.html" "$TARGET/api/body-needs-public.php" "$TARGET/app/body-need-api.php" "$TARGET/app/body-need-console.php"
+          test -s "$TARGET/app/lib.php"
+          test -s "$TARGET/app/config.php"
+          rm -rf "$STAGE" "$REMOTE_PACKAGE"
+          REMOTE
+      - name: Verify public and private surfaces
+        run: |
+          set -euo pipefail
+          curl --fail --retry 5 --retry-delay 3 --max-time 20 https://ilovemybody.in/body-needs.html | grep -q 'BODY NEED ENGINE'
+          curl --fail --retry 5 --retry-delay 3 --max-time 20 'https://ilovemybody.in/api/body-needs-public.php?view=summary' | python -c 'import json,sys; d=json.load(sys.stdin); assert d.get("ok") is True and "summary" in d'
+          code="$(curl -sS -o /tmp/console.html -w '%{http_code}' https://ilovemybody.in/app/body-need-console.php)"
+          test "$code" = 302 -o "$code" = 200
