@@ -1,0 +1,76 @@
+name: Build ILMB Private Full DB Excel Mirror
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '35 21 * * *'
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/build-private-db-excel-mirror.yml
+
+concurrency:
+  group: ilovemybody-private-full-db-mirror
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  mirror:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Prepare SSH
+        env:
+          DEPLOY_BUNDLE: ${{ secrets.HOSTINGER_DEPLOY_BUNDLE }}
+        run: |
+          set -euo pipefail
+          mkdir -p "$HOME/.ssh"; chmod 700 "$HOME/.ssh"
+          printf '%s' "$DEPLOY_BUNDLE" | base64 --decode > "$RUNNER_TEMP/deploy.json"
+          jq -e '.host and .port and .user and .key' "$RUNNER_TEMP/deploy.json" >/dev/null
+          jq -r '.key' "$RUNNER_TEMP/deploy.json" > "$HOME/.ssh/id_ed25519"; chmod 600 "$HOME/.ssh/id_ed25519"
+          echo "DEPLOY_HOST=$(jq -r '.host' "$RUNNER_TEMP/deploy.json")" >> "$GITHUB_ENV"
+          echo "DEPLOY_PORT=$(jq -r '.port' "$RUNNER_TEMP/deploy.json")" >> "$GITHUB_ENV"
+          echo "DEPLOY_USER=$(jq -r '.user' "$RUNNER_TEMP/deploy.json")" >> "$GITHUB_ENV"
+          for attempt in 1 2 3 4 5; do ssh-keyscan -T 15 -p "$(jq -r '.port' "$RUNNER_TEMP/deploy.json")" "$(jq -r '.host' "$RUNNER_TEMP/deploy.json")" >> "$HOME/.ssh/known_hosts" 2>/dev/null && break; sleep 5; done
+      - name: Generate private full DB mirror
+        run: |
+          set -euo pipefail
+          ssh -o IdentitiesOnly=yes -o BatchMode=yes -o ServerAliveInterval=15 -o ServerAliveCountMax=8 -i "$HOME/.ssh/id_ed25519" -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" 'bash -s' <<'REMOTE' | tee "$RUNNER_TEMP/full-db-mirror-result.json"
+          set -euo pipefail
+          ROOT="$HOME/private/ilmb-excel-sync"
+          CURRENT="$ROOT/current"
+          EXCHANGE="$HOME/ilmb-data-exchange"
+          test -L "$CURRENT"
+          test -s "$CURRENT/ilmb-sync.env"
+          set -a; . "$CURRENT/ilmb-sync.env"; set +a
+          "$CURRENT/.venv/bin/ilmb-private-mirror" full-db --output-root "$EXCHANGE" --tables-per-workbook 20
+          test -s "$EXCHANGE/db-mirror/current/00_CONTROL_ROOM.xlsx"
+          test -s "$EXCHANGE/db-mirror/current/manifest.json"
+          REMOTE
+      - name: Publish metadata receipt only
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json, pathlib
+          p=pathlib.Path('${{ runner.temp }}/full-db-mirror-result.json')
+          text=p.read_text().strip().splitlines()[-1]
+          d=json.loads(text)
+          safe={
+            'generated_at_utc':d.get('generated_at_utc'),
+            'base_tables':d.get('base_tables'),
+            'views':d.get('views'),
+            'workbook_count':len(d.get('files',[])),
+            'file_names':[x.get('file') for x in d.get('files',[])],
+            'private_location':'$HOME/ilmb-data-exchange/db-mirror/current',
+            'patient_data_published':False,
+          }
+          pathlib.Path('docs/audits/FULL_DB_EXCEL_MIRROR_LIVE.json').write_text(json.dumps(safe,indent=2))
+          PY
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git pull --rebase origin main
+          git add docs/audits/FULL_DB_EXCEL_MIRROR_LIVE.json
+          if ! git diff --cached --quiet; then git commit -m 'docs: record private full DB Excel mirror'; git push; fi
