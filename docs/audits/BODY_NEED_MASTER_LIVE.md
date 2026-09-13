@@ -1,14 +1,14 @@
 # ILMB Body Need Master — Live
 
-- Source commit: `2aaea4f08513b6e541bf97e842113cecb004e0e1`
-- Workflow run: `34750504882`
+- Source commit: `32b66901aad4c2209d4d5747c5ebe55094af09c4`
+- Workflow run: `34750593176`
 - Production migration: verified
 - Formula Master Excel: generated from live database
 - Patient rows modified: `0`
 
 ```json
 {
-  "generated_at_utc": "2026-09-13T09:54:32+00:00",
+  "generated_at_utc": "2026-09-13T09:59:02+00:00",
   "parameters": 7,
   "identifiers": 0,
   "formulas": 12,
