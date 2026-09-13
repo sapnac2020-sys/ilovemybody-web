@@ -1,5 +1,5 @@
 name: Deploy ILMB Excel Drive Sync
-# deployment retrigger after Hostinger key renewal: 2026-08-30
+# private DB/Excel mirror integration: 2026-09-13
 
 on:
   workflow_dispatch:
@@ -32,6 +32,7 @@ jobs:
           python -m compileall -q ops/excel-sync/src ops/excel-sync/tests
           test -s ops/excel-sync/migrations/001_sync_control.sql
           test -s ops/excel-sync/migrations/002_canonical_history.sql
+          test -s ops/excel-sync/src/ilmb_sync/private_mirror.py
 
       - name: Require deployment configuration
         env:
@@ -99,6 +100,7 @@ jobs:
           ROOT="$HOME/private/ilmb-excel-sync"
           RELEASE="$ROOT/releases/$RELEASE_SHA"
           CURRENT="$ROOT/current"
+          EXCHANGE="$HOME/ilmb-data-exchange"
           CONFIG="$(find "$HOME/domains/ilovemybody.in" -maxdepth 5 -type f -name 'ilmb-config.php' -print -quit)"
           KEY_SOURCE="$(find "$HOME/domains/ilovemybody.in/private" "$HOME/private" -maxdepth 6 -type f -name 'ilovemybody-sync-*.json' -print -quit 2>/dev/null)"
           if test -z "$CONFIG" || ! test -s "$CONFIG"; then
@@ -109,26 +111,16 @@ jobs:
             echo "::error::Google service-account JSON was not found in either approved private Hostinger location."
             exit 1
           fi
-          echo "Hostinger private prerequisites located."
           PYTHON_BIN=""
           for candidate in python3 python3.13 python3.12 python3.11 python3.10 python; do
             candidate_path="$(command -v "$candidate" 2>/dev/null || true)"
-            if test -n "$candidate_path" && "$candidate_path" -c 'import sys; raise SystemExit(0 if sys.version_info >= (3,10) else 1)' 2>/dev/null; then
-              PYTHON_BIN="$candidate_path"
-              break
-            fi
+            if test -n "$candidate_path" && "$candidate_path" -c 'import sys; raise SystemExit(0 if sys.version_info >= (3,10) else 1)' 2>/dev/null; then PYTHON_BIN="$candidate_path"; break; fi
           done
           if test -z "$PYTHON_BIN"; then
             candidate_path="$({ find /usr/local/bin /usr/bin /opt/alt "$HOME" -maxdepth 5 -type f \( -name 'python3' -o -name 'python3.1*' \) -perm -u+x -print 2>/dev/null || true; } | sort -V | tail -1)"
-            if test -n "$candidate_path" && "$candidate_path" -c 'import sys; raise SystemExit(0 if sys.version_info >= (3,10) else 1)' 2>/dev/null; then
-              PYTHON_BIN="$candidate_path"
-            fi
+            if test -n "$candidate_path" && "$candidate_path" -c 'import sys; raise SystemExit(0 if sys.version_info >= (3,10) else 1)' 2>/dev/null; then PYTHON_BIN="$candidate_path"; fi
           fi
-          if test -z "$PYTHON_BIN"; then
-            echo "::error::Python 3.10 or newer is not installed or accessible to the Hostinger SSH account."
-            exit 1
-          fi
-          echo "Using Hostinger Python: $("$PYTHON_BIN" --version 2>&1)"
+          test -n "$PYTHON_BIN"
           "$PYTHON_BIN" - "$KEY_SOURCE" <<'PY'
           import json, pathlib, sys
           payload=json.loads(pathlib.Path(sys.argv[1]).read_text())
@@ -143,48 +135,34 @@ jobs:
           db_json="$(php -r '$c=require $argv[1]; echo json_encode(["host"=>$c["host"]??null,"port"=>$c["port"]??3306,"name"=>$c["db"]??null,"user"=>$c["user"]??null,"pass"=>$c["pass"]??null]);' "$CONFIG")"
           DB_JSON="$db_json" RELEASE="$RELEASE" "$PYTHON_BIN" - <<'PY'
           import json, os, pathlib, shlex
-          db=json.loads(os.environ['DB_JSON'])
-          required=('host','name','user','pass')
+          db=json.loads(os.environ['DB_JSON']); required=('host','name','user','pass')
           missing=[k for k in required if not db.get(k)]
           if missing: raise SystemExit('Missing DB config keys: '+','.join(missing))
-          release=pathlib.Path(os.environ['RELEASE'])
-          folder=(release/'drive-folder-id').read_text().strip()
-          values={
-            'ILMB_DRIVE_FOLDER_ID':folder,
-            'ILMB_GOOGLE_KEY_FILE':str(release/'google-service-account.json'),
-            'ILMB_DB_HOST':db['host'], 'ILMB_DB_PORT':str(db.get('port',3306)),
-            'ILMB_DB_NAME':db['name'], 'ILMB_DB_USER':db['user'], 'ILMB_DB_PASSWORD':db['pass'],
-            'ILMB_MODULE_CONFIG':str(release/'config/modules.json'),
-            'ILMB_WORK_DIR':str(release/'work'), 'ILMB_REQUIRE_APPROVAL':'true'
-          }
-          (release/'ilmb-sync.env').write_text(''.join(f'{k}={shlex.quote(str(v))}\n' for k,v in values.items()))
-          os.chmod(release/'ilmb-sync.env',0o600)
+          release=pathlib.Path(os.environ['RELEASE']); folder=(release/'drive-folder-id').read_text().strip()
+          values={'ILMB_DRIVE_FOLDER_ID':folder,'ILMB_GOOGLE_KEY_FILE':str(release/'google-service-account.json'),'ILMB_DB_HOST':db['host'],'ILMB_DB_PORT':str(db.get('port',3306)),'ILMB_DB_NAME':db['name'],'ILMB_DB_USER':db['user'],'ILMB_DB_PASSWORD':db['pass'],'ILMB_MODULE_CONFIG':str(release/'config/modules.json'),'ILMB_WORK_DIR':str(release/'work'),'ILMB_REQUIRE_APPROVAL':'true'}
+          (release/'ilmb-sync.env').write_text(''.join(f'{k}={shlex.quote(str(v))}\n' for k,v in values.items())); os.chmod(release/'ilmb-sync.env',0o600)
           PY
           set -a; . "$RELEASE/ilmb-sync.env"; set +a
           migration_count=0
-          for sql_file in "$RELEASE"/migrations/*.sql; do
-            test -f "$sql_file" || continue
-            "$RELEASE/.venv/bin/ilmb-sync" migrate --sql "$sql_file"
-            migration_count=$((migration_count + 1))
-          done
-          if test "$migration_count" -eq 0; then
-            echo "::error::No SQL migration files were deployed with the connector."
-            exit 1
-          fi
+          for sql_file in "$RELEASE"/migrations/*.sql; do test -f "$sql_file" || continue; "$RELEASE/.venv/bin/ilmb-sync" migrate --sql "$sql_file"; migration_count=$((migration_count + 1)); done
+          test "$migration_count" -gt 0
           "$RELEASE/.venv/bin/ilmb-sync" doctor
           "$RELEASE/.venv/bin/ilmb-sync" scan --dry-run > "$RELEASE/first-dry-run.json"
+          mkdir -p "$EXCHANGE"; chmod 700 "$EXCHANGE"
+          "$RELEASE/.venv/bin/ilmb-private-mirror" body-master --output-root "$EXCHANGE" > "$RELEASE/first-private-mirror.json"
           ln -sfn "$RELEASE" "$CURRENT"
           mkdir -p "$ROOT/logs"
           cron_line="*/15 * * * * set -a; . $CURRENT/ilmb-sync.env; set +a; $CURRENT/.venv/bin/ilmb-sync scan >> $ROOT/logs/sync.log 2>&1 # ILMB_EXCEL_SYNC"
+          mirror_cron_line="7,22,37,52 * * * * set -a; . $CURRENT/ilmb-sync.env; set +a; $CURRENT/.venv/bin/ilmb-private-mirror body-master --output-root $EXCHANGE >> $ROOT/logs/private-mirror.log 2>&1 # ILMB_PRIVATE_MIRROR"
+          db_mirror_cron_line="35 2 * * * set -a; . $CURRENT/ilmb-sync.env; set +a; $CURRENT/.venv/bin/ilmb-private-mirror full-db --output-root $EXCHANGE --tables-per-workbook 20 >> $ROOT/logs/full-db-mirror.log 2>&1 # ILMB_FULL_DB_MIRROR"
           chebi_cron_line="20 4 20 * * set -a; . $CURRENT/ilmb-sync.env; set +a; $CURRENT/.venv/bin/ilmb-sync chebi-fetch --release \$(date -u +\%Y-\%m-\%d) >> $ROOT/logs/chebi-sync.log 2>&1 # ILMB_CHEBI_SYNC"
-          printf '%s\n%s\n' "$cron_line" "$chebi_cron_line" > "$ROOT/cron-line.txt"
+          printf '%s\n%s\n%s\n%s\n' "$cron_line" "$mirror_cron_line" "$db_mirror_cron_line" "$chebi_cron_line" > "$ROOT/cron-line.txt"
           if command -v crontab >/dev/null 2>&1; then
-            (crontab -l 2>/dev/null | grep -v 'ILMB_EXCEL_SYNC' | grep -v 'ILMB_CHEBI_SYNC' || true; printf '%s\n%s\n' "$cron_line" "$chebi_cron_line") | crontab -
-            crontab -l | grep -E 'ILMB_(EXCEL|CHEBI)_SYNC'
+            (crontab -l 2>/dev/null | grep -v 'ILMB_EXCEL_SYNC' | grep -v 'ILMB_PRIVATE_MIRROR' | grep -v 'ILMB_FULL_DB_MIRROR' | grep -v 'ILMB_CHEBI_SYNC' || true; printf '%s\n%s\n%s\n%s\n' "$cron_line" "$mirror_cron_line" "$db_mirror_cron_line" "$chebi_cron_line") | crontab -
+            crontab -l | grep -E 'ILMB_(EXCEL|PRIVATE_MIRROR|FULL_DB_MIRROR|CHEBI)_SYNC'
             echo "SCHEDULED=crontab" > "$ROOT/schedule-status.txt"
           else
-            echo "NOTE: no crontab binary on this host. Add these lines manually via hPanel -> Advanced -> Cron Jobs:"
-            printf '%s\n%s\n' "$cron_line" "$chebi_cron_line"
+            printf '%s\n%s\n%s\n%s\n' "$cron_line" "$mirror_cron_line" "$db_mirror_cron_line" "$chebi_cron_line"
             echo "SCHEDULED=manual-required" > "$ROOT/schedule-status.txt"
           fi
           REMOTE
@@ -193,4 +171,4 @@ jobs:
         run: |
           set -euo pipefail
           ssh -o IdentitiesOnly=yes -o BatchMode=yes -i "$HOME/.ssh/id_ed25519" -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" \
-            'ROOT="$HOME/private/ilmb-excel-sync"; test -L "$ROOT/current" && test -s "$ROOT/current/first-dry-run.json" && test -s "$ROOT/schedule-status.txt" && cat "$ROOT/schedule-status.txt"'
+            'ROOT="$HOME/private/ilmb-excel-sync"; EXCHANGE="$HOME/ilmb-data-exchange"; test -L "$ROOT/current" && test -s "$ROOT/current/first-dry-run.json" && test -s "$ROOT/current/first-private-mirror.json" && test -s "$EXCHANGE/formula/current/ILMB_Formula_Master_Live.xlsx" && test -s "$ROOT/schedule-status.txt" && cat "$ROOT/schedule-status.txt"'
