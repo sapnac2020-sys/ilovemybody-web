@@ -1,0 +1,42 @@
+name: Validate ILMB Body Need Master
+
+on:
+  push:
+    branches: ["feature/body-need-master"]
+    paths:
+      - "backend/phase_129_body_need_parameter_formula_master.sql"
+      - "ops/excel-sync/**"
+      - ".github/workflows/validate-body-need-master.yml"
+  pull_request:
+    paths:
+      - "backend/phase_129_body_need_parameter_formula_master.sql"
+      - "ops/excel-sync/**"
+      - ".github/workflows/validate-body-need-master.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install test dependencies
+        run: python -m pip install --disable-pip-version-check openpyxl PyMySQL google-api-python-client google-auth
+      - name: Compile connector
+        run: python -m compileall -q ops/excel-sync/src ops/excel-sync/tests
+      - name: Run connector tests
+        env:
+          PYTHONPATH: ops/excel-sync/src
+        run: python -m unittest discover -s ops/excel-sync/tests -v
+      - name: Validate SQL has governed masters
+        run: |
+          set -euo pipefail
+          grep -q 'CREATE TABLE IF NOT EXISTS ilmb_parameter_master' backend/phase_129_body_need_parameter_formula_master.sql
+          grep -q 'CREATE TABLE IF NOT EXISTS ilmb_formula_master' backend/phase_129_body_need_parameter_formula_master.sql
+          grep -q 'CREATE TABLE IF NOT EXISTS ilmb_body_need_run' backend/phase_129_body_need_parameter_formula_master.sql
+          grep -q 'CREATE OR REPLACE VIEW vw_ilmb_common_parameter_master' backend/phase_129_body_need_parameter_formula_master.sql
