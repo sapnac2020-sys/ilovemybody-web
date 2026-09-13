@@ -49,12 +49,15 @@ jobs:
           echo "DEPLOY_HOST=$(jq -r '.host' "$RUNNER_TEMP/deploy.json")" >> "$GITHUB_ENV"
           echo "DEPLOY_PORT=$(jq -r '.port' "$RUNNER_TEMP/deploy.json")" >> "$GITHUB_ENV"
           echo "DEPLOY_USER=$(jq -r '.user' "$RUNNER_TEMP/deploy.json")" >> "$GITHUB_ENV"
-          scanned=false
-          for attempt in 1 2 3 4 5; do
-            if ssh-keyscan -T 15 -p "$(jq -r '.port' "$RUNNER_TEMP/deploy.json")" "$(jq -r '.host' "$RUNNER_TEMP/deploy.json")" >> "$HOME/.ssh/known_hosts" 2>/dev/null; then scanned=true; break; fi
-            sleep 5
-          done
-          test "$scanned" = true
+          cat > "$HOME/.ssh/config" <<'SSHCONFIG'
+          Host *
+            StrictHostKeyChecking accept-new
+            ConnectTimeout 20
+            ServerAliveInterval 15
+            ServerAliveCountMax 4
+            IdentitiesOnly yes
+          SSHCONFIG
+          chmod 600 "$HOME/.ssh/config"
       - name: Upload and install narrow package
         run: |
           set -euo pipefail
@@ -62,11 +65,13 @@ jobs:
           remote="/tmp/ilmb-body-need-ui-${GITHUB_RUN_ID}.tgz"
           uploaded=false
           for attempt in 1 2 3 4 5; do
-            if scp -o IdentitiesOnly=yes -o BatchMode=yes -i "$HOME/.ssh/id_ed25519" -P "$DEPLOY_PORT" "$RUNNER_TEMP/body-need-ui.tgz" "$DEPLOY_USER@$DEPLOY_HOST:$remote"; then uploaded=true; break; fi
-            sleep 5
+            if scp -i "$HOME/.ssh/id_ed25519" -P "$DEPLOY_PORT" "$RUNNER_TEMP/body-need-ui.tgz" "$DEPLOY_USER@$DEPLOY_HOST:$remote"; then uploaded=true; break; fi
+            sleep $((attempt * 5))
           done
           test "$uploaded" = true
-          ssh -o IdentitiesOnly=yes -o BatchMode=yes -i "$HOME/.ssh/id_ed25519" -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" "REMOTE_PACKAGE='$remote' bash -s" <<'REMOTE'
+          installed=false
+          for attempt in 1 2 3 4 5; do
+            if ssh -i "$HOME/.ssh/id_ed25519" -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" "REMOTE_PACKAGE='$remote' bash -s" <<'REMOTE'
           set -euo pipefail
           TARGET="$HOME/domains/ilovemybody.in/public_html"
           STAGE="/tmp/ilmb-body-need-ui-stage-$$"
@@ -85,11 +90,14 @@ jobs:
           test -s "$TARGET/app/config.php"
           rm -rf "$STAGE" "$REMOTE_PACKAGE"
           REMOTE
+            then installed=true; break; fi
+            sleep $((attempt * 5))
+          done
+          test "$installed" = true
       - name: Verify public and private surfaces
         run: |
           set -euo pipefail
           curl --fail --retry 5 --retry-delay 3 --max-time 20 https://ilovemybody.in/body-needs.html | grep -q 'BODY NEED ENGINE'
           curl --fail --retry 5 --retry-delay 3 --max-time 20 'https://ilovemybody.in/api/body-needs-public.php?view=summary' | python -c 'import json,sys; d=json.load(sys.stdin); assert d.get("ok") is True and "summary" in d'
-          # The private app deliberately returns 404 without the staging cookie.
           code="$(curl -sS -o /tmp/console.html -w '%{http_code}' https://ilovemybody.in/app/body-need-console.php)"
           test "$code" = 404 -o "$code" = 302 -o "$code" = 200
