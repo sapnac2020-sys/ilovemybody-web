@@ -51,6 +51,9 @@ jobs:
       - name: Publish audit
         run: |
           set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git pull --rebase origin main
           mkdir -p docs/audits
           src="$RUNNER_TEMP/duplicate-connectivity-audit.json"
           cp "$src" docs/audits/DUPLICATE_CONNECTIVITY_AUDIT.json
@@ -93,8 +96,6 @@ jobs:
             echo
             echo "Candidates only. Nothing was deleted or altered."
           } > docs/audits/DUPLICATE_CONNECTIVITY_STATUS.md
-          git config user.name "github-actions[bot]"; git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git pull --rebase origin main
           git add docs/audits/DUPLICATE_CONNECTIVITY_AUDIT.json docs/audits/DUPLICATE_CONNECTIVITY_STATUS.md
           if ! git diff --cached --quiet; then git commit -m "docs: publish duplicate and connectivity audit"; git push; fi
       - name: Cleanup
