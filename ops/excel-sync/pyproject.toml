@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "ilmb-excel-sync"
-version = "1.0.0"
-description = "Validated Google Drive Excel to existing MySQL staging connector"
+version = "1.1.0"
+description = "Validated Google Drive Excel to existing MySQL staging connector with governed body-need formula master"
 requires-python = ">=3.10"
 dependencies = [
   "google-api-python-client>=2.130,<3",
@@ -16,6 +16,7 @@ dependencies = [
 
 [project.scripts]
 ilmb-sync = "ilmb_sync.cli:main"
+ilmb-body-need = "ilmb_sync.body_need_cli:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
