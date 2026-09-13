@@ -48,8 +48,13 @@ jobs:
             echo '{"stage_folder":"already_absent","deleted":false}'
             exit 0
           fi
+          list="/tmp/ilmb-stage-files-$$.txt"
+          find "$STAGE" -type f -print > "$list"
           mismatch=0
-          while IFS= read -r -d '' f; do
+          count=0
+          while IFS= read -r f; do
+            [ -n "$f" ] || continue
+            count=$((count+1))
             rel="${f#$STAGE/}"
             target="$APP/$rel"
             if [ ! -f "$target" ]; then
@@ -63,12 +68,12 @@ jobs:
               echo "DIFFERENT:$rel"
               mismatch=1
             fi
-          done < <(find "$STAGE" -type f -print0)
+          done < "$list"
+          rm -f "$list"
           if [ "$mismatch" -ne 0 ]; then
             echo 'Stage folder contains non-duplicate files; refusing hard delete.' >&2
             exit 9
           fi
-          count=$(find "$STAGE" -type f | wc -l | tr -d ' ')
           rm -rf "$STAGE"
           test ! -e "$STAGE"
           printf '{"stage_folder":"deleted","files_deleted":%s}\n' "$count"
