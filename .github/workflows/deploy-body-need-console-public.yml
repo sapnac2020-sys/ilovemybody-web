@@ -90,5 +90,6 @@ jobs:
           set -euo pipefail
           curl --fail --retry 5 --retry-delay 3 --max-time 20 https://ilovemybody.in/body-needs.html | grep -q 'BODY NEED ENGINE'
           curl --fail --retry 5 --retry-delay 3 --max-time 20 'https://ilovemybody.in/api/body-needs-public.php?view=summary' | python -c 'import json,sys; d=json.load(sys.stdin); assert d.get("ok") is True and "summary" in d'
+          # The private app deliberately returns 404 without the staging cookie.
           code="$(curl -sS -o /tmp/console.html -w '%{http_code}' https://ilovemybody.in/app/body-need-console.php)"
-          test "$code" = 302 -o "$code" = 200
+          test "$code" = 404 -o "$code" = 302 -o "$code" = 200
