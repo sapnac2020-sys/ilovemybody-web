@@ -21,16 +21,11 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
-
       - name: Validate read-only audit
         run: |
           set -euo pipefail
           php -l ops/duplicate-connectivity-audit.php
-          if grep -Eiq '\b(INSERT|UPDATE|DELETE|REPLACE|ALTER|CREATE|DROP|TRUNCATE|GRANT|REVOKE)[[:space:]]' ops/duplicate-connectivity-audit.php; then
-            echo "Database mutation keyword found in audit script"
-            exit 1
-          fi
-
+          if grep -Eiq '\b(INSERT|UPDATE|DELETE|REPLACE|ALTER|CREATE|DROP|TRUNCATE|GRANT|REVOKE)[[:space:]]' ops/duplicate-connectivity-audit.php; then exit 1; fi
       - name: Prepare SSH
         env:
           DEPLOY_BUNDLE: ${{ secrets.HOSTINGER_DEPLOY_BUNDLE }}
@@ -40,50 +35,68 @@ jobs:
           mkdir -p "$HOME/.ssh"; chmod 700 "$HOME/.ssh"
           printf '%s' "$DEPLOY_BUNDLE" | base64 --decode > "$RUNNER_TEMP/deploy.json"
           jq -e '.host and .port and .user and .key' "$RUNNER_TEMP/deploy.json" >/dev/null
-          jq -r '.key' "$RUNNER_TEMP/deploy.json" > "$HOME/.ssh/ilmb_audit"
-          chmod 600 "$HOME/.ssh/ilmb_audit"
+          jq -r '.key' "$RUNNER_TEMP/deploy.json" > "$HOME/.ssh/ilmb_audit"; chmod 600 "$HOME/.ssh/ilmb_audit"
           host="$(jq -r '.host' "$RUNNER_TEMP/deploy.json")"; port="$(jq -r '.port' "$RUNNER_TEMP/deploy.json")"; user="$(jq -r '.user' "$RUNNER_TEMP/deploy.json")"
           echo "DEPLOY_HOST=$host" >> "$GITHUB_ENV"; echo "DEPLOY_PORT=$port" >> "$GITHUB_ENV"; echo "DEPLOY_USER=$user" >> "$GITHUB_ENV"
           for attempt in 1 2 3 4 5; do ssh-keyscan -T 20 -p "$port" "$host" >> "$HOME/.ssh/known_hosts" 2>/dev/null && break || sleep $((attempt*5)); done
           chmod 600 "$HOME/.ssh/known_hosts"
-
       - name: Run production audit
         run: |
           set -euo pipefail
-          remote="/tmp/ilmb_duplicate_connectivity_${GITHUB_RUN_ID}.php"
-          echo "REMOTE_AUDIT=$remote" >> "$GITHUB_ENV"
+          remote="/tmp/ilmb_duplicate_connectivity_${GITHUB_RUN_ID}.php"; echo "REMOTE_AUDIT=$remote" >> "$GITHUB_ENV"
           scp -o ConnectTimeout=30 -i "$HOME/.ssh/ilmb_audit" -P "$DEPLOY_PORT" ops/duplicate-connectivity-audit.php "$DEPLOY_USER@$DEPLOY_HOST:$remote"
           ssh -o IdentitiesOnly=yes -o BatchMode=yes -o ConnectTimeout=30 -o ServerAliveInterval=15 -o ServerAliveCountMax=4 -i "$HOME/.ssh/ilmb_audit" -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" \
-            "set -e; CONFIG=\$(find \"\$HOME/domains/ilovemybody.in\" -maxdepth 5 -type f -name 'ilmb-config.php' -print -quit); test -s \"\$CONFIG\"; php '$remote' \"\$CONFIG\"" \
-            > "$RUNNER_TEMP/duplicate-connectivity-audit.json"
+            "set -e; CONFIG=\$(find \"\$HOME/domains/ilovemybody.in\" -maxdepth 5 -type f -name 'ilmb-config.php' -print -quit); test -s \"\$CONFIG\"; php '$remote' \"\$CONFIG\"" > "$RUNNER_TEMP/duplicate-connectivity-audit.json"
           jq -e '.summary and .database and .files' "$RUNNER_TEMP/duplicate-connectivity-audit.json" >/dev/null
-
       - name: Publish audit
         run: |
           set -euo pipefail
           mkdir -p docs/audits
-          cp "$RUNNER_TEMP/duplicate-connectivity-audit.json" docs/audits/DUPLICATE_CONNECTIVITY_AUDIT.json
+          src="$RUNNER_TEMP/duplicate-connectivity-audit.json"
+          cp "$src" docs/audits/DUPLICATE_CONNECTIVITY_AUDIT.json
           {
             echo "# ILMB Duplicate & Connectivity Audit"
             echo
-            echo "- Generated: `$(jq -r '.generated_at_utc' "$RUNNER_TEMP/duplicate-connectivity-audit.json")`"
-            echo "- Empty base tables: `$(jq -r '.summary.empty_base_tables' "$RUNNER_TEMP/duplicate-connectivity-audit.json")`"
-            echo "- FK-disconnected base tables: `$(jq -r '.summary.fk_disconnected_base_tables' "$RUNNER_TEMP/duplicate-connectivity-audit.json")`"
-            echo "- Duplicate schema groups: `$(jq -r '.summary.duplicate_schema_groups' "$RUNNER_TEMP/duplicate-connectivity-audit.json")`"
-            echo "- Duplicate view groups: `$(jq -r '.summary.duplicate_view_definition_groups' "$RUNNER_TEMP/duplicate-connectivity-audit.json")`"
-            echo "- Open parameter duplicates: `$(jq -r '.summary.open_parameter_duplicates' "$RUNNER_TEMP/duplicate-connectivity-audit.json")`"
-            echo "- Open formula duplicates: `$(jq -r '.summary.open_formula_duplicates' "$RUNNER_TEMP/duplicate-connectivity-audit.json")`"
-            echo "- Exchange duplicate file groups: `$(jq -r '.summary.exchange_duplicate_file_groups' "$RUNNER_TEMP/duplicate-connectivity-audit.json")`"
-            echo "- Exchange unreferenced Excel/CSV files: `$(jq -r '.summary.exchange_unreferenced_excel_csv' "$RUNNER_TEMP/duplicate-connectivity-audit.json")`"
-            echo "- Public duplicate file groups: `$(jq -r '.summary.public_duplicate_file_groups' "$RUNNER_TEMP/duplicate-connectivity-audit.json")`"
+            echo "Generated: $(jq -r '.generated_at_utc' "$src")"
+            echo "Objects: $(jq -r '.summary.objects' "$src")"
+            echo "Base tables: $(jq -r '.summary.base_tables' "$src")"
+            echo "Views: $(jq -r '.summary.views' "$src")"
+            echo "Empty base tables: $(jq -r '.summary.empty_base_tables' "$src")"
+            echo "FK-disconnected base tables: $(jq -r '.summary.fk_disconnected_base_tables' "$src")"
+            echo "Suspicious named tables: $(jq -r '.summary.suspicious_named_tables' "$src")"
+            echo "Duplicate schema groups: $(jq -r '.summary.duplicate_schema_groups' "$src")"
+            echo "Duplicate view groups: $(jq -r '.summary.duplicate_view_definition_groups' "$src")"
+            echo "Open parameter duplicates: $(jq -r '.summary.open_parameter_duplicates' "$src")"
+            echo "Open formula duplicates: $(jq -r '.summary.open_formula_duplicates' "$src")"
+            echo "Exchange duplicate file groups: $(jq -r '.summary.exchange_duplicate_file_groups' "$src")"
+            echo "Exchange unreferenced Excel/CSV: $(jq -r '.summary.exchange_unreferenced_excel_csv' "$src")"
+            echo "Public duplicate file groups: $(jq -r '.summary.public_duplicate_file_groups' "$src")"
+            echo "Public suspicious named files: $(jq -r '.summary.public_suspicious_named_files' "$src")"
             echo
-            echo "Candidates only; no rows or files were modified."
+            echo "## Strong disconnected table candidates: empty + no incoming/outgoing FK"
+            jq -r '.database.fk_disconnected_base_tables[] | select((.table_rows|tonumber)==0) | "- " + .table_name' "$src" | head -100
+            echo
+            echo "## Suspicious named tables"
+            jq -r '.database.suspicious_named_tables[] | "- " + .table_name + " | rows=" + (.table_rows|tostring) + " | inFK=" + (.incoming_fk_columns|tostring) + " | outFK=" + (.outgoing_fk_columns|tostring)' "$src"
+            echo
+            echo "## Duplicate table-schema groups"
+            jq -r '.database.duplicate_schema_groups[] | "- " + (.tables|join(", "))' "$src"
+            echo
+            echo "## Duplicate public-file groups"
+            jq -r '.files.public_duplicate_groups[] | "- " + (map(.relative)|join(" | "))' "$src"
+            echo
+            echo "## Suspicious public files"
+            jq -r '.files.public_suspicious_names[] | "- " + .relative' "$src"
+            echo
+            echo "## Exchange disconnected Excel/CSV"
+            jq -r '.files.exchange_unreferenced_excel_csv[] | "- " + .relative' "$src"
+            echo
+            echo "Candidates only. Nothing was deleted or altered."
           } > docs/audits/DUPLICATE_CONNECTIVITY_STATUS.md
           git config user.name "github-actions[bot]"; git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git pull --rebase origin main
           git add docs/audits/DUPLICATE_CONNECTIVITY_AUDIT.json docs/audits/DUPLICATE_CONNECTIVITY_STATUS.md
           if ! git diff --cached --quiet; then git commit -m "docs: publish duplicate and connectivity audit"; git push; fi
-
       - name: Cleanup
         if: always()
         run: |
