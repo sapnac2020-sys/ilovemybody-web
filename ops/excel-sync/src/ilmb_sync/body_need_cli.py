@@ -9,10 +9,12 @@ from typing import Any
 from .body_need import (
     FormulaInputSpec,
     assess_formula_execution,
+    chebi_lookup,
     duplicate_candidates,
     export_formula_master_xlsx,
     formula_duplicate_candidates,
     loinc_lookup,
+    ols_search,
 )
 from .db import Database
 
@@ -132,6 +134,27 @@ def cmd_loinc_lookup(args: argparse.Namespace) -> None:
         args.code,
         username=env("ILMB_LOINC_USERNAME"), password=env("ILMB_LOINC_PASSWORD"),
         base_url=env("ILMB_LOINC_FHIR_BASE", False, "https://fhir.loinc.org"), timeout=args.timeout,
+    )
+    print(json.dumps(result, indent=2, ensure_ascii=False))
+
+
+def cmd_chebi_lookup(args: argparse.Namespace) -> None:
+    result = chebi_lookup(
+        args.code,
+        base_url=env("ILMB_OLS_SEARCH_BASE", False, "https://www.ebi.ac.uk/ols4/api/search"),
+        timeout=args.timeout,
+    )
+    print(json.dumps(result, indent=2, ensure_ascii=False))
+
+
+def cmd_ontology_search(args: argparse.Namespace) -> None:
+    result = ols_search(
+        args.query,
+        ontology=args.ontology,
+        exact=args.exact,
+        rows=args.rows,
+        base_url=env("ILMB_OLS_SEARCH_BASE", False, "https://www.ebi.ac.uk/ols4/api/search"),
+        timeout=args.timeout,
     )
     print(json.dumps(result, indent=2, ensure_ascii=False))
 
@@ -289,6 +312,17 @@ def parser() -> argparse.ArgumentParser:
     l.add_argument("code")
     l.add_argument("--timeout", type=int, default=30)
     l.set_defaults(func=cmd_loinc_lookup)
+    ch = sub.add_parser("chebi-lookup", help="Resolve one ChEBI code through EMBL-EBI OLS4")
+    ch.add_argument("code")
+    ch.add_argument("--timeout", type=int, default=30)
+    ch.set_defaults(func=cmd_chebi_lookup)
+    o = sub.add_parser("ontology-search", help="Search EMBL-EBI OLS4 for ChEBI/UBERON/CL/GO/HPO/MONDO and other ontologies")
+    o.add_argument("query")
+    o.add_argument("--ontology")
+    o.add_argument("--exact", action="store_true")
+    o.add_argument("--rows", type=int, default=20)
+    o.add_argument("--timeout", type=int, default=30)
+    o.set_defaults(func=cmd_ontology_search)
     s = sub.add_parser("subject-observations", help="Resolve a subject's exact LOINC results into canonical ILMB parameters")
     s.add_argument("subject_key")
     s.set_defaults(func=cmd_subject_observations)
