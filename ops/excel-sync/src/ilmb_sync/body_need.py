@@ -229,10 +229,7 @@ def formula_duplicate_candidates(formulas: Iterable[dict[str, Any]], formula_inp
 
     by_signature: dict[tuple[Any, tuple[tuple[int, str, str], ...]], list[int]] = {}
     for fid, row in formulas_by_id.items():
-        signature = (
-            row.get("output_parameter_id"),
-            tuple(sorted(inputs_by_formula.get(fid, []))),
-        )
+        signature = (row.get("output_parameter_id"), tuple(sorted(inputs_by_formula.get(fid, []))))
         if signature[0] is None and not signature[1]:
             continue
         by_signature.setdefault(signature, []).append(fid)
@@ -246,10 +243,7 @@ def formula_duplicate_candidates(formulas: Iterable[dict[str, Any]], formula_inp
                     "right_formula_id": right,
                     "reason": "SAME_OUTPUT_AND_INPUTS",
                     "confidence": 0.90,
-                    "evidence": {
-                        "output_parameter_id": signature[0],
-                        "input_signature": [list(x) for x in signature[1]],
-                    },
+                    "evidence": {"output_parameter_id": signature[0], "input_signature": [list(x) for x in signature[1]]},
                 }
 
     return sorted(found.values(), key=lambda x: (x["left_formula_id"], x["right_formula_id"], x["reason"]))
@@ -267,6 +261,22 @@ def _json_request(url: str, *, username: str | None = None, password: str | None
 def loinc_lookup(code: str, *, username: str, password: str, base_url: str = "https://fhir.loinc.org", timeout: int = 30) -> dict[str, Any]:
     query = urllib.parse.urlencode({"system": "http://loinc.org", "code": code})
     return _json_request(f"{base_url.rstrip('/')}/CodeSystem/$lookup?{query}", username=username, password=password, timeout=timeout)
+
+
+def ols_search(query: str, *, ontology: str | None = None, exact: bool = False, rows: int = 20, base_url: str = "https://www.ebi.ac.uk/ols4/api/search", timeout: int = 30) -> dict[str, Any]:
+    params: dict[str, Any] = {"q": query, "rows": rows, "exact": "true" if exact else "false"}
+    if ontology:
+        params["ontology"] = ontology.lower()
+    return _json_request(f"{base_url}?{urllib.parse.urlencode(params)}", timeout=timeout)
+
+
+def chebi_lookup(code: str, *, base_url: str = "https://www.ebi.ac.uk/ols4/api/search", timeout: int = 30) -> dict[str, Any]:
+    normalized = code.upper().replace("CHEBI_", "CHEBI:")
+    if normalized.isdigit():
+        normalized = f"CHEBI:{normalized}"
+    if not normalized.startswith("CHEBI:"):
+        normalized = f"CHEBI:{normalized}"
+    return ols_search(normalized, ontology="chebi", exact=True, rows=10, base_url=base_url, timeout=timeout)
 
 
 def export_formula_master_xlsx(
@@ -303,10 +313,7 @@ def export_formula_master_xlsx(
             rows = [{"status": "NO_ROWS"}]
         ws.append(headers)
         for row in rows:
-            ws.append([
-                json.dumps(row.get(h), ensure_ascii=False) if isinstance(row.get(h), (dict, list)) else row.get(h)
-                for h in headers
-            ])
+            ws.append([json.dumps(row.get(h), ensure_ascii=False) if isinstance(row.get(h), (dict, list)) else row.get(h) for h in headers])
         ws.freeze_panes = "A2"
         ws.auto_filter.ref = ws.dimensions
 
