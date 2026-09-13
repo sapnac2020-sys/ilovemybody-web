@@ -1,5 +1,4 @@
 name: Audit Current I Love My Body Schema
-# Refresh requested for canonical body-need/formula consolidation audit.
 
 on:
   workflow_dispatch:
@@ -62,7 +61,7 @@ jobs:
           ssh -o IdentitiesOnly=yes -o BatchMode=yes -o ConnectTimeout=30 \
             -i "$HOME/.ssh/ilovemybody_audit" -p "$DEPLOY_PORT" \
             "$DEPLOY_USER@$DEPLOY_HOST" \
-            "php '$remote_script' \"\$HOME/domains/ilovemybody.in/ilmb-config.php\"" \
+            "set -euo pipefail; CONFIG=\$(find \"\$HOME/domains/ilovemybody.in\" -maxdepth 5 -type f -name 'ilmb-config.php' -print -quit); test -n \"\$CONFIG\"; test -s \"\$CONFIG\"; php '$remote_script' \"\$CONFIG\"" \
             > "$RUNNER_TEMP/current-schema-audit.json"
           jq -e '.summary and .tables and .column_counts and .foreign_keys' \
             "$RUNNER_TEMP/current-schema-audit.json" >/dev/null
