@@ -49,20 +49,24 @@ jobs:
           echo "DEPLOY_HOST=$(jq -r '.host' "$RUNNER_TEMP/deploy.json")" >> "$GITHUB_ENV"
           echo "DEPLOY_PORT=$(jq -r '.port' "$RUNNER_TEMP/deploy.json")" >> "$GITHUB_ENV"
           echo "DEPLOY_USER=$(jq -r '.user' "$RUNNER_TEMP/deploy.json")" >> "$GITHUB_ENV"
-          for attempt in 1 2 3 4 5; do ssh-keyscan -T 15 -p "$(jq -r '.port' "$RUNNER_TEMP/deploy.json")" "$(jq -r '.host' "$RUNNER_TEMP/deploy.json")" >> "$HOME/.ssh/known_hosts" 2>/dev/null && break; sleep 5; done
-      - name: Deploy narrow package
+          scanned=false
+          for attempt in 1 2 3 4 5; do
+            if ssh-keyscan -T 15 -p "$(jq -r '.port' "$RUNNER_TEMP/deploy.json")" "$(jq -r '.host' "$RUNNER_TEMP/deploy.json")" >> "$HOME/.ssh/known_hosts" 2>/dev/null; then scanned=true; break; fi
+            sleep 5
+          done
+          test "$scanned" = true
+      - name: Upload and install narrow package
         run: |
           set -euo pipefail
           tar -czf "$RUNNER_TEMP/body-need-ui.tgz" body-needs.html api/body-needs-public.php app/body-need-api.php app/body-need-console.php
-          cat "$RUNNER_TEMP/body-need-ui.tgz" | ssh -o IdentitiesOnly=yes -i "$HOME/.ssh/id_ed25519" -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" 'bash -s' <<'REMOTE'
-          REMOTE
-        shell: bash
-      - name: Upload and install package
-        run: |
-          set -euo pipefail
           remote="/tmp/ilmb-body-need-ui-${GITHUB_RUN_ID}.tgz"
-          scp -o IdentitiesOnly=yes -i "$HOME/.ssh/id_ed25519" -P "$DEPLOY_PORT" "$RUNNER_TEMP/body-need-ui.tgz" "$DEPLOY_USER@$DEPLOY_HOST:$remote"
-          ssh -o IdentitiesOnly=yes -i "$HOME/.ssh/id_ed25519" -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" "REMOTE_PACKAGE='$remote' bash -s" <<'REMOTE'
+          uploaded=false
+          for attempt in 1 2 3 4 5; do
+            if scp -o IdentitiesOnly=yes -o BatchMode=yes -i "$HOME/.ssh/id_ed25519" -P "$DEPLOY_PORT" "$RUNNER_TEMP/body-need-ui.tgz" "$DEPLOY_USER@$DEPLOY_HOST:$remote"; then uploaded=true; break; fi
+            sleep 5
+          done
+          test "$uploaded" = true
+          ssh -o IdentitiesOnly=yes -o BatchMode=yes -i "$HOME/.ssh/id_ed25519" -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" "REMOTE_PACKAGE='$remote' bash -s" <<'REMOTE'
           set -euo pipefail
           TARGET="$HOME/domains/ilovemybody.in/public_html"
           STAGE="/tmp/ilmb-body-need-ui-stage-$$"
