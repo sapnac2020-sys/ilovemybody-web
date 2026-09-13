@@ -1,4 +1,5 @@
 name: Audit Current I Love My Body Schema
+# Refresh requested for canonical body-need/formula consolidation audit.
 
 on:
   workflow_dispatch:
@@ -27,7 +28,7 @@ jobs:
           set -euo pipefail
           test -s ops/backend-audit.php
           php -l ops/backend-audit.php
-          if grep -Eiq '\\b(INSERT|UPDATE|DELETE|REPLACE|ALTER|CREATE|DROP|TRUNCATE|GRANT|REVOKE)[[:space:]]' ops/backend-audit.php; then
+          if grep -Eiq '\b(INSERT|UPDATE|DELETE|REPLACE|ALTER|CREATE|DROP|TRUNCATE|GRANT|REVOKE)[[:space:]]' ops/backend-audit.php; then
             echo "Audit script contains a database mutation keyword."
             exit 1
           fi
