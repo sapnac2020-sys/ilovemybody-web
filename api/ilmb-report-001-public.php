@@ -18,11 +18,16 @@ try {
     $gates = $pdo->prepare("SELECT gate_code,gate_order,gate_status,reason_text,checked_at FROM ilb_model_release_gate WHERE model_code=? ORDER BY gate_order");
     $gates->execute([$modelCode]);
 
+    $treatmentClasses = $pdo->query("SELECT class_id,class_name,route_or_type,mechanism_summary,typical_role,major_safety_theme,governance_text FROM ilb_psoriasis_treatment_class ORDER BY class_id")->fetchAll();
+    $medicineReferences = $pdo->query("SELECT drug_id,generic_name,class_name,route_text,mechanism_text,psoriasis_role,major_safety_theme FROM ilb_psoriasis_medicine_reference ORDER BY drug_id")->fetchAll();
+
     $summary = [
         'active_parameters'=>(int)$pdo->query("SELECT COUNT(*) FROM ilmb_parameter_master WHERE status='ACTIVE'")->fetchColumn(),
         'verified_formulas'=>(int)$pdo->query("SELECT COUNT(*) FROM ilmb_formula_master WHERE formula_status IN ('VERIFIED','APPROVED')")->fetchColumn(),
         'formula_inputs'=>(int)$pdo->query("SELECT COUNT(*) FROM ilmb_formula_input")->fetchColumn(),
         'approved_identifiers'=>(int)$pdo->query("SELECT COUNT(*) FROM ilmb_parameter_identifier WHERE verification_status='APPROVED'")->fetchColumn(),
+        'psoriasis_treatment_classes'=>count($treatmentClasses),
+        'psoriasis_medicine_references'=>count($medicineReferences),
     ];
 
     $required = 0;
@@ -33,10 +38,10 @@ try {
         'access_mode'=>'public_read_only',
         'report'=>[
             'report_code'=>'ILMB-RPT-001',
-            'title'=>'Psoriasis Baseline + Personalisation',
+            'title'=>'Psoriasis · Two Paths · Personalisation',
             'disease'=>'Psoriasis',
             'model_code'=>$modelCode,
-            'principle'=>'Baseline plan first. More verified information increases personalisation and recalculates the plan.'
+            'principle'=>'Two paths first. Disease understanding next. Personalisation and planning follow from governed database fields.'
         ],
         'completeness'=>[
             'defined_fields'=>count($definitions),
@@ -45,6 +50,8 @@ try {
         'input_definitions'=>$definitions,
         'parameters'=>$params->fetchAll(),
         'release_gates'=>$gates->fetchAll(),
+        'treatment_classes'=>$treatmentClasses,
+        'medicine_references'=>$medicineReferences,
         'formula_summary'=>$summary
     ], JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE);
 } catch (Throwable $e) {
