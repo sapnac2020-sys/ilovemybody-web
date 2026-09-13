@@ -10,8 +10,10 @@ on:
       - "ops/excel-sync/migrations/007_formula_master_bootstrap.sql"
       - "ops/excel-sync/migrations/008_loinc_parameter_bootstrap.sql"
       - "ops/excel-sync/migrations/009_body_need_execution_status_patch.sql"
+      - "ops/excel-sync/migrations/010_case_formula_input_bootstrap.sql"
       - "ops/excel-sync/src/ilmb_sync/body_need.py"
       - "ops/run-body-need-master-migrations.php"
+      - "ops/run-body-need-input-links.php"
       - "ops/export-body-need-master.php"
       - ".github/workflows/deploy-body-need-master.yml"
 
@@ -32,10 +34,11 @@ jobs:
       - name: Validate package
         run: |
           set -euo pipefail
-          for f in 005_body_need_master.sql 006_formula_duplicate_and_identifier_patch.sql 007_formula_master_bootstrap.sql 008_loinc_parameter_bootstrap.sql 009_body_need_execution_status_patch.sql; do
+          for f in 005_body_need_master.sql 006_formula_duplicate_and_identifier_patch.sql 007_formula_master_bootstrap.sql 008_loinc_parameter_bootstrap.sql 009_body_need_execution_status_patch.sql 010_case_formula_input_bootstrap.sql; do
             test -s "ops/excel-sync/migrations/$f"
           done
           php -l ops/run-body-need-master-migrations.php
+          php -l ops/run-body-need-input-links.php
           php -l ops/export-body-need-master.php
           python -m compileall -q ops/excel-sync/src
 
@@ -78,7 +81,8 @@ jobs:
           package="$RUNNER_TEMP/body-need-package"
           mkdir -p "$package/migrations" "$package/ops"
           cp ops/excel-sync/migrations/00{5,6,7,8,9}_*.sql "$package/migrations/"
-          cp ops/run-body-need-master-migrations.php ops/export-body-need-master.php "$package/ops/"
+          cp ops/excel-sync/migrations/010_case_formula_input_bootstrap.sql "$package/migrations/"
+          cp ops/run-body-need-master-migrations.php ops/run-body-need-input-links.php ops/export-body-need-master.php "$package/ops/"
           tar -C "$package" -czf - . | ssh -S "$SSH_CONTROL_SOCKET" -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" "tar -xzf - -C '$remote_dir'"
 
       - name: Apply and verify production schema
@@ -88,6 +92,14 @@ jobs:
             "set -e; CONFIG=\$(find \"\$HOME/domains/ilovemybody.in\" -maxdepth 5 -type f -name 'ilmb-config.php' -print -quit); test -s \"\$CONFIG\"; php '$REMOTE_DIR/ops/run-body-need-master-migrations.php' \"\$CONFIG\" '$REMOTE_DIR/migrations'" \
             | tee "$RUNNER_TEMP/body-need-migration-result.json"
           jq -e '.body_need_master_ready == true and (.missing_objects|length)==0' "$RUNNER_TEMP/body-need-migration-result.json" >/dev/null
+
+      - name: Link existing case formula inputs
+        run: |
+          set -euo pipefail
+          ssh -S "$SSH_CONTROL_SOCKET" -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" \
+            "set -e; CONFIG=\$(find \"\$HOME/domains/ilovemybody.in\" -maxdepth 5 -type f -name 'ilmb-config.php' -print -quit); test -s \"\$CONFIG\"; php '$REMOTE_DIR/ops/run-body-need-input-links.php' \"\$CONFIG\" '$REMOTE_DIR/migrations/010_case_formula_input_bootstrap.sql'" \
+            | tee "$RUNNER_TEMP/body-need-input-link-result.json"
+          jq -e '.case_formula_input_links >= 0 and .patient_rows_modified == 0' "$RUNNER_TEMP/body-need-input-link-result.json" >/dev/null
 
       - name: Export governed live master data
         run: |
@@ -147,6 +159,7 @@ jobs:
             ${{ runner.temp }}/ILMB_Formula_Master_Live.xlsx
             ${{ runner.temp }}/body-need-master-audit.json
             ${{ runner.temp }}/body-need-migration-result.json
+            ${{ runner.temp }}/body-need-input-link-result.json
           if-no-files-found: error
           retention-days: 30
 
