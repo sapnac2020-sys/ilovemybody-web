@@ -1,0 +1,185 @@
+name: Deploy ILMB Body Need Master
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "ops/excel-sync/migrations/005_body_need_master.sql"
+      - "ops/excel-sync/migrations/006_formula_duplicate_and_identifier_patch.sql"
+      - "ops/excel-sync/migrations/007_formula_master_bootstrap.sql"
+      - "ops/excel-sync/migrations/008_loinc_parameter_bootstrap.sql"
+      - "ops/excel-sync/migrations/009_body_need_execution_status_patch.sql"
+      - "ops/excel-sync/src/ilmb_sync/body_need.py"
+      - "ops/run-body-need-master-migrations.php"
+      - "ops/export-body-need-master.php"
+      - ".github/workflows/deploy-body-need-master.yml"
+
+concurrency:
+  group: ilovemybody-production-body-need-master
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate package
+        run: |
+          set -euo pipefail
+          for f in 005_body_need_master.sql 006_formula_duplicate_and_identifier_patch.sql 007_formula_master_bootstrap.sql 008_loinc_parameter_bootstrap.sql 009_body_need_execution_status_patch.sql; do
+            test -s "ops/excel-sync/migrations/$f"
+          done
+          php -l ops/run-body-need-master-migrations.php
+          php -l ops/export-body-need-master.php
+          python -m compileall -q ops/excel-sync/src
+
+      - name: Prepare stable SSH connection
+        env:
+          DEPLOY_BUNDLE: ${{ secrets.HOSTINGER_DEPLOY_BUNDLE }}
+        run: |
+          set -euo pipefail
+          test -n "$DEPLOY_BUNDLE"
+          mkdir -p "$HOME/.ssh"; chmod 700 "$HOME/.ssh"
+          printf '%s' "$DEPLOY_BUNDLE" | base64 --decode > "$RUNNER_TEMP/deploy.json"
+          jq -e '.host and .port and .user and .key' "$RUNNER_TEMP/deploy.json" >/dev/null
+          jq -r '.key' "$RUNNER_TEMP/deploy.json" > "$HOME/.ssh/ilmb_body_need"
+          chmod 600 "$HOME/.ssh/ilmb_body_need"
+          host="$(jq -r '.host' "$RUNNER_TEMP/deploy.json")"
+          port="$(jq -r '.port' "$RUNNER_TEMP/deploy.json")"
+          user="$(jq -r '.user' "$RUNNER_TEMP/deploy.json")"
+          echo "DEPLOY_HOST=$host" >> "$GITHUB_ENV"
+          echo "DEPLOY_PORT=$port" >> "$GITHUB_ENV"
+          echo "DEPLOY_USER=$user" >> "$GITHUB_ENV"
+          scanned=false
+          for attempt in 1 2 3 4 5; do
+            if ssh-keyscan -T 20 -p "$port" "$host" >> "$HOME/.ssh/known_hosts" 2>/dev/null; then scanned=true; break; fi
+            sleep $((attempt * 5))
+          done
+          test "$scanned" = true
+          chmod 600 "$HOME/.ssh/known_hosts"
+          socket="$RUNNER_TEMP/ilmb-body-need-ssh"
+          ssh -o IdentitiesOnly=yes -o ServerAliveInterval=15 -o ServerAliveCountMax=4 \
+            -i "$HOME/.ssh/ilmb_body_need" -p "$port" \
+            -M -S "$socket" -o ControlPersist=10m -fnNT "$user@$host"
+          echo "SSH_CONTROL_SOCKET=$socket" >> "$GITHUB_ENV"
+
+      - name: Upload exact migration package
+        run: |
+          set -euo pipefail
+          remote_dir="/tmp/ilmb_body_need_${GITHUB_RUN_ID}_${GITHUB_RUN_ATTEMPT}"
+          echo "REMOTE_DIR=$remote_dir" >> "$GITHUB_ENV"
+          ssh -S "$SSH_CONTROL_SOCKET" -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" "mkdir -p '$remote_dir/migrations'"
+          package="$RUNNER_TEMP/body-need-package"
+          mkdir -p "$package/migrations" "$package/ops"
+          cp ops/excel-sync/migrations/00{5,6,7,8,9}_*.sql "$package/migrations/"
+          cp ops/run-body-need-master-migrations.php ops/export-body-need-master.php "$package/ops/"
+          tar -C "$package" -czf - . | ssh -S "$SSH_CONTROL_SOCKET" -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" "tar -xzf - -C '$remote_dir'"
+
+      - name: Apply and verify production schema
+        run: |
+          set -euo pipefail
+          ssh -S "$SSH_CONTROL_SOCKET" -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" \
+            "set -e; CONFIG=\$(find \"\$HOME/domains/ilovemybody.in\" -maxdepth 5 -type f -name 'ilmb-config.php' -print -quit); test -s \"\$CONFIG\"; php '$REMOTE_DIR/ops/run-body-need-master-migrations.php' \"\$CONFIG\" '$REMOTE_DIR/migrations'" \
+            | tee "$RUNNER_TEMP/body-need-migration-result.json"
+          jq -e '.body_need_master_ready == true and (.missing_objects|length)==0' "$RUNNER_TEMP/body-need-migration-result.json" >/dev/null
+
+      - name: Export governed live master data
+        run: |
+          set -euo pipefail
+          ssh -S "$SSH_CONTROL_SOCKET" -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" \
+            "set -e; CONFIG=\$(find \"\$HOME/domains/ilovemybody.in\" -maxdepth 5 -type f -name 'ilmb-config.php' -print -quit); test -s \"\$CONFIG\"; php '$REMOTE_DIR/ops/export-body-need-master.php' \"\$CONFIG\"" \
+            > "$RUNNER_TEMP/body-need-master-live.json"
+          jq -e '.parameters and .identifiers and .formulas and .formula_inputs' "$RUNNER_TEMP/body-need-master-live.json" >/dev/null
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Build Formula Master Excel from live database
+        run: |
+          set -euo pipefail
+          python -m pip install --disable-pip-version-check openpyxl
+          PYTHONPATH=ops/excel-sync/src python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+          from ilmb_sync.body_need import duplicate_candidates, formula_duplicate_candidates, export_formula_master_xlsx
+
+          source = Path(os.environ['RUNNER_TEMP']) / 'body-need-master-live.json'
+          data = json.loads(source.read_text(encoding='utf-8'))
+          parameter_dupes = duplicate_candidates(data['parameters'], data['identifiers'], data['formulas'])
+          formula_dupes = formula_duplicate_candidates(data['formulas'], data['formula_inputs'])
+          out = Path(os.environ['RUNNER_TEMP']) / 'ILMB_Formula_Master_Live.xlsx'
+          export_formula_master_xlsx(
+              out,
+              parameters=data['parameters'],
+              identifiers=data['identifiers'],
+              formulas=data['formulas'],
+              formula_inputs=data['formula_inputs'],
+              duplicates=parameter_dupes,
+              formula_duplicates=formula_dupes,
+          )
+          audit = {
+              'generated_at_utc': data.get('generated_at_utc'),
+              'parameters': len(data['parameters']),
+              'identifiers': len(data['identifiers']),
+              'formulas': len(data['formulas']),
+              'formula_inputs': len(data['formula_inputs']),
+              'parameter_duplicate_candidates': len(parameter_dupes),
+              'formula_duplicate_candidates': len(formula_dupes),
+              'workbook': out.name,
+          }
+          (Path(os.environ['RUNNER_TEMP']) / 'body-need-master-audit.json').write_text(json.dumps(audit, indent=2), encoding='utf-8')
+          print(json.dumps(audit, indent=2))
+          PY
+
+      - name: Publish live Excel artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ILMB-Formula-Master-Live
+          path: |
+            ${{ runner.temp }}/ILMB_Formula_Master_Live.xlsx
+            ${{ runner.temp }}/body-need-master-audit.json
+            ${{ runner.temp }}/body-need-migration-result.json
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Publish production receipt
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git pull --rebase origin main
+          mkdir -p docs/audits
+          cp "$RUNNER_TEMP/body-need-master-audit.json" docs/audits/BODY_NEED_MASTER_LIVE.json
+          {
+            echo "# ILMB Body Need Master — Live"
+            echo
+            echo "- Source commit: \`$GITHUB_SHA\`"
+            echo "- Workflow run: \`$GITHUB_RUN_ID\`"
+            echo "- Production migration: verified"
+            echo "- Formula Master Excel: generated from live database"
+            echo "- Patient rows modified: \`0\`"
+            echo
+            echo '```json'
+            cat "$RUNNER_TEMP/body-need-master-audit.json"
+            echo '```'
+          } > docs/audits/BODY_NEED_MASTER_LIVE.md
+          git add docs/audits/BODY_NEED_MASTER_LIVE.json docs/audits/BODY_NEED_MASTER_LIVE.md
+          if ! git diff --cached --quiet; then git commit -m "docs: record live Body Need Master deployment"; git push; fi
+
+      - name: Remove temporary package
+        if: always()
+        run: |
+          if [ -n "${REMOTE_DIR:-}" ] && [ -n "${SSH_CONTROL_SOCKET:-}" ]; then
+            ssh -S "$SSH_CONTROL_SOCKET" -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" "rm -rf '$REMOTE_DIR'" || true
+          fi
+          if [ -n "${SSH_CONTROL_SOCKET:-}" ]; then
+            ssh -S "$SSH_CONTROL_SOCKET" -O exit "$DEPLOY_USER@$DEPLOY_HOST" || true
+          fi
