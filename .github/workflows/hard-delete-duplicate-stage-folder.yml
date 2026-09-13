@@ -1,0 +1,75 @@
+name: Hard Delete Confirmed Duplicate Stage Folder
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/hard-delete-duplicate-stage-folder.yml
+
+permissions:
+  contents: read
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Prepare SSH
+        env:
+          DEPLOY_BUNDLE: ${{ secrets.HOSTINGER_DEPLOY_BUNDLE }}
+        run: |
+          set -euo pipefail
+          mkdir -p "$HOME/.ssh"; chmod 700 "$HOME/.ssh"
+          printf '%s' "$DEPLOY_BUNDLE" | base64 --decode > "$RUNNER_TEMP/deploy.json"
+          jq -r '.key' "$RUNNER_TEMP/deploy.json" > "$HOME/.ssh/id_ed25519"; chmod 600 "$HOME/.ssh/id_ed25519"
+          echo "DEPLOY_HOST=$(jq -r '.host' "$RUNNER_TEMP/deploy.json")" >> "$GITHUB_ENV"
+          echo "DEPLOY_PORT=$(jq -r '.port' "$RUNNER_TEMP/deploy.json")" >> "$GITHUB_ENV"
+          echo "DEPLOY_USER=$(jq -r '.user' "$RUNNER_TEMP/deploy.json")" >> "$GITHUB_ENV"
+          cat > "$HOME/.ssh/config" <<'SSHCONFIG'
+          Host *
+            StrictHostKeyChecking accept-new
+            ConnectTimeout 20
+            ServerAliveInterval 15
+            ServerAliveCountMax 4
+            IdentitiesOnly yes
+          SSHCONFIG
+          chmod 600 "$HOME/.ssh/config"
+      - name: Verify every staged file is byte-identical to live app, then hard delete
+        run: |
+          set -euo pipefail
+          ssh -i "$HOME/.ssh/id_ed25519" -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" 'bash -s' <<'REMOTE'
+          set -euo pipefail
+          BASE="$HOME/domains/ilovemybody.in/public_html"
+          STAGE="$BASE/stage-1e30f23f840711ed53f7"
+          APP="$BASE/app"
+          if [ ! -d "$STAGE" ]; then
+            echo '{"stage_folder":"already_absent","deleted":false}'
+            exit 0
+          fi
+          mismatch=0
+          while IFS= read -r -d '' f; do
+            rel="${f#$STAGE/}"
+            target="$APP/$rel"
+            if [ ! -f "$target" ]; then
+              echo "UNMATCHED:$rel"
+              mismatch=1
+              continue
+            fi
+            a=$(sha256sum "$f" | awk '{print $1}')
+            b=$(sha256sum "$target" | awk '{print $1}')
+            if [ "$a" != "$b" ]; then
+              echo "DIFFERENT:$rel"
+              mismatch=1
+            fi
+          done < <(find "$STAGE" -type f -print0)
+          if [ "$mismatch" -ne 0 ]; then
+            echo 'Stage folder contains non-duplicate files; refusing hard delete.' >&2
+            exit 9
+          fi
+          count=$(find "$STAGE" -type f | wc -l | tr -d ' ')
+          rm -rf "$STAGE"
+          test ! -e "$STAGE"
+          printf '{"stage_folder":"deleted","files_deleted":%s}\n' "$count"
+          REMOTE
