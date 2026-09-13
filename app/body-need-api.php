@@ -9,10 +9,15 @@ $view=(string)($_GET['view']??'summary');
 $pdo=db();
 function allq(PDO $pdo,string $sql):array{return $pdo->query($sql)->fetchAll();}
 function oneq(PDO $pdo,string $sql):int{return (int)$pdo->query($sql)->fetchColumn();}
+function private_exchange_root(): string {
+    $home=trim((string)(getenv('HOME')?:''));
+    if($home==='' || !is_dir($home)) $home=dirname(__DIR__,4);
+    return rtrim($home,'/').'/ilmb-data-exchange';
+}
 
 try {
  if($view==='summary'){
-   $root=dirname(__DIR__,2).'/ilmb-data-exchange';
+   $root=private_exchange_root();
    $manifest=$root.'/manifest.json';
    $mirror=is_file($manifest)?json_decode((string)file_get_contents($manifest),true):null;
    json_out(['ok'=>true,'summary'=>[
