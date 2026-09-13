@@ -1,0 +1,145 @@
+name: Hard Clean Confirmed ILMB DB and Excel
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - ops/hard-cleanup-confirmed.php
+      - .github/workflows/hard-clean-confirmed-db-and-excel.yml
+
+permissions:
+  contents: write
+
+concurrency:
+  group: ilmb-hard-clean-confirmed
+  cancel-in-progress: false
+
+jobs:
+  clean:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate cleanup package
+        run: |
+          set -euo pipefail
+          php -l ops/hard-cleanup-confirmed.php
+          php -l ops/export-body-need-master.php
+          python -m compileall -q ops/excel-sync/src
+
+      - name: Prepare SSH
+        env:
+          DEPLOY_BUNDLE: ${{ secrets.HOSTINGER_DEPLOY_BUNDLE }}
+        run: |
+          set -euo pipefail
+          mkdir -p "$HOME/.ssh"; chmod 700 "$HOME/.ssh"
+          printf '%s' "$DEPLOY_BUNDLE" | base64 --decode > "$RUNNER_TEMP/deploy.json"
+          jq -e '.host and .port and .user and .key' "$RUNNER_TEMP/deploy.json" >/dev/null
+          jq -r '.key' "$RUNNER_TEMP/deploy.json" > "$HOME/.ssh/id_ed25519"; chmod 600 "$HOME/.ssh/id_ed25519"
+          echo "DEPLOY_HOST=$(jq -r '.host' "$RUNNER_TEMP/deploy.json")" >> "$GITHUB_ENV"
+          echo "DEPLOY_PORT=$(jq -r '.port' "$RUNNER_TEMP/deploy.json")" >> "$GITHUB_ENV"
+          echo "DEPLOY_USER=$(jq -r '.user' "$RUNNER_TEMP/deploy.json")" >> "$GITHUB_ENV"
+          cat > "$HOME/.ssh/config" <<'SSHCONFIG'
+          Host *
+            StrictHostKeyChecking accept-new
+            ConnectTimeout 20
+            ServerAliveInterval 15
+            ServerAliveCountMax 8
+            IdentitiesOnly yes
+          SSHCONFIG
+          chmod 600 "$HOME/.ssh/config"
+
+      - name: Upload cleanup and mirror package
+        run: |
+          set -euo pipefail
+          work="$RUNNER_TEMP/ilmb-clean-package"
+          mkdir -p "$work/ops" "$work/excel-sync"
+          cp ops/hard-cleanup-confirmed.php ops/export-body-need-master.php "$work/ops/"
+          cp -R ops/excel-sync/src "$work/excel-sync/"
+          tar -C "$work" -czf "$RUNNER_TEMP/ilmb-clean-package.tgz" .
+          remote="/tmp/ilmb-hard-clean-${GITHUB_RUN_ID}.tgz"
+          scp -i "$HOME/.ssh/id_ed25519" -P "$DEPLOY_PORT" "$RUNNER_TEMP/ilmb-clean-package.tgz" "$DEPLOY_USER@$DEPLOY_HOST:$remote"
+          echo "REMOTE_PACKAGE=$remote" >> "$GITHUB_ENV"
+
+      - name: Hard delete confirmed DB objects and rebuild private full DB mirror
+        run: |
+          set -euo pipefail
+          ssh -i "$HOME/.ssh/id_ed25519" -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" "REMOTE_PACKAGE='$REMOTE_PACKAGE' bash -s" <<'REMOTE' | tee "$RUNNER_TEMP/hard-clean-result.log"
+          set -euo pipefail
+          WORK="/tmp/ilmb-hard-clean-run-$$"
+          mkdir -p "$WORK"
+          tar -xzf "$REMOTE_PACKAGE" -C "$WORK"
+          CONFIG=$(find "$HOME/domains/ilovemybody.in" -maxdepth 5 -type f -name 'ilmb-config.php' -print -quit)
+          test -s "$CONFIG"
+          php "$WORK/ops/hard-cleanup-confirmed.php" "$CONFIG"
+
+          ROOT="$HOME/private/ilmb-excel-sync"
+          CURRENT="$ROOT/current"
+          EXCHANGE="$HOME/ilmb-data-exchange"
+          test -L "$CURRENT"
+          test -s "$CURRENT/ilmb-sync.env"
+          test -x "$CURRENT/.venv/bin/python"
+          set -a; . "$CURRENT/ilmb-sync.env"; set +a
+          PYTHONPATH="$WORK/excel-sync/src" "$CURRENT/.venv/bin/python" -m ilmb_sync.private_mirror full-db --output-root "$EXCHANGE" --tables-per-workbook 20
+          test -s "$EXCHANGE/db-mirror/current/00_CONTROL_ROOM.xlsx"
+          test -s "$EXCHANGE/db-mirror/current/manifest.json"
+
+          php "$WORK/ops/export-body-need-master.php" "$CONFIG" > "$WORK/body-need-master-live.json"
+          cp "$WORK/body-need-master-live.json" "$EXCHANGE/body-need-master-live.json"
+          rm -f "$REMOTE_PACKAGE"
+          echo "REMOTE_BODY_NEED_JSON=$WORK/body-need-master-live.json"
+          REMOTE
+
+      - name: Fetch live Body Need export
+        run: |
+          set -euo pipefail
+          remote_json=$(grep '^REMOTE_BODY_NEED_JSON=' "$RUNNER_TEMP/hard-clean-result.log" | tail -1 | cut -d= -f2-)
+          test -n "$remote_json"
+          scp -i "$HOME/.ssh/id_ed25519" -P "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST:$remote_json" "$RUNNER_TEMP/body-need-master-live.json"
+          jq -e '.parameters and .identifiers and .formulas and .formula_inputs' "$RUNNER_TEMP/body-need-master-live.json" >/dev/null
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Regenerate clean Formula Master Excel
+        run: |
+          set -euo pipefail
+          python -m pip install --disable-pip-version-check openpyxl
+          PYTHONPATH=ops/excel-sync/src python - <<'PY'
+          import json, os
+          from pathlib import Path
+          from ilmb_sync.body_need import duplicate_candidates, formula_duplicate_candidates, export_formula_master_xlsx
+          src=Path(os.environ['RUNNER_TEMP'])/'body-need-master-live.json'
+          d=json.loads(src.read_text())
+          pd=duplicate_candidates(d['parameters'],d['identifiers'],d['formulas'])
+          fd=formula_duplicate_candidates(d['formulas'],d['formula_inputs'])
+          out=Path(os.environ['RUNNER_TEMP'])/'ILMB_Formula_Master_Live.xlsx'
+          export_formula_master_xlsx(out,parameters=d['parameters'],identifiers=d['identifiers'],formulas=d['formulas'],formula_inputs=d['formula_inputs'],duplicates=pd,formula_duplicates=fd)
+          receipt={'parameters':len(d['parameters']),'identifiers':len(d['identifiers']),'formulas':len(d['formulas']),'formula_inputs':len(d['formula_inputs']),'parameter_duplicate_candidates':len(pd),'formula_duplicate_candidates':len(fd),'hard_cleanup_source':'production'}
+          (Path(os.environ['RUNNER_TEMP'])/'HARD_CLEANUP_RECEIPT.json').write_text(json.dumps(receipt,indent=2))
+          print(json.dumps(receipt,indent=2))
+          PY
+
+      - name: Publish clean Excel artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ILMB-Clean-Formula-Master
+          path: |
+            ${{ runner.temp }}/ILMB_Formula_Master_Live.xlsx
+            ${{ runner.temp }}/HARD_CLEANUP_RECEIPT.json
+            ${{ runner.temp }}/hard-clean-result.log
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Record cleanup receipt
+        run: |
+          set -euo pipefail
+          cp "$RUNNER_TEMP/HARD_CLEANUP_RECEIPT.json" docs/audits/HARD_CLEANUP_RECEIPT.json
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git pull --rebase origin main
+          git add docs/audits/HARD_CLEANUP_RECEIPT.json
+          if ! git diff --cached --quiet; then git commit -m 'docs: record confirmed hard cleanup and Excel regeneration'; git push; fi
