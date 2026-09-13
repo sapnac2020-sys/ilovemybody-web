@@ -1,0 +1,48 @@
+name: Inspect Gita Dependency
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - ops/inspect-gita-dependency.php
+      - .github/workflows/inspect-gita-dependency.yml
+permissions:
+  contents: write
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Prepare SSH
+        env:
+          DEPLOY_BUNDLE: ${{ secrets.HOSTINGER_DEPLOY_BUNDLE }}
+        run: |
+          set -euo pipefail
+          mkdir -p "$HOME/.ssh"; chmod 700 "$HOME/.ssh"
+          printf '%s' "$DEPLOY_BUNDLE" | base64 --decode > "$RUNNER_TEMP/deploy.json"
+          jq -r '.key' "$RUNNER_TEMP/deploy.json" > "$HOME/.ssh/id_ed25519"; chmod 600 "$HOME/.ssh/id_ed25519"
+          echo "DEPLOY_HOST=$(jq -r '.host' "$RUNNER_TEMP/deploy.json")" >> "$GITHUB_ENV"
+          echo "DEPLOY_PORT=$(jq -r '.port' "$RUNNER_TEMP/deploy.json")" >> "$GITHUB_ENV"
+          echo "DEPLOY_USER=$(jq -r '.user' "$RUNNER_TEMP/deploy.json")" >> "$GITHUB_ENV"
+          cat > "$HOME/.ssh/config" <<'EOF'
+          Host *
+            StrictHostKeyChecking accept-new
+            ConnectTimeout 25
+            ServerAliveInterval 15
+            ServerAliveCountMax 4
+            IdentitiesOnly yes
+          EOF
+      - name: Inspect live dependency
+        run: |
+          set -euo pipefail
+          scp -i "$HOME/.ssh/id_ed25519" -P "$DEPLOY_PORT" ops/inspect-gita-dependency.php "$DEPLOY_USER@$DEPLOY_HOST:/tmp/inspect-gita-dependency.php"
+          ssh -i "$HOME/.ssh/id_ed25519" -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" 'CONFIG=$(find "$HOME/domains/ilovemybody.in" -maxdepth 5 -type f -name ilmb-config.php -print -quit); php /tmp/inspect-gita-dependency.php "$CONFIG"; rm -f /tmp/inspect-gita-dependency.php' | tee "$RUNNER_TEMP/gita-dependency.json"
+      - name: Publish
+        run: |
+          cp "$RUNNER_TEMP/gita-dependency.json" docs/audits/GITA_DEPENDENCY.json
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git pull --rebase origin main
+          git add docs/audits/GITA_DEPENDENCY.json
+          if ! git diff --cached --quiet; then git commit -m 'docs: record gita dependency inspection'; git push; fi
