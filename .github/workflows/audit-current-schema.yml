@@ -47,8 +47,14 @@ jobs:
           echo "DEPLOY_HOST=$(jq -r '.host' "$RUNNER_TEMP/deploy.json")" >> "$GITHUB_ENV"
           echo "DEPLOY_PORT=$(jq -r '.port' "$RUNNER_TEMP/deploy.json")" >> "$GITHUB_ENV"
           echo "DEPLOY_USER=$(jq -r '.user' "$RUNNER_TEMP/deploy.json")" >> "$GITHUB_ENV"
-          ssh-keyscan -p "$(jq -r '.port' "$RUNNER_TEMP/deploy.json")" \
-            "$(jq -r '.host' "$RUNNER_TEMP/deploy.json")" >> "$HOME/.ssh/known_hosts"
+          host="$(jq -r '.host' "$RUNNER_TEMP/deploy.json")"
+          port="$(jq -r '.port' "$RUNNER_TEMP/deploy.json")"
+          scanned=false
+          for attempt in 1 2 3 4 5; do
+            if ssh-keyscan -T 20 -p "$port" "$host" >> "$HOME/.ssh/known_hosts" 2>/dev/null; then scanned=true; break; fi
+            sleep $((attempt * 10))
+          done
+          test "$scanned" = true
           chmod 600 "$HOME/.ssh/known_hosts"
 
       - name: Run metadata-only production audit
@@ -56,15 +62,11 @@ jobs:
           set -euo pipefail
           remote_script="/tmp/ilovemybody_schema_audit_${GITHUB_RUN_ID}_${GITHUB_RUN_ATTEMPT}.php"
           echo "REMOTE_SCRIPT=$remote_script" >> "$GITHUB_ENV"
-          scp -i "$HOME/.ssh/ilovemybody_audit" -P "$DEPLOY_PORT" \
-            ops/backend-audit.php "$DEPLOY_USER@$DEPLOY_HOST:$remote_script"
-          ssh -o IdentitiesOnly=yes -o BatchMode=yes -o ConnectTimeout=30 \
-            -i "$HOME/.ssh/ilovemybody_audit" -p "$DEPLOY_PORT" \
-            "$DEPLOY_USER@$DEPLOY_HOST" \
+          scp -o ConnectTimeout=30 -i "$HOME/.ssh/ilovemybody_audit" -P "$DEPLOY_PORT" ops/backend-audit.php "$DEPLOY_USER@$DEPLOY_HOST:$remote_script"
+          ssh -o IdentitiesOnly=yes -o BatchMode=yes -o ConnectTimeout=30 -i "$HOME/.ssh/ilovemybody_audit" -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" \
             "set -euo pipefail; CONFIG=\$(find \"\$HOME/domains/ilovemybody.in\" -maxdepth 5 -type f -name 'ilmb-config.php' -print -quit); test -n \"\$CONFIG\"; test -s \"\$CONFIG\"; php '$remote_script' \"\$CONFIG\"" \
             > "$RUNNER_TEMP/current-schema-audit.json"
-          jq -e '.summary and .tables and .column_counts and .foreign_keys' \
-            "$RUNNER_TEMP/current-schema-audit.json" >/dev/null
+          jq -e '.summary and .tables and .column_counts and .foreign_keys' "$RUNNER_TEMP/current-schema-audit.json" >/dev/null
 
       - name: Publish current schema audit
         run: |
@@ -89,17 +91,11 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add docs/audits/CURRENT_SCHEMA_AUDIT.json docs/audits/CURRENT_SCHEMA_STATUS.md
-          if git diff --cached --quiet; then
-            echo "Audit output is unchanged."
-          else
-            git commit -m "docs: refresh current live schema audit"
-            git push
-          fi
+          if ! git diff --cached --quiet; then git commit -m "docs: refresh current live schema audit"; git push; fi
 
       - name: Remove temporary audit script
         if: always()
         run: |
           if [ -n "${REMOTE_SCRIPT:-}" ] && [ -n "${DEPLOY_HOST:-}" ]; then
-            ssh -i "$HOME/.ssh/ilovemybody_audit" -p "$DEPLOY_PORT" \
-              "$DEPLOY_USER@$DEPLOY_HOST" "rm -f '$REMOTE_SCRIPT'" || true
+            ssh -o ConnectTimeout=20 -i "$HOME/.ssh/ilovemybody_audit" -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" "rm -f '$REMOTE_SCRIPT'" || true
           fi
