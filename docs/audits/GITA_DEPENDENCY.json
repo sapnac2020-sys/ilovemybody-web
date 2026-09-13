@@ -1,0 +1,10 @@
+{
+    "table": "ilb_gita_formula_test",
+    "views": [
+        {
+            "view": "v_ilb_gita_readiness",
+            "downstream_views": [],
+            "definition": "select (select count(0) from `u756742628_ilovemybody`.`ilb_gita_verse`) AS `verse_rows`,(select count(0) from `u756742628_ilovemybody`.`ilb_gita_source_text`) AS `source_rows`,(select count(0) from `u756742628_ilovemybody`.`ilb_gita_source_text` where `u756742628_ilovemybody`.`ilb_gita_source_text`.`source_sha256` is not null) AS `hashed_source_rows`,(select count(distinct `u756742628_ilovemybody`.`ilb_gita_token`.`verse_key`) from `u756742628_ilovemybody`.`ilb_gita_token`) AS `tokenised_verses`,(select count(0) from `u756742628_ilovemybody`.`ilb_gita_translation` where `u756742628_ilovemybody`.`ilb_gita_translation`.`review_status` = 'approved') AS `approved_translations`,(select count(0) from `u756742628_ilovemybody`.`ilb_gita_proposition` where `u756742628_ilovemybody`.`ilb_gita_proposition`.`text_status` = 'frozen') AS `frozen_propositions`,(select count(0) from `u756742628_ilovemybody`.`ilb_gita_formula` where `u756742628_ilovemybody`.`ilb_gita_formula`.`verification_status` in ('arithmetic_tested','verified_for_use')) AS `tested_formulas`,(select count(0) from `u756742628_ilovemybody`.`ilb_gita_formula_test` where `u756742628_ilovemybody`.`ilb_gita_formula_test`.`test_status` = 'pass') AS `passing_formula_tests`,(select count(0) from `u756742628_ilovemybody`.`ilb_gita_prediction` where `u756742628_ilovemybody`.`ilb_gita_prediction`.`status` = 'preregistered') AS `preregistered_predictions`,(select count(0) from `u756742628_ilovemybody`.`ilb_gita_calculated_result` where `u756742628_ilovemybody`.`ilb_gita_calculated_result`.`calculation_status` = 'verified') AS `verified_results`,(select count(0) from `u756742628_ilovemybody`.`ilb_gita_proof_gate` where `u756742628_ilovemybody`.`ilb_gita_proof_gate`.`final_state` = 'supported_personally') AS `personally_supported_claims`"
+        }
+    ]
+}
