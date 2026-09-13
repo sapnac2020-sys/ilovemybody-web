@@ -1,6 +1,7 @@
 -- Bootstrap canonical ILMB parameters from the existing approved Test Atlas -> LOINC crosswalk.
 -- No name-based guessing is used. One canonical parameter is created per approved LOINC code.
 -- Units remain NULL until an authoritative UCUM mapping is available; reported subject units stay on observations.
+-- Explicit utf8mb4_bin join collation prevents legacy/new table collation drift from changing identifier equality.
 
 START TRANSACTION;
 
@@ -69,7 +70,8 @@ JOIN ilb_test_atlas_loinc_crosswalk x
   ON x.candidate_id=c.candidate_id
  AND x.mapping_status='APPROVED'
 JOIN ilmb_parameter_master p
-  ON p.parameter_key=CONCAT('loinc:',x.loinc_num)
+  ON CONVERT(p.parameter_key USING utf8mb4) COLLATE utf8mb4_bin
+   = CONVERT(CONCAT('loinc:',x.loinc_num) USING utf8mb4) COLLATE utf8mb4_bin
 WHERE c.validation_state='approved'
 ON DUPLICATE KEY UPDATE
   identifier_label=VALUES(identifier_label),
@@ -99,7 +101,8 @@ SELECT
 FROM v_ilb_subject_test_result_visible r
 JOIN ilmb_parameter_identifier i
   ON i.identifier_system='LOINC'
- AND i.identifier_code=r.exact_loinc_num
+ AND CONVERT(i.identifier_code USING utf8mb4) COLLATE utf8mb4_bin
+   = CONVERT(r.exact_loinc_num USING utf8mb4) COLLATE utf8mb4_bin
  AND i.mapping_type='EXACT'
  AND i.verification_status='APPROVED'
 JOIN ilmb_parameter_master p
