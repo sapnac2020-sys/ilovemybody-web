@@ -3,9 +3,17 @@ from __future__ import annotations
 import argparse
 import json
 import os
+from datetime import datetime
 from typing import Any
 
-from .body_need import duplicate_candidates, export_formula_master_xlsx, formula_duplicate_candidates, loinc_lookup
+from .body_need import (
+    FormulaInputSpec,
+    assess_formula_execution,
+    duplicate_candidates,
+    export_formula_master_xlsx,
+    formula_duplicate_candidates,
+    loinc_lookup,
+)
 from .db import Database
 
 
@@ -128,6 +136,144 @@ def cmd_loinc_lookup(args: argparse.Namespace) -> None:
     print(json.dumps(result, indent=2, ensure_ascii=False))
 
 
+def _latest_subject_observations(subject_key: str) -> list[dict[str, Any]]:
+    return _query(
+        """SELECT o.*
+             FROM vw_ilmb_subject_parameter_observation o
+             JOIN (
+               SELECT parameter_id,MAX(observed_on) AS max_observed_on
+                 FROM vw_ilmb_subject_parameter_observation
+                WHERE subject_key=%s
+                GROUP BY parameter_id
+             ) latest
+               ON latest.parameter_id=o.parameter_id
+              AND latest.max_observed_on=o.observed_on
+            WHERE o.subject_key=%s
+            ORDER BY o.parameter_id,o.result_id DESC""",
+        (subject_key, subject_key),
+    )
+
+
+def cmd_subject_observations(args: argparse.Namespace) -> None:
+    rows = _latest_subject_observations(args.subject_key)
+    print(json.dumps({"subject_key": args.subject_key, "observation_count": len(rows), "observations": rows}, indent=2, default=str))
+
+
+def _load_override_json(value: str | None) -> dict[str, dict[str, Any]]:
+    if not value:
+        return {}
+    if value.startswith("@"):
+        with open(value[1:], "r", encoding="utf-8") as fh:
+            payload = json.load(fh)
+    else:
+        payload = json.loads(value)
+    if not isinstance(payload, dict):
+        raise RuntimeError("Input override JSON must be an object keyed by formula symbol")
+    return payload
+
+
+def cmd_compute(args: argparse.Namespace) -> None:
+    formulas = _query("SELECT * FROM ilmb_formula_master WHERE formula_key=%s", (args.formula_key,))
+    if not formulas:
+        raise RuntimeError(f"Unknown formula_key: {args.formula_key}")
+    formula = formulas[0]
+    formula_inputs = _query(
+        "SELECT * FROM ilmb_formula_input WHERE formula_id=%s ORDER BY ordinal,formula_input_id",
+        (formula["formula_id"],),
+    )
+
+    subject_rows = _latest_subject_observations(args.subject_key)
+    by_parameter: dict[int, dict[str, Any]] = {}
+    for row in subject_rows:
+        pid = int(row["parameter_id"])
+        by_parameter.setdefault(pid, row)
+
+    observations: dict[str, dict[str, Any]] = {}
+    specs: list[FormulaInputSpec] = []
+    for row in formula_inputs:
+        symbol = str(row["symbol_name"])
+        specs.append(FormulaInputSpec(
+            symbol=symbol,
+            role=str(row["role"]),
+            required=bool(row["required_flag"]),
+            expected_unit=row.get("expected_ucum_unit"),
+        ))
+        measured = by_parameter.get(int(row["parameter_id"]))
+        if measured:
+            observations[symbol] = {
+                "value": measured["observed_value"],
+                "unit": measured.get("observed_unit"),
+                "source": f"subject_test_result:{measured['result_id']}",
+                "identifier_system": measured.get("identifier_system"),
+                "identifier_code": measured.get("identifier_code"),
+                "verified_source": bool(measured.get("verified_source")),
+            }
+
+    overrides = _load_override_json(args.input_json)
+    for symbol, value in overrides.items():
+        if not isinstance(value, dict) or "value" not in value:
+            raise RuntimeError(f"Override for {symbol} must be an object containing value")
+        observations[symbol] = value
+
+    if formula.get("expression_language") != "ILMB_EXPR_V1":
+        result = {
+            "status": "BLOCKED_UNVERIFIED_FORMULA",
+            "reason": f"Formula language {formula.get('expression_language')} is reference text, not executable ILMB_EXPR_V1",
+        }
+    else:
+        result = assess_formula_execution(
+            expression=str(formula["expression_text"]),
+            formula_status=str(formula["formula_status"]),
+            unit_checked=bool(formula["unit_checked"]),
+            input_specs=specs,
+            observations=observations,
+        )
+
+    output_unit = None
+    if formula.get("output_parameter_id"):
+        output_params = _query("SELECT canonical_ucum_unit FROM ilmb_parameter_master WHERE parameter_id=%s", (formula["output_parameter_id"],))
+        if output_params:
+            output_unit = output_params[0].get("canonical_ucum_unit")
+
+    run_id = None
+    if args.persist:
+        with db().connect() as conn:
+            try:
+                with conn.cursor() as cur:
+                    cur.execute(
+                        """INSERT INTO ilmb_body_need_run
+                           (subject_key,formula_id,observation_cutoff_at,input_snapshot_json,output_value,output_ucum_unit,
+                            execution_status,blocking_reason,provenance_json)
+                           VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s)""",
+                        (
+                            args.subject_key,
+                            formula["formula_id"],
+                            datetime.utcnow(),
+                            json.dumps(observations, default=str, ensure_ascii=False),
+                            result.get("value") if result.get("status") == "COMPUTED" else None,
+                            output_unit,
+                            result["status"],
+                            result.get("reason"),
+                            json.dumps(result.get("provenance", {}), default=str, ensure_ascii=False),
+                        ),
+                    )
+                    run_id = cur.lastrowid
+                conn.commit()
+            except Exception:
+                conn.rollback()
+                raise
+
+    print(json.dumps({
+        "subject_key": args.subject_key,
+        "formula_key": args.formula_key,
+        "formula_id": formula["formula_id"],
+        "result": result,
+        "output_ucum_unit": output_unit,
+        "persisted": bool(args.persist),
+        "body_need_run_id": run_id,
+    }, indent=2, default=str))
+
+
 def parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(prog="ilmb-body-need")
     sub = p.add_subparsers(dest="command", required=True)
@@ -143,6 +289,15 @@ def parser() -> argparse.ArgumentParser:
     l.add_argument("code")
     l.add_argument("--timeout", type=int, default=30)
     l.set_defaults(func=cmd_loinc_lookup)
+    s = sub.add_parser("subject-observations", help="Resolve a subject's exact LOINC results into canonical ILMB parameters")
+    s.add_argument("subject_key")
+    s.set_defaults(func=cmd_subject_observations)
+    c = sub.add_parser("compute", help="Execute one governed formula for one subject using exact resolved measurements")
+    c.add_argument("subject_key")
+    c.add_argument("formula_key")
+    c.add_argument("--input-json", help="JSON object, or @path, for governed target/constant/context overrides")
+    c.add_argument("--persist", action="store_true", help="Persist the governed run in ilmb_body_need_run")
+    c.set_defaults(func=cmd_compute)
     return p
 
 
