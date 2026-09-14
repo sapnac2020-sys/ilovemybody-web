@@ -1,0 +1,58 @@
+{
+  "contract_version": "1.0",
+  "phase": 108,
+  "name": "ILMB Food Biology Chemistry Physics Biochemistry Body Plumbing",
+  "source_workbook": "ILMB_Universal_Master_v1.2_Food_Biology_Chemistry_Physics_Biochemistry.xlsx",
+  "governance": {
+    "unknown_numeric_factor": "BLOCK",
+    "unknown_is_zero": false,
+    "unknown_is_one": false,
+    "require_evidence_for_coefficients": true,
+    "require_common_node_for_food_pharma_comparison": true,
+    "require_finding_for_disease_claim": true
+  },
+  "sheets": [
+    {"sheet": "31_FOOD_BIOLOGY_MASTER", "target": "ilb_food_biology_profile", "key": ["food_entity_id"]},
+    {"sheet": "32_FOOD_CHEMISTRY_MASTER", "target": "ilb_food_composition_measurement", "key": ["food_entity_id", "component_entity_id", "preparation_state", "basis_amount", "basis_unit"]},
+    {"sheet": "33_FOOD_PHYSICS_MASTER", "target": "ilb_food_physical_property_value", "key": ["food_entity_id", "property_entity_id", "process_state"]},
+    {"sheet": "34_FOOD_BIOCHEM_PATH", "target": "ilb_feed_pathway_step", "key": ["feed_pathway_id", "step_no"]},
+    {"sheet": "35_FOOD_DELIVERY_FACTORS", "target": "ilb_food_delivery_factor", "key": ["food_entity_id", "component_entity_id", "factor_code", "process_state"]},
+    {"sheet": "36_DELIVERY_MODEL_DEMO", "target": null, "purpose": "formula demonstration only; never import demo values"},
+    {"sheet": "37_FOOD_PHARMA_COMMON_NODE", "target": "ilb_intervention_node_effect", "purpose": "projection/comparison output; rows require canonical semantic IDs"},
+    {"sheet": "38_OBSERVATION_LOINC_MAP", "target": "ilb_observation_mapping", "key": ["parameter_id", "LOINC_code", "specimen_entity_id"]},
+    {"sheet": "39_FOOD_FORMULA_LIBRARY", "target": "ilb_equation_definition", "purpose": "templates require real Parameter IDs before approval"},
+    {"sheet": "40_FOOD_VALIDATION_GATES", "target": null, "purpose": "promotion gate definitions"},
+    {"sheet": "41_FOOD_SOURCE_NAMESPACES", "target": "ilb_entity_identifier", "purpose": "namespace governance; source registry, not literal row import"},
+    {"sheet": "42_FEED_TO_DISEASE_CHAIN", "target": "ilb_feed_pathway + ilb_feed_pathway_step + ilb_finding", "purpose": "end-to-end projection template"}
+  ],
+  "required_namespaces": [
+    "USDA_FDC", "NCBI_TAXONOMY", "ChEBI", "LOINC", "UniProt", "HGNC", "Reactome", "GO", "RxNorm", "ATC"
+  ],
+  "promotion_gates": [
+    "canonical entity identity resolved",
+    "units and basis defined",
+    "processing state defined when relevant",
+    "chemical component resolves to ChEBI when applicable",
+    "equation variables resolve to ilb_variable_definition",
+    "numeric coefficients/factors have evidence or person measurement",
+    "unknown delivery factors remain NULL/UNKNOWN",
+    "disease claim reaches a canonical disease/body node",
+    "food/pharma comparison uses same target or parameter",
+    "disease-relevant conclusion is captured in ilb_finding"
+  ],
+  "delivered_amount_model": {
+    "expression": "D = I * C * E * R * B * A * F * M * T",
+    "variables": {
+      "I": "intake mass",
+      "C": "component concentration on explicit food basis",
+      "E": "edible fraction",
+      "R": "retention after processing/storage",
+      "B": "bioaccessibility",
+      "A": "intestinal absorption",
+      "F": "first-pass survival",
+      "M": "metabolic availability",
+      "T": "target tissue delivery"
+    },
+    "rule": "If a required factor is unknown, calculation readiness is BLOCKED."
+  }
+}
