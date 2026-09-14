@@ -1,0 +1,130 @@
+name: Apply Phase 107 Universal Findings
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - backend/phase_107_universal_findings_master.sql
+      - .github/workflows/apply-phase-107-findings.yml
+  workflow_dispatch:
+
+concurrency:
+  group: ilovemybody-production-phase-107-findings
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  migrate-and-verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate migration source
+        run: |
+          set -euo pipefail
+          test -s backend/phase_107_universal_findings_master.sql
+          grep -q 'CREATE TABLE IF NOT EXISTS ilb_finding' backend/phase_107_universal_findings_master.sql
+          grep -q 'INSERT IGNORE INTO ilb_finding' backend/phase_107_universal_findings_master.sql
+
+      - name: Prepare SSH identity
+        env:
+          DEPLOY_BUNDLE: ${{ secrets.HOSTINGER_DEPLOY_BUNDLE }}
+        run: |
+          set -euo pipefail
+          test -n "$DEPLOY_BUNDLE"
+          mkdir -p "$HOME/.ssh"
+          chmod 700 "$HOME/.ssh"
+          printf '%s' "$DEPLOY_BUNDLE" | base64 --decode > "$RUNNER_TEMP/deploy.json"
+          jq -e '.host and .port and .user and .key' "$RUNNER_TEMP/deploy.json" >/dev/null
+          jq -r '.key' "$RUNNER_TEMP/deploy.json" > "$HOME/.ssh/id_ed25519"
+          chmod 600 "$HOME/.ssh/id_ed25519"
+          echo "DEPLOY_HOST=$(jq -r '.host' "$RUNNER_TEMP/deploy.json")" >> "$GITHUB_ENV"
+          echo "DEPLOY_PORT=$(jq -r '.port' "$RUNNER_TEMP/deploy.json")" >> "$GITHUB_ENV"
+          echo "DEPLOY_USER=$(jq -r '.user' "$RUNNER_TEMP/deploy.json")" >> "$GITHUB_ENV"
+          ssh-keyscan -T 20 -p "$(jq -r '.port' "$RUNNER_TEMP/deploy.json")" "$(jq -r '.host' "$RUNNER_TEMP/deploy.json")" >> "$HOME/.ssh/known_hosts" 2>/dev/null
+          chmod 600 "$HOME/.ssh/known_hosts"
+
+      - name: Copy migration and runner
+        run: |
+          set -euo pipefail
+          cat > "$RUNNER_TEMP/apply_phase_107.php" <<'PHP'
+          <?php
+          if ($argc < 3) { fwrite(STDERR, "usage: php apply.php CONFIG SQL\n"); exit(2); }
+          $config = require $argv[1];
+          $sql = file_get_contents($argv[2]);
+          if ($sql === false || trim($sql) === '') { throw new RuntimeException('empty sql'); }
+          $db = $config['db'] ?? $config['name'] ?? '';
+          $pdo = new PDO(
+              'mysql:host='.$config['host'].';port='.($config['port'] ?? 3306).';dbname='.$db.';charset=utf8mb4',
+              $config['user'],
+              $config['pass'] ?? $config['password'],
+              [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
+          );
+          $statements = preg_split('/;\s*(?:\r?\n|$)/', $sql);
+          $pdo->beginTransaction();
+          try {
+              $n = 0;
+              foreach ($statements as $statement) {
+                  $statement = trim($statement);
+                  if ($statement === '' || preg_match('/^--/', $statement)) {
+                      // Preserve statements that begin after leading comments.
+                      $statement = preg_replace('/^(?:--[^\n]*\n)+/', '', $statement);
+                      $statement = trim($statement);
+                      if ($statement === '') continue;
+                  }
+                  $pdo->exec($statement);
+                  $n++;
+              }
+              $pdo->commit();
+          } catch (Throwable $e) {
+              if ($pdo->inTransaction()) $pdo->rollBack();
+              throw $e;
+          }
+          $tables = [
+              'ilb_finding','ilb_finding_edge','ilb_finding_variable','ilb_finding_equation',
+              'ilb_evidence_reference','ilb_finding_evidence','ilb_finding_intervention','ilb_finding_outcome'
+          ];
+          $out = ['database'=>$db,'statements_applied'=>$n,'tables'=>[]];
+          foreach ($tables as $t) {
+              $q=$pdo->prepare('SELECT COUNT(*) FROM information_schema.tables WHERE table_schema=DATABASE() AND table_name=?');
+              $q->execute([$t]);
+              $exists=(bool)$q->fetchColumn();
+              $out['tables'][$t]=['exists'=>$exists,'count'=>$exists?(int)$pdo->query('SELECT COUNT(*) FROM `'.$t.'`')->fetchColumn():null];
+          }
+          $out['finding_readiness_view']=(bool)$pdo->query("SELECT COUNT(*) FROM information_schema.views WHERE table_schema=DATABASE() AND table_name='v_ilb_finding_readiness'")->fetchColumn();
+          $out['psoriasis_finding_count']=(int)$pdo->query("SELECT COUNT(*) FROM ilb_finding WHERE finding_code LIKE 'FND-PSO-%'")->fetchColumn();
+          echo json_encode($out, JSON_UNESCAPED_SLASHES|JSON_PRETTY_PRINT), "\n";
+          PHP
+          remote_sql="/tmp/ilmb_phase_107_${GITHUB_RUN_ID}.sql"
+          remote_php="/tmp/ilmb_phase_107_${GITHUB_RUN_ID}.php"
+          echo "REMOTE_SQL=$remote_sql" >> "$GITHUB_ENV"
+          echo "REMOTE_PHP=$remote_php" >> "$GITHUB_ENV"
+          scp -i "$HOME/.ssh/id_ed25519" -P "$DEPLOY_PORT" backend/phase_107_universal_findings_master.sql "$DEPLOY_USER@$DEPLOY_HOST:$remote_sql"
+          scp -i "$HOME/.ssh/id_ed25519" -P "$DEPLOY_PORT" "$RUNNER_TEMP/apply_phase_107.php" "$DEPLOY_USER@$DEPLOY_HOST:$remote_php"
+
+      - name: Apply migration and verify production
+        run: |
+          set -euo pipefail
+          ssh -o IdentitiesOnly=yes -o BatchMode=yes -i "$HOME/.ssh/id_ed25519" -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" \
+            "set -euo pipefail; CONFIG=\$(find \"\$HOME/domains/ilovemybody.in\" -maxdepth 5 -type f -name 'ilmb-config.php' -print -quit); test -n \"\$CONFIG\"; php '$REMOTE_PHP' \"\$CONFIG\" '$REMOTE_SQL'" \
+            | tee "$RUNNER_TEMP/phase-107-result.json"
+          jq -e '.finding_readiness_view == true' "$RUNNER_TEMP/phase-107-result.json" >/dev/null
+          jq -e '.psoriasis_finding_count >= 5' "$RUNNER_TEMP/phase-107-result.json" >/dev/null
+          jq -e '[.tables[] | select(.exists == true)] | length == 8' "$RUNNER_TEMP/phase-107-result.json" >/dev/null
+
+      - name: Upload verification artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase-107-findings-verification
+          path: ${{ runner.temp }}/phase-107-result.json
+          retention-days: 14
+
+      - name: Cleanup remote temporary files
+        if: always()
+        run: |
+          if [ -n "${DEPLOY_HOST:-}" ]; then
+            ssh -o ConnectTimeout=20 -i "$HOME/.ssh/id_ed25519" -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" "rm -f '${REMOTE_SQL:-}' '${REMOTE_PHP:-}'" || true
+          fi
