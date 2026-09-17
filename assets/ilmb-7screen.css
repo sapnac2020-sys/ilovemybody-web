@@ -1,0 +1,144 @@
+/* ILMB shared seven-screen responsive system.
+   Profiles: XS <=389, S 390-599, M 600-767, tablet 768-895,
+   laptop 896-1149, desktop 1150-1679, wide >=1680.
+   Desktop rule: the page shell never scrolls; only intentional inner panes may scroll. */
+:root{
+  --ilmb-paper:#fff9fb;--ilmb-card:#fff;--ilmb-ink:#281a23;--ilmb-muted:#756873;
+  --ilmb-line:#eadde4;--ilmb-rose:#b74772;--ilmb-peach:#efb492;--ilmb-soft:#fff3f7;
+  --ilmb-radius:16px;--ilmb-gap:clamp(8px,1vw,16px);
+}
+html,body{max-width:100%;}
+body{background:var(--ilmb-paper);color:var(--ilmb-ink);}
+button,a,input,select,textarea{font:inherit}
+button,a{touch-action:manipulation}
+
+/* Common design language across public hospital + private patient app */
+.hospital-world .room-card,
+.hospital-world .door-card,
+.hospital-world .two-path-v2 article,
+.hospital-world .evidence-v2 article,
+.hospital-world .body-system-grid button,
+.app-shell .current-step,
+.app-shell .expect-panel,
+.app-shell .record-actions>* ,
+.app-shell .records-grid>*,
+.app-shell .journal-paper,
+.app-shell .begin-card{
+  border-radius:var(--ilmb-radius)!important;
+}
+
+/* DESKTOP + WIDE: one-screen shell, no document scrolling */
+@media (min-width:1150px){
+  html,body{height:100%;overflow:hidden!important}
+  .hospital-world,.app-shell{height:100dvh;overflow:hidden!important}
+  .hospital-stage{height:100dvh;overflow:hidden!important}
+  .hospital-room.active{height:100dvh;overflow:hidden!important}
+  .hospital-room.active>.room-card{max-height:calc(100dvh - 86px);overflow:hidden!important}
+  .hospital-room .journey-v2{margin-block:14px}
+  .hospital-room .journey-v2 li{padding-block:9px}
+  .hospital-room .front-door-grid{margin-top:16px}
+  .hospital-room .door-card{min-height:0;padding:18px}
+  .hospital-room .body-system-grid{margin-top:14px}
+  .hospital-room .body-system-grid button{min-height:96px;padding:14px}
+  .hospital-room .two-path-v2{margin-top:14px}
+  .hospital-room .two-path-v2 article{padding:17px}
+  .hospital-room .equation-card{margin:12px 0;padding:13px}
+  .hospital-room .evidence-v2{margin:14px 0}
+  .hospital-room .evidence-v2 article{padding:13px}
+
+  .app-shell{position:relative}
+  .workspace{height:100dvh!important;overflow:hidden!important;padding-bottom:18px!important}
+  .workspace-head{height:72px!important;margin-bottom:8px!important}
+  .workspace>.view.active,.workspace>form>.view.active{height:calc(100dvh - 102px);overflow:hidden!important}
+  .dashboard-grid{height:calc(100% - 76px);min-height:0}
+  .current-step,.expect-panel{min-height:0!important}
+  .records-grid,.medicine-table,.table-wrap,.check-step.active,.journal-paper{max-height:calc(100dvh - 230px);overflow:auto}
+  .record-actions{gap:8px}
+  .journey-map{margin-bottom:10px}
+  .section-intro{margin-bottom:10px}
+}
+
+/* 7: WIDE >=1680 */
+@media (min-width:1680px){
+  :root{--ilmb-radius:18px}
+  .workspace{padding-inline:72px!important}
+  .hospital-stage{padding-inline:clamp(120px,10vw,190px)!important}
+  .reception-v2 h1{font-size:clamp(50px,4vw,66px)!important}
+  .front-door-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+
+/* 6: DESKTOP 1150-1679 */
+@media (min-width:1150px) and (max-width:1679px){
+  .workspace{padding-inline:32px!important}
+  .hospital-stage{padding-inline:88px!important}
+  .reception-v2 h1{font-size:clamp(40px,4vw,56px)!important}
+  .door-card h2,.two-path-v2 h3{font-size:22px!important}
+  .door-card p,.room-lead{font-size:11px!important}
+}
+
+/* 5: LAPTOP 896-1149 */
+@media (min-width:896px) and (max-width:1149px){
+  html,body{overflow:hidden}
+  .workspace{height:100dvh;overflow:hidden;padding-inline:24px!important}
+  .workspace>.view.active,.workspace>form>.view.active{height:calc(100dvh - 112px);overflow:auto}
+  .hospital-stage{overflow:auto}
+  .front-door-grid,.body-system-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  .journey-v2{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  .evidence-v2{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  .door-card{min-height:190px!important}
+}
+
+/* 4: TABLET 768-895 */
+@media (min-width:768px) and (max-width:895px){
+  html,body{overflow:auto}
+  .hospital-world,.app-shell{min-height:100dvh}
+  .hospital-rail{overflow-x:auto}
+  .front-door-grid,.body-system-grid,.evidence-v2{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  .journey-v2,.two-path-v2{grid-template-columns:1fr!important}
+  .workspace{padding-inline:18px!important;padding-bottom:92px!important}
+  .record-actions,.records-grid,.preference-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+}
+
+/* 3: MEDIUM MOBILE 600-767 */
+@media (min-width:600px) and (max-width:767px){
+  html,body{overflow:auto}
+  .front-door-grid,.concern-picker,.body-system-grid,.two-path-v2,.evidence-v2{grid-template-columns:1fr!important}
+  .journey-v2{grid-template-columns:1fr!important}
+  .workspace{padding-inline:16px!important;padding-bottom:92px!important}
+  .record-actions,.records-grid,.preference-grid,.score-grid,.metric-grid,.measurement-grid,.question-grid{grid-template-columns:1fr!important}
+  .hospital-actions{position:absolute!important}
+}
+
+/* 2: SMALL MOBILE 390-599 */
+@media (min-width:390px) and (max-width:599px){
+  html,body{overflow:auto}
+  .hospital-brand{max-width:58vw}
+  .patient-signin{font-size:9px!important;padding:8px 10px!important}
+  .hospital-rail{overflow-x:auto}
+  .front-door-grid,.concern-picker,.body-system-grid,.two-path-v2,.evidence-v2,.journey-v2{grid-template-columns:1fr!important}
+  .door-card{min-height:0!important;padding:18px!important}
+  .workspace{padding-inline:12px!important;padding-bottom:94px!important}
+  .record-actions,.records-grid,.preference-grid,.score-grid,.metric-grid,.measurement-grid,.question-grid,.journey-track{grid-template-columns:1fr!important}
+  .section-intro h2,.dashboard-intro h2{font-size:clamp(2rem,10vw,3rem)!important}
+  .login-shell{grid-template-columns:1fr!important;padding:20px 16px!important;overflow:auto!important}
+  .login-card{padding:22px!important}
+  input,select,textarea,button{min-height:44px}
+}
+
+/* 1: EXTRA SMALL <=389 */
+@media (max-width:389px){
+  html,body{overflow:auto}
+  .workspace{padding-inline:9px!important;padding-bottom:96px!important}
+  .hospital-brand{max-width:54vw}
+  .hospital-actions{right:8px!important;top:8px!important}
+  .patient-signin{font-size:8px!important;padding:7px 8px!important}
+  .reception-v2 h1{font-size:32px!important}
+  .front-door-grid,.concern-picker,.body-system-grid,.two-path-v2,.evidence-v2,.journey-v2{grid-template-columns:1fr!important}
+  .door-card{padding:16px!important;min-height:0!important}
+  .login-shell{grid-template-columns:1fr!important;padding:14px 10px!important;overflow:auto!important}
+  .login-card{padding:18px!important}
+  .section-intro h2,.dashboard-intro h2{font-size:2.3rem!important}
+  input,select,textarea,button{min-height:44px}
+}
+
+@media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
