@@ -69,17 +69,7 @@ jobs:
           cp -p "$HOME/nilesh.php" "$TARGET/nilesh.php"
           cp -p "$HOME/hospital-entry-ux.js" "$TARGET/assets/hospital-entry-ux.js"
           if ! grep -q 'hospital-entry-ux.js' "$TARGET/index.php"; then
-            python3 - "$TARGET/index.php" <<'PY'
-import sys
-p=sys.argv[1]
-s=open(p,encoding='utf-8').read()
-needle='</body></html>'
-script='<script src="assets/hospital-entry-ux.js?v=1"></script>'
-if needle not in s:
-    raise SystemExit('closing body tag not found')
-s=s.replace(needle,script+needle,1)
-open(p,'w',encoding='utf-8').write(s)
-PY
+            perl -0pi -e 's#</body></html>#<script src="assets/hospital-entry-ux.js?v=1"></script></body></html>#' "$TARGET/index.php"
           fi
           rm -f "$HOME/nilesh.php" "$HOME/hospital-entry-ux.js"
           test -s "$TARGET/nilesh.php"
