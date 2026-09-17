@@ -28,6 +28,8 @@ jobs:
           php -l app/nilesh.php
           grep -q 'Nilesh Yadav' app/nilesh.php
           grep -q 'P2Y12' app/nilesh.php
+          grep -q 'Desired effect' app/nilesh.php
+          grep -q 'ILMB target' app/nilesh.php
           test -s app/assets/hospital-entry-ux.js
           node --check app/assets/hospital-entry-ux.js
           grep -q 'Patient ID' app/assets/hospital-entry-ux.js
@@ -69,7 +71,17 @@ jobs:
           cp -p "$HOME/nilesh.php" "$TARGET/nilesh.php"
           cp -p "$HOME/hospital-entry-ux.js" "$TARGET/assets/hospital-entry-ux.js"
           if ! grep -q 'hospital-entry-ux.js' "$TARGET/index.php"; then
-            perl -0pi -e 's#</body></html>#<script src="assets/hospital-entry-ux.js?v=1"></script></body></html>#' "$TARGET/index.php"
+            python3 - "$TARGET/index.php" <<'PY'
+import sys
+p=sys.argv[1]
+s=open(p,encoding='utf-8').read()
+needle='</body></html>'
+script='<script src="assets/hospital-entry-ux.js?v=1"></script>'
+if needle not in s:
+    raise SystemExit('closing body tag not found')
+s=s.replace(needle,script+needle,1)
+open(p,'w',encoding='utf-8').write(s)
+PY
           fi
           rm -f "$HOME/nilesh.php" "$HOME/hospital-entry-ux.js"
           test -s "$TARGET/nilesh.php"
@@ -82,7 +94,7 @@ jobs:
           set -euo pipefail
           curl --fail --retry 5 --retry-delay 5 --max-time 30 --output /tmp/nilesh.html https://ilovemybody.in/app/nilesh.php
           grep -q 'PRIVATE PATIENT DASHBOARD' /tmp/nilesh.html
-          grep -q 'User ID' /tmp/nilesh.html
+          grep -q 'Patient ID' /tmp/nilesh.html
           curl --fail --retry 5 --retry-delay 5 --max-time 30 --output /tmp/entry.js https://ilovemybody.in/app/assets/hospital-entry-ux.js
           grep -q 'Patient ID' /tmp/entry.js
           grep -q 'Mobile + PIN' /tmp/entry.js
