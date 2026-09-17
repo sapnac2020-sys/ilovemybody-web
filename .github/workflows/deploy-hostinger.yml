@@ -31,18 +31,22 @@ jobs:
       - name: Validate source
         run: |
           set -euo pipefail
-          for f in index.html hospital.html assets/hospital-v2.css assets/hospital.js app/index.php app/access.php app/new.php app/nilesh.php app/api.php app/_guard.php app/lib.php app/test-results.php app/test-results-api.php app/hospital-review.php app/hospital-review-api.php app/assets/hospital-review-link.js; do test -s "$f"; done
+          for f in index.html hospital.html assets/hospital-v2.css assets/hospital.js app/index.php app/access.php app/new.php app/nilesh.php app/api.php app/_guard.php app/lib.php app/test-results.php app/test-results-api.php app/hospital-review.php app/hospital-review-api.php app/patient.php app/assets/hospital-review-link.js; do test -s "$f"; done
           node --check assets/hospital.js
           node --check app/assets/app.js
           node --check app/assets/hospital-review-link.js
+          php -l app/nilesh.php
           php -l app/hospital-review.php
           php -l app/hospital-review-api.php
+          php -l app/patient.php
           grep -q 'NO LOGIN NEEDED TO EXPLORE' hospital.html
           grep -qi 'Patient ID.*password' hospital.html
           grep -qi 'PATIENT ID.*PASSWORD' app/access.php
-          grep -q 'PRIVATE PATIENT DASHBOARD' app/nilesh.php
+          grep -q 'THE COMPARATIVE CHART' app/nilesh.php
+          grep -q 'Clopidogrel 75 mg' app/nilesh.php
+          grep -q 'Fenofibrate 160 mg' app/nilesh.php
+          grep -q 'ILMB target' app/nilesh.php
           grep -q 'Optimistic, factual reading' app/hospital-review.php
-          grep -q 'ILMB target' app/hospital-review.php
 
       - name: Prepare dedicated SSH identity
         env:
@@ -87,7 +91,7 @@ jobs:
           cp -p "$STAGE/mentors.html" "$TARGET/mentors.html"
           cp -p "$STAGE/philosophy.html" "$TARGET/philosophy.html"
           cp -a "$STAGE/assets/." "$TARGET/assets/"
-          for f in index.php access.php new.php nilesh.php api.php _guard.php lib.php test-results.php test-results-api.php hospital-review.php hospital-review-api.php; do
+          for f in index.php access.php new.php nilesh.php api.php _guard.php lib.php test-results.php test-results-api.php hospital-review.php hospital-review-api.php patient.php; do
             if test -f "$TARGET/app/$f"; then cp -p "$TARGET/app/$f" "$BACKUP/app/$f"; fi
             cp -p "$STAGE/app/$f" "$TARGET/app/$f"
           done
@@ -96,6 +100,7 @@ jobs:
           test -s "$TARGET/app/config.php"
           test -s "$TARGET/app/hospital-review.php"
           test -s "$TARGET/app/hospital-review-api.php"
+          test -s "$TARGET/app/patient.php"
           REMOTE
 
       - name: Verify production
@@ -108,7 +113,7 @@ jobs:
           curl --fail --retry 5 --retry-delay 3 --max-time 30 --output /tmp/access.html https://ilovemybody.in/app/access.php
           grep -qi 'PATIENT ID.*PASSWORD' /tmp/access.html
           curl --fail --retry 5 --retry-delay 3 --max-time 30 --output /tmp/nilesh.html https://ilovemybody.in/app/nilesh.php
-          grep -q 'PRIVATE PATIENT DASHBOARD' /tmp/nilesh.html
+          grep -q 'PRIVATE PATIENT' /tmp/nilesh.html
           code=$(curl -sS -o /tmp/api.json -w '%{http_code}' 'https://ilovemybody.in/app/api.php?action=bootstrap')
           test "$code" = "401"
           code=$(curl -sS -o /tmp/review.html -w '%{http_code}' 'https://ilovemybody.in/app/hospital-review.php')
