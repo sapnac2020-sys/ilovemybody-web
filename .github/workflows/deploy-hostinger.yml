@@ -1,5 +1,5 @@
 name: Deploy I Love My Body
-# deployment retrigger: 2026-09-17T12:35+05:30
+# deployment retrigger: 2026-09-17T12:42+05:30
 
 on:
   workflow_dispatch:
@@ -14,6 +14,9 @@ on:
       - philosophy.html
       - assets/**
       - app/index.php
+      - app/access.php
+      - app/new.php
+      - app/nilesh.php
       - app/assets/**
       - .github/workflows/deploy-hostinger.yml
 
@@ -40,9 +43,13 @@ jobs:
           test -s philosophy.html
           test -s assets/hospital-lobby-final.b64
           test -s assets/site.css
+          test -s assets/hospital-v2.css
           test -s assets/site.js
           test -s assets/hospital.js
           test -s app/index.php
+          test -s app/access.php
+          test -s app/new.php
+          test -s app/nilesh.php
           test -s app/assets/app.css
           test -s app/assets/responsive.css
           test -s app/assets/app.js
@@ -53,8 +60,11 @@ jobs:
           node --check app/assets/hospital-entry-ux.js
           grep -q '/hospital.html' index.html
           grep -q 'hospital-world' hospital.html
-          grep -q 'Self Care Hospital' hospital.html
+          grep -q 'HEALTH & HAPPINESS HOSPITAL' hospital.html
+          grep -q 'NO LOGIN NEEDED TO EXPLORE' hospital.html
           grep -q 'data-room-panel="reception"' hospital.html
+          grep -q 'Patient ID' app/access.php
+          grep -q 'FIRST VISIT' app/new.php
           grep -q 'Patient ID' app/assets/hospital-entry-ux.js
           grep -q 'Mobile + PIN' app/assets/hospital-entry-ux.js
 
@@ -74,7 +84,7 @@ jobs:
           echo "DEPLOY_USER=$(jq -r '.user' /tmp/ilb-deploy.json)" >> "$GITHUB_ENV"
           ssh-keyscan -p "$(jq -r '.port' /tmp/ilb-deploy.json)" "$(jq -r '.host' /tmp/ilb-deploy.json)" >> "$HOME/.ssh/known_hosts"
 
-      - name: Package public website
+      - name: Package website
         run: |
           base64 --decode assets/hospital-lobby-final.b64 > assets/hospital-lobby-final.jpg
           tar -czf "/tmp/ilovemybody-${GITHUB_SHA}.tgz" index.html hospital.html journey.html therapies.html mentors.html philosophy.html assets app
@@ -82,7 +92,7 @@ jobs:
       - name: Upload release
         run: scp -i "$HOME/.ssh/id_ed25519" -P "$DEPLOY_PORT" "/tmp/ilovemybody-${GITHUB_SHA}.tgz" "$DEPLOY_USER@$DEPLOY_HOST:ilovemybody-${GITHUB_SHA}.tgz"
 
-      - name: Back up and deploy public site and private-app frontend
+      - name: Back up and deploy site and patient frontend
         run: |
           ssh -i "$HOME/.ssh/id_ed25519" -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" "SITE_SHA='$GITHUB_SHA' bash -s" <<'REMOTE'
           set -euo pipefail
@@ -91,29 +101,16 @@ jobs:
           STAMP="$(date +%Y%m%d-%H%M%S)"
           BACKUP="$HOME/backups/ilovemybody/$STAMP"
           STAGE="$HOME/deployments/ilovemybody/$SITE_SHA"
-          test -d "$TARGET"
-          test -f "$PACKAGE"
+          test -d "$TARGET"; test -f "$PACKAGE"
           mkdir -p "$BACKUP" "$STAGE" "$TARGET/assets" "$TARGET/app/assets"
-          if test -f "$TARGET/index.html"; then cp -p "$TARGET/index.html" "$BACKUP/index.html"; fi
+          for f in index.html hospital.html journey.html therapies.html mentors.html philosophy.html; do if test -f "$TARGET/$f"; then cp -p "$TARGET/$f" "$BACKUP/$f"; fi; done
           if test -d "$TARGET/assets"; then cp -a "$TARGET/assets" "$BACKUP/assets"; fi
-          if test -f "$TARGET/app/index.php"; then mkdir -p "$BACKUP/app"; cp -p "$TARGET/app/index.php" "$BACKUP/app/index.php"; fi
-          if test -d "$TARGET/app/assets"; then mkdir -p "$BACKUP/app"; cp -a "$TARGET/app/assets" "$BACKUP/app/assets"; fi
+          mkdir -p "$BACKUP/app"
+          for f in index.php access.php new.php nilesh.php; do if test -f "$TARGET/app/$f"; then cp -p "$TARGET/app/$f" "$BACKUP/app/$f"; fi; done
+          if test -d "$TARGET/app/assets"; then cp -a "$TARGET/app/assets" "$BACKUP/app/assets"; fi
           tar -xzf "$PACKAGE" -C "$STAGE"
-          test -s "$STAGE/index.html"
-          test -s "$STAGE/hospital.html"
-          test -s "$STAGE/journey.html"
-          test -s "$STAGE/therapies.html"
-          test -s "$STAGE/mentors.html"
-          test -s "$STAGE/philosophy.html"
-          test -s "$STAGE/assets/hospital-lobby-final.jpg"
-          test -s "$STAGE/assets/site.css"
-          test -s "$STAGE/assets/site.js"
-          test -s "$STAGE/assets/hospital.js"
-          test -s "$STAGE/app/index.php"
-          test -s "$STAGE/app/assets/app.css"
-          test -s "$STAGE/app/assets/responsive.css"
-          test -s "$STAGE/app/assets/app.js"
-          test -s "$STAGE/app/assets/hospital-entry-ux.js"
+          test -s "$STAGE/hospital.html"; test -s "$STAGE/assets/hospital-v2.css"; test -s "$STAGE/assets/hospital.js"
+          test -s "$STAGE/app/index.php"; test -s "$STAGE/app/access.php"; test -s "$STAGE/app/new.php"; test -s "$STAGE/app/nilesh.php"
           cp -p "$STAGE/index.html" "$TARGET/index.html"
           cp -p "$STAGE/hospital.html" "$TARGET/hospital.html"
           cp -p "$STAGE/journey.html" "$TARGET/journey.html"
@@ -121,29 +118,26 @@ jobs:
           cp -p "$STAGE/mentors.html" "$TARGET/mentors.html"
           cp -p "$STAGE/philosophy.html" "$TARGET/philosophy.html"
           cp -a "$STAGE/assets/." "$TARGET/assets/"
-          # Only replace the private app's presentation files. API, config and
-          # private uploads remain untouched on the server.
           cp -p "$STAGE/app/index.php" "$TARGET/app/index.php"
+          cp -p "$STAGE/app/access.php" "$TARGET/app/access.php"
+          cp -p "$STAGE/app/new.php" "$TARGET/app/new.php"
+          cp -p "$STAGE/app/nilesh.php" "$TARGET/app/nilesh.php"
           cp -p "$STAGE/app/assets/app.css" "$TARGET/app/assets/app.css"
           cp -p "$STAGE/app/assets/responsive.css" "$TARGET/app/assets/responsive.css"
           cp -p "$STAGE/app/assets/app.js" "$TARGET/app/assets/app.js"
           cp -p "$STAGE/app/assets/hospital-entry-ux.js" "$TARGET/app/assets/hospital-entry-ux.js"
-          # The hospital entry UX is deliberately layered over the existing
-          # private app so the proven API/session flow stays untouched.
           if ! grep -q 'hospital-entry-ux.js' "$TARGET/app/index.php"; then
             python3 - "$TARGET/app/index.php" <<'PY'
 import sys
 p=sys.argv[1]
 s=open(p,encoding='utf-8').read()
 needle='</body></html>'
-script='<script src="assets/hospital-entry-ux.js?v=1"></script>'
-if needle not in s:
-    raise SystemExit('closing body tag not found')
+script='<script src="assets/hospital-entry-ux.js?v=2"></script>'
+if needle not in s: raise SystemExit('closing body tag not found')
 s=s.replace(needle,script+needle,1)
 open(p,'w',encoding='utf-8').write(s)
 PY
           fi
-          grep -q 'hospital-entry-ux.js' "$TARGET/app/index.php"
           test -s "$TARGET/app/api.php"
           REMOTE
 
@@ -153,13 +147,11 @@ PY
           curl --fail --retry 5 --retry-delay 5 --max-time 30 --output /tmp/home.html https://ilovemybody.in/
           grep -q 'hospital-entrance' /tmp/home.html
           curl --fail --retry 5 --retry-delay 5 --max-time 30 --output /tmp/hospital.html https://ilovemybody.in/hospital.html
-          grep -q 'hospital-world' /tmp/hospital.html
-          grep -q 'Self Care Hospital' /tmp/hospital.html
-          curl --fail --retry 5 --retry-delay 5 --max-time 30 --output /tmp/journey.html https://ilovemybody.in/journey.html
-          grep -q 'free self-tests' /tmp/journey.html
-          curl --fail --retry 5 --retry-delay 5 --max-time 30 --output /tmp/app.html https://ilovemybody.in/app/
-          grep -q 'MY HAPPY SPACE' /tmp/app.html
-          grep -q 'hospital-entry-ux.js' /tmp/app.html
-          curl --fail --retry 5 --retry-delay 5 --max-time 30 --output /tmp/entry.js https://ilovemybody.in/app/assets/hospital-entry-ux.js
-          grep -q 'Patient ID' /tmp/entry.js
-          grep -q 'Mobile + PIN' /tmp/entry.js
+          grep -q 'NO LOGIN NEEDED TO EXPLORE' /tmp/hospital.html
+          grep -q 'Patient ID + password' /tmp/hospital.html
+          curl --fail --retry 5 --retry-delay 5 --max-time 30 --output /tmp/access.html https://ilovemybody.in/app/access.php
+          grep -q 'Patient ID + password' /tmp/access.html
+          curl --fail --retry 5 --retry-delay 5 --max-time 30 --output /tmp/new.html https://ilovemybody.in/app/new.php
+          grep -q 'NO LOGIN REQUIRED' /tmp/new.html
+          curl --fail --retry 5 --retry-delay 5 --max-time 30 --output /tmp/nilesh.html https://ilovemybody.in/app/nilesh.php
+          grep -q 'PRIVATE PATIENT DASHBOARD' /tmp/nilesh.html
