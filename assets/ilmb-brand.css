@@ -1,0 +1,74 @@
+/* ILMB OFFICIAL DESIGN LANGUAGE
+   Palette: #FFFFFF / #000000 / #FF008C only.
+   Seven governed screen profiles. Desktop content shell is viewport-locked;
+   long content scrolls only inside deliberate panes. */
+:root{
+  --ilmb-white:#FFFFFF;
+  --ilmb-black:#000000;
+  --ilmb-pink:#FF008C;
+  --paper:#FFFFFF!important;
+  --panel:#FFFFFF!important;
+  --panel2:#FFFFFF!important;
+  --bg:#FFFFFF!important;
+  --ink:#000000!important;
+  --muted:rgba(0,0,0,.62)!important;
+  --dim:rgba(0,0,0,.42)!important;
+  --line:rgba(0,0,0,.14)!important;
+  --neon:#FF008C!important;
+  --neon-rgb:255,0,140!important;
+  --pink:#FF008C!important;
+  --rose:#FF008C!important;
+  --peach:#FF008C!important;
+  --cream:#FFFFFF!important;
+  --soft:#FFFFFF!important;
+  --danger:#000000!important;
+  --gold:#000000!important;
+  --green:#000000!important;
+}
+html,body{background:#FFFFFF;color:#000000}
+body{accent-color:#FF008C}
+a{color:#FF008C}
+button,input,textarea,select{border-color:rgba(0,0,0,.16)}
+button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:3px solid #FF008C!important;outline-offset:2px}
+
+/* Public hospital: black stage, white type, neon-pink signal. */
+body.hospital-v2{background:#000000!important;color:#FFFFFF!important}
+.hospital-v2 .hospital-scene,.hospital-v2 .hospital-shade{filter:grayscale(1) contrast(1.08);opacity:.28}
+.hospital-v2 .hospital-brand,.hospital-v2 .hospital-rail,.hospital-v2 .hospital-stage{color:#FFFFFF}
+.hospital-v2 .room-card,.hospital-v2 .door-card,.hospital-v2 .two-path-v2 article,.hospital-v2 .evidence-v2 article,.hospital-v2 .body-system-grid button,.hospital-v2 .concern-picker button{background:#000000!important;color:#FFFFFF!important;border-color:rgba(255,255,255,.2)!important;box-shadow:none!important}
+.hospital-v2 .room-lead,.hospital-v2 .door-card p,.hospital-v2 .door-card small,.hospital-v2 .journey-v2 span,.hospital-v2 .body-system-grid span,.hospital-v2 .body-note,.hospital-v2 .two-path-v2 p,.hospital-v2 .evidence-v2 span,.hospital-v2 .trust-strip,.hospital-v2 .reception-boundary{color:rgba(255,255,255,.72)!important}
+.hospital-v2 .room-kicker,.hospital-v2 .rail-no,.hospital-v2 .door-card>span,.hospital-v2 .journey-v2 li>b,.hospital-v2 .two-path-v2 article>span,.hospital-v2 .equation-card strong,.hospital-v2 .patient-signin,.hospital-v2 .room-cta,.hospital-v2 .door-card a,.hospital-v2 .door-card button{color:#FF008C!important}
+.hospital-v2 .patient-signin,.hospital-v2 .equation-card,.hospital-v2 .body-note{border-color:#FF008C!important;background:#000000!important}
+.hospital-v2 .hospital-progress span{background:#FF008C!important}
+.hospital-v2 .door-card.primary-door,.hospital-v2 .concern-picker button.selected{border-color:#FF008C!important;background:#000000!important}
+
+/* Private app and review surfaces: pure white canvas, black text, neon-pink actions. */
+.app-shell,.workspace,.login-shell,.login-card,.boot-card,.card,.sum,.section,.result,.doc,.medicine-table,.compare-wrap,.hero,.current-step,.expect-panel,.begin-card,.journal-paper,.sheet-card{background:#FFFFFF!important;color:#000000!important;box-shadow:none!important}
+.topbar,.side{background:#FFFFFF!important;color:#000000!important;border-color:rgba(0,0,0,.14)!important}
+.primary,.room-cta{background:#FF008C!important;color:#FFFFFF!important;border-color:#FF008C!important}
+.eyebrow,.ey,.logo b,.compare th,.table th,.back,.alt{color:#FF008C!important}
+.bad,.watch,.known,.unknown,.good,.attn,.harm,.ilmb,.notice,.call,.boundary{background:#FFFFFF!important;color:#000000!important;border-color:rgba(0,0,0,.14)!important}
+.compare th,.medicine-table th,table.basic th{background:#000000!important;color:#FFFFFF!important}
+.compare td,.medicine-table td,table.basic td{background:#FFFFFF!important;color:#000000!important}
+.compare td:first-child{background:#FFFFFF!important}
+.badge,.pill,.identity span,.legend span{background:#FFFFFF!important;color:#000000!important;border-color:rgba(0,0,0,.18)!important}
+
+/* Desktop: page itself never scrolls. Content panes may. */
+@media (min-width:1150px){
+  html,body{height:100%;overflow:hidden!important}
+  .app-shell,.hospital-world{height:100dvh;min-height:0!important;overflow:hidden!important}
+  .workspace{height:100dvh;min-height:0!important;overflow:hidden!important}
+  .view.active,.hospital-room.active{max-height:calc(100dvh - 90px);overflow:auto;overscroll-behavior:contain;scrollbar-gutter:stable}
+  .compare-wrap,.medicine-table,.table,.docs,.records-grid{max-height:calc(100dvh - 260px);overflow:auto!important}
+}
+
+/* Seven governed viewport profiles */
+@media (max-width:389px){:root{--ilmb-screen:1}.hospital-v2 .hospital-actions{right:8px;top:8px}.workspace{padding-inline:10px!important}.front-door-grid,.concern-picker,.body-system-grid,.two-path-v2,.evidence-v2,.summary,.cards,.docs{grid-template-columns:1fr!important}}
+@media (min-width:390px) and (max-width:599px){:root{--ilmb-screen:2}.workspace{padding-inline:12px!important}.front-door-grid,.concern-picker,.body-system-grid,.two-path-v2,.evidence-v2,.summary,.cards,.docs{grid-template-columns:1fr!important}}
+@media (min-width:600px) and (max-width:767px){:root{--ilmb-screen:3}.front-door-grid,.body-system-grid,.evidence-v2,.summary,.cards,.docs{grid-template-columns:1fr!important}}
+@media (min-width:768px) and (max-width:895px){:root{--ilmb-screen:4}.front-door-grid,.body-system-grid{grid-template-columns:repeat(2,1fr)!important}}
+@media (min-width:896px) and (max-width:1149px){:root{--ilmb-screen:5}.front-door-grid{grid-template-columns:repeat(2,1fr)!important}.body-system-grid{grid-template-columns:repeat(2,1fr)!important}}
+@media (min-width:1150px) and (max-width:1679px){:root{--ilmb-screen:6}.hospital-v2 .room-card{max-height:calc(100dvh - 96px);overflow:auto}.workspace{padding-top:76px!important;padding-bottom:18px!important}}
+@media (min-width:1680px){:root{--ilmb-screen:7}.hospital-v2 .room-card{max-height:calc(100dvh - 104px);overflow:auto}.workspace{padding-top:78px!important;padding-bottom:20px!important}}
+
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
