@@ -63,6 +63,8 @@ jobs:
           grep -q 'Psyllium 10.2 g/day' app/disease-default-stroke.php
           grep -q '7-DAY FOOD PLAN' app/disease-default-stroke.php
           grep -q 'My 7-Day Plan' app/assets/nilesh-plan-inject.js
+          grep -q 'Previous' app/assets/nilesh-plan-inject.js
+          grep -q 'Next' app/assets/nilesh-plan-inject.js
 
       - name: Prepare dedicated SSH identity
         env:
@@ -116,7 +118,7 @@ jobs:
           php -r '$files=array_slice($argv,1);$tag="<link rel=\"stylesheet\" href=\"/assets/ilmb-7screen.css?v=1\">";foreach($files as $p){if(!is_file($p))continue;$s=file_get_contents($p);if(strpos($s,"ilmb-7screen.css")===false){$s=str_replace("</head>",$tag."</head>",$s);file_put_contents($p,$s);}}' \
             "$TARGET/hospital.html" "$TARGET/app/index.php" "$TARGET/app/access.php" "$TARGET/app/new.php" "$TARGET/app/nilesh.php" "$TARGET/app/hospital-review.php" "$TARGET/app/test-results.php" "$TARGET/app/disease-default-stroke.php"
           php -r '$p=$argv[1];$s=file_get_contents($p);$tag="<script src=\"assets/hospital-review-link.js?v=1\"></script>";if(strpos($s,$tag)===false){$s=str_replace("</body></html>",$tag."</body></html>",$s);file_put_contents($p,$s);}' "$TARGET/app/index.php"
-          php -r '$p=$argv[1];$s=file_get_contents($p);$tag="<script src=\"/app/assets/nilesh-plan-inject.js?v=1\"></script>";if(strpos($s,"nilesh-plan-inject.js")===false){$s=str_replace("</body></html>",$tag."</body></html>",$s);file_put_contents($p,$s);}' "$TARGET/app/nilesh.php"
+          php -r '$p=$argv[1];$s=file_get_contents($p);$tag="<script src=\"/app/assets/nilesh-plan-inject.js?v=3\"></script>";$s=preg_replace("#<script src=\\\"/app/assets/nilesh-plan-inject\\.js\\?v=[^\\\"]+\\\"></script>#",$tag,$s);if(strpos($s,"nilesh-plan-inject.js")===false){$s=str_replace("</body></html>",$tag."</body></html>",$s);}file_put_contents($p,$s);' "$TARGET/app/nilesh.php"
 
           test -s "$TARGET/app/config.php"
           test -s "$TARGET/app/hospital-review.php"
@@ -141,7 +143,12 @@ jobs:
           curl --fail --retry 5 --retry-delay 3 --max-time 30 --output /tmp/nilesh.html https://ilovemybody.in/app/nilesh.php
           grep -q 'PRIVATE PATIENT' /tmp/nilesh.html
           grep -q 'ilmb-7screen.css' /tmp/nilesh.html
-          grep -q 'nilesh-plan-inject.js' /tmp/nilesh.html
+          grep -q 'nilesh-plan-inject.js?v=3' /tmp/nilesh.html
+          curl --fail --retry 5 --retry-delay 3 --max-time 30 --output /tmp/nilesh-plan.js 'https://ilovemybody.in/app/assets/nilesh-plan-inject.js?v=3'
+          grep -q 'My 7-Day Plan' /tmp/nilesh-plan.js
+          grep -q 'Previous' /tmp/nilesh-plan.js
+          grep -q 'Next' /tmp/nilesh-plan.js
+          grep -q 'weekly-scroll' /tmp/nilesh-plan.js
           curl --fail --retry 5 --retry-delay 3 --max-time 30 --output /tmp/default-stroke.html https://ilovemybody.in/app/disease-default-stroke.php
           grep -q 'GENERIC ADULT DEFAULT' /tmp/default-stroke.html
           grep -q '7-DAY FOOD PLAN' /tmp/default-stroke.html
