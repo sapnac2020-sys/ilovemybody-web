@@ -31,7 +31,7 @@ jobs:
       - name: Validate source
         run: |
           set -euo pipefail
-          for f in index.html hospital.html assets/hospital-v2.css assets/hospital.js app/index.php app/access.php app/new.php app/nilesh.php app/api.php app/_guard.php app/lib.php app/test-results.php app/test-results-api.php app/hospital-review.php app/hospital-review-api.php app/patient.php app/assets/hospital-review-link.js; do test -s "$f"; done
+          for f in index.html hospital.html assets/hospital-v2.css assets/hospital.js assets/ilmb-7screen.css app/index.php app/access.php app/new.php app/nilesh.php app/api.php app/_guard.php app/lib.php app/test-results.php app/test-results-api.php app/hospital-review.php app/hospital-review-api.php app/patient.php app/assets/hospital-review-link.js; do test -s "$f"; done
           node --check assets/hospital.js
           node --check app/assets/app.js
           node --check app/assets/hospital-review-link.js
@@ -39,6 +39,13 @@ jobs:
           php -l app/hospital-review.php
           php -l app/hospital-review-api.php
           php -l app/patient.php
+          grep -q 'WIDE >=1680' assets/ilmb-7screen.css
+          grep -q 'DESKTOP 1150-1679' assets/ilmb-7screen.css
+          grep -q 'LAPTOP 896-1149' assets/ilmb-7screen.css
+          grep -q 'TABLET 768-895' assets/ilmb-7screen.css
+          grep -q 'MEDIUM MOBILE 600-767' assets/ilmb-7screen.css
+          grep -q 'SMALL MOBILE 390-599' assets/ilmb-7screen.css
+          grep -q 'EXTRA SMALL <=389' assets/ilmb-7screen.css
           grep -q 'NO LOGIN NEEDED TO EXPLORE' hospital.html
           grep -qi 'Patient ID.*password' hospital.html
           grep -qi 'PATIENT ID.*PASSWORD' app/access.php
@@ -96,11 +103,17 @@ jobs:
             cp -p "$STAGE/app/$f" "$TARGET/app/$f"
           done
           cp -a "$STAGE/app/assets/." "$TARGET/app/assets/"
+
+          # Every patient-facing surface uses one common responsive/design layer.
+          php -r '$files=array_slice($argv,1);$tag="<link rel=\"stylesheet\" href=\"/assets/ilmb-7screen.css?v=1\">";foreach($files as $p){if(!is_file($p))continue;$s=file_get_contents($p);if(strpos($s,"ilmb-7screen.css")===false){$s=str_replace("</head>",$tag."</head>",$s);file_put_contents($p,$s);}}' \
+            "$TARGET/hospital.html" "$TARGET/app/index.php" "$TARGET/app/access.php" "$TARGET/app/new.php" "$TARGET/app/nilesh.php" "$TARGET/app/hospital-review.php" "$TARGET/app/test-results.php"
           php -r '$p=$argv[1];$s=file_get_contents($p);$tag="<script src=\"assets/hospital-review-link.js?v=1\"></script>";if(strpos($s,$tag)===false){$s=str_replace("</body></html>",$tag."</body></html>",$s);file_put_contents($p,$s);}' "$TARGET/app/index.php"
+
           test -s "$TARGET/app/config.php"
           test -s "$TARGET/app/hospital-review.php"
           test -s "$TARGET/app/hospital-review-api.php"
           test -s "$TARGET/app/patient.php"
+          test -s "$TARGET/assets/ilmb-7screen.css"
           REMOTE
 
       - name: Verify production
@@ -110,10 +123,16 @@ jobs:
           grep -q 'hospital-entrance' /tmp/home.html
           curl --fail --retry 5 --retry-delay 3 --max-time 30 --output /tmp/hospital.html https://ilovemybody.in/hospital.html
           grep -q 'NO LOGIN NEEDED TO EXPLORE' /tmp/hospital.html
+          grep -q 'ilmb-7screen.css' /tmp/hospital.html
           curl --fail --retry 5 --retry-delay 3 --max-time 30 --output /tmp/access.html https://ilovemybody.in/app/access.php
           grep -qi 'PATIENT ID.*PASSWORD' /tmp/access.html
+          grep -q 'ilmb-7screen.css' /tmp/access.html
           curl --fail --retry 5 --retry-delay 3 --max-time 30 --output /tmp/nilesh.html https://ilovemybody.in/app/nilesh.php
           grep -q 'PRIVATE PATIENT' /tmp/nilesh.html
+          grep -q 'ilmb-7screen.css' /tmp/nilesh.html
+          curl --fail --retry 5 --retry-delay 3 --max-time 30 --output /tmp/7screen.css https://ilovemybody.in/assets/ilmb-7screen.css
+          grep -q 'DESKTOP 1150-1679' /tmp/7screen.css
+          grep -q 'EXTRA SMALL <=389' /tmp/7screen.css
           code=$(curl -sS -o /tmp/api.json -w '%{http_code}' 'https://ilovemybody.in/app/api.php?action=bootstrap')
           test "$code" = "401"
           code=$(curl -sS -o /tmp/review.html -w '%{http_code}' 'https://ilovemybody.in/app/hospital-review.php')
