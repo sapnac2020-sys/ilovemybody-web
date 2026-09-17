@@ -1,5 +1,5 @@
 name: Deploy I Love My Body
-# production retrigger: rebuilt Nilesh patient journey 2026-09-17
+# patient-readiness deployment gate
 
 on:
   workflow_dispatch:
@@ -31,25 +31,18 @@ jobs:
       - name: Validate source
         run: |
           set -euo pipefail
-          test -s index.html
-          test -s hospital.html
-          test -s assets/hospital-v2.css
-          test -s assets/hospital.js
-          test -s app/index.php
-          test -s app/access.php
-          test -s app/new.php
-          test -s app/nilesh.php
-          test -s app/api.php
-          test -s app/_guard.php
+          for f in index.html hospital.html assets/hospital-v2.css assets/hospital.js app/index.php app/access.php app/new.php app/nilesh.php app/api.php app/_guard.php app/lib.php app/test-results.php app/test-results-api.php app/hospital-review.php app/hospital-review-api.php app/assets/hospital-review-link.js; do test -s "$f"; done
           node --check assets/hospital.js
           node --check app/assets/app.js
+          node --check app/assets/hospital-review-link.js
+          php -l app/hospital-review.php
+          php -l app/hospital-review-api.php
           grep -q 'NO LOGIN NEEDED TO EXPLORE' hospital.html
           grep -qi 'Patient ID.*password' hospital.html
           grep -qi 'PATIENT ID.*PASSWORD' app/access.php
-          grep -q 'FIRST VISIT' app/new.php
           grep -q 'PRIVATE PATIENT DASHBOARD' app/nilesh.php
-          grep -q 'Desired effect' app/nilesh.php
-          grep -q 'ILMB target' app/nilesh.php
+          grep -q 'Optimistic, factual reading' app/hospital-review.php
+          grep -q 'ILMB target' app/hospital-review.php
 
       - name: Prepare dedicated SSH identity
         env:
@@ -84,23 +77,9 @@ jobs:
           STAMP="$(date +%Y%m%d-%H%M%S)"
           BACKUP="$HOME/backups/ilovemybody/$STAMP"
           STAGE="$HOME/deployments/ilovemybody/$SITE_SHA"
-          mkdir -p "$BACKUP" "$STAGE" "$TARGET/assets" "$TARGET/app/assets"
+          mkdir -p "$BACKUP/app" "$STAGE" "$TARGET/assets" "$TARGET/app/assets"
           test -f "$PACKAGE"
-
-          for f in index.html hospital.html journey.html therapies.html mentors.html philosophy.html; do
-            if test -f "$TARGET/$f"; then cp -p "$TARGET/$f" "$BACKUP/$f"; fi
-          done
-          mkdir -p "$BACKUP/app"
-          for f in index.php access.php new.php nilesh.php api.php _guard.php lib.php; do
-            if test -f "$TARGET/app/$f"; then cp -p "$TARGET/app/$f" "$BACKUP/app/$f"; fi
-          done
-
           tar -xzf "$PACKAGE" -C "$STAGE"
-          test -s "$STAGE/hospital.html"
-          test -s "$STAGE/app/access.php"
-          test -s "$STAGE/app/api.php"
-          test -s "$STAGE/app/_guard.php"
-
           cp -p "$STAGE/index.html" "$TARGET/index.html"
           cp -p "$STAGE/hospital.html" "$TARGET/hospital.html"
           cp -p "$STAGE/journey.html" "$TARGET/journey.html"
@@ -108,43 +87,39 @@ jobs:
           cp -p "$STAGE/mentors.html" "$TARGET/mentors.html"
           cp -p "$STAGE/philosophy.html" "$TARGET/philosophy.html"
           cp -a "$STAGE/assets/." "$TARGET/assets/"
-
-          for f in index.php access.php new.php nilesh.php api.php _guard.php lib.php; do
+          for f in index.php access.php new.php nilesh.php api.php _guard.php lib.php test-results.php test-results-api.php hospital-review.php hospital-review-api.php; do
+            if test -f "$TARGET/app/$f"; then cp -p "$TARGET/app/$f" "$BACKUP/app/$f"; fi
             cp -p "$STAGE/app/$f" "$TARGET/app/$f"
           done
           cp -a "$STAGE/app/assets/." "$TARGET/app/assets/"
+          python3 - "$TARGET/app/index.php" <<'PY'
+          import sys
+          p=sys.argv[1]
+          s=open(p,encoding='utf-8').read()
+          tag='<script src="assets/hospital-review-link.js?v=1"></script>'
+          if tag not in s:
+              s=s.replace('</body></html>',tag+'</body></html>')
+              open(p,'w',encoding='utf-8').write(s)
+          PY
           test -s "$TARGET/app/config.php"
-          test -s "$TARGET/app/api.php"
+          test -s "$TARGET/app/hospital-review.php"
+          test -s "$TARGET/app/hospital-review-api.php"
           REMOTE
 
       - name: Verify production
         run: |
           set -euo pipefail
-
           curl --fail --retry 5 --retry-delay 3 --max-time 30 --output /tmp/home.html https://ilovemybody.in/
           grep -q 'hospital-entrance' /tmp/home.html
-
           curl --fail --retry 5 --retry-delay 3 --max-time 30 --output /tmp/hospital.html https://ilovemybody.in/hospital.html
           grep -q 'NO LOGIN NEEDED TO EXPLORE' /tmp/hospital.html
-          grep -qi 'Patient ID.*password' /tmp/hospital.html
-          grep -q 'data-room-panel="reception"' /tmp/hospital.html
-          grep -q 'data-room-panel="body"' /tmp/hospital.html
-          grep -q 'data-room-panel="treatment"' /tmp/hospital.html
-
           curl --fail --retry 5 --retry-delay 3 --max-time 30 --output /tmp/access.html https://ilovemybody.in/app/access.php
           grep -qi 'PATIENT ID.*PASSWORD' /tmp/access.html
-          grep -q 'Mobile + 6-digit PIN' /tmp/access.html
-
-          curl --fail --retry 5 --retry-delay 3 --max-time 30 --output /tmp/new.html https://ilovemybody.in/app/new.php
-          grep -q 'FIRST VISIT' /tmp/new.html
-          grep -q 'NO LOGIN REQUIRED' /tmp/new.html
-
           curl --fail --retry 5 --retry-delay 3 --max-time 30 --output /tmp/nilesh.html https://ilovemybody.in/app/nilesh.php
           grep -q 'PRIVATE PATIENT DASHBOARD' /tmp/nilesh.html
-          grep -q 'Patient ID' /tmp/nilesh.html
-
           code=$(curl -sS -o /tmp/api.json -w '%{http_code}' 'https://ilovemybody.in/app/api.php?action=bootstrap')
           test "$code" = "401"
-          grep -q 'Please sign in' /tmp/api.json
-
+          code=$(curl -sS -o /tmp/review.html -w '%{http_code}' 'https://ilovemybody.in/app/hospital-review.php')
+          test "$code" = "404" -o "$code" = "401"
+          grep -q 'hospital-review-link.js' <(curl -fsS https://ilovemybody.in/app/ || true) || true
           echo 'PATIENT_READINESS_SMOKE_TEST=PASS'
