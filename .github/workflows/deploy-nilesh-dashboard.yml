@@ -1,0 +1,69 @@
+name: Deploy Nilesh Patient Dashboard
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - app/nilesh.php
+      - .github/workflows/deploy-nilesh-dashboard.yml
+
+concurrency:
+  group: ilovemybody-nilesh-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate dashboard
+        run: |
+          set -euo pipefail
+          test -s app/nilesh.php
+          php -l app/nilesh.php
+          grep -q 'Nilesh Yadav' app/nilesh.php
+          grep -q 'P2Y12' app/nilesh.php
+
+      - name: Prepare dedicated SSH identity
+        env:
+          DEPLOY_BUNDLE: ${{ secrets.HOSTINGER_DEPLOY_BUNDLE }}
+        run: |
+          set -euo pipefail
+          test -n "$DEPLOY_BUNDLE"
+          mkdir -p "$HOME/.ssh"
+          printf '%s' "$DEPLOY_BUNDLE" | base64 --decode > /tmp/ilb-deploy.json
+          jq -e '.host and .port and .user and .key' /tmp/ilb-deploy.json >/dev/null
+          jq -r '.key' /tmp/ilb-deploy.json > "$HOME/.ssh/id_ed25519"
+          chmod 600 "$HOME/.ssh/id_ed25519"
+          echo "DEPLOY_HOST=$(jq -r '.host' /tmp/ilb-deploy.json)" >> "$GITHUB_ENV"
+          echo "DEPLOY_PORT=$(jq -r '.port' /tmp/ilb-deploy.json)" >> "$GITHUB_ENV"
+          echo "DEPLOY_USER=$(jq -r '.user' /tmp/ilb-deploy.json)" >> "$GITHUB_ENV"
+          ssh-keyscan -p "$(jq -r '.port' /tmp/ilb-deploy.json)" "$(jq -r '.host' /tmp/ilb-deploy.json)" >> "$HOME/.ssh/known_hosts"
+
+      - name: Upload dashboard
+        run: scp -i "$HOME/.ssh/id_ed25519" -P "$DEPLOY_PORT" app/nilesh.php "$DEPLOY_USER@$DEPLOY_HOST:nilesh.php"
+
+      - name: Deploy dashboard
+        run: |
+          ssh -i "$HOME/.ssh/id_ed25519" -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" "bash -s" <<'REMOTE'
+          set -euo pipefail
+          TARGET="$HOME/domains/ilovemybody.in/public_html/app"
+          STAMP="$(date +%Y%m%d-%H%M%S)"
+          mkdir -p "$HOME/backups/ilovemybody/$STAMP/app" "$TARGET"
+          if test -f "$TARGET/nilesh.php"; then cp -p "$TARGET/nilesh.php" "$HOME/backups/ilovemybody/$STAMP/app/nilesh.php"; fi
+          test -s "$HOME/nilesh.php"
+          cp -p "$HOME/nilesh.php" "$TARGET/nilesh.php"
+          rm -f "$HOME/nilesh.php"
+          test -s "$TARGET/nilesh.php"
+          REMOTE
+
+      - name: Verify production login page
+        run: |
+          set -euo pipefail
+          curl --fail --retry 5 --retry-delay 5 --max-time 30 --output /tmp/nilesh.html https://ilovemybody.in/app/nilesh.php
+          grep -q 'PRIVATE PATIENT DASHBOARD' /tmp/nilesh.html
+          grep -q 'User ID' /tmp/nilesh.html
