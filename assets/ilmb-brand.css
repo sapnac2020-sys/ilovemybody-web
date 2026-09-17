@@ -1,5 +1,7 @@
 /* ILMB OFFICIAL DESIGN LANGUAGE
-   Palette: #FFFFFF / #000000 / #FF008C only.
+   UI palette: #FFFFFF / #000000 / #FF008C only.
+   Brand imagery (3D heart, book art, photography, DNA/food visuals) keeps its
+   original depth, gradients, glow and photographic tones.
    Seven governed screen profiles. Desktop content shell is viewport-locked;
    long content scrolls only inside deliberate panes. */
 :root{
@@ -31,9 +33,11 @@ a{color:#FF008C}
 button,input,textarea,select{border-color:rgba(0,0,0,.16)}
 button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:3px solid #FF008C!important;outline-offset:2px}
 
-/* Public hospital: black stage, white type, neon-pink signal. */
+/* Public hospital: black stage, white type, neon-pink signal.
+   Artwork remains full-colour/full-depth, including the 3D heart. */
 body.hospital-v2{background:#000000!important;color:#FFFFFF!important}
-.hospital-v2 .hospital-scene,.hospital-v2 .hospital-shade{filter:grayscale(1) contrast(1.08);opacity:.28}
+.hospital-v2 .hospital-scene{filter:none!important;opacity:1!important}
+.hospital-v2 .hospital-shade{filter:none!important}
 .hospital-v2 .hospital-brand,.hospital-v2 .hospital-rail,.hospital-v2 .hospital-stage{color:#FFFFFF}
 .hospital-v2 .room-card,.hospital-v2 .door-card,.hospital-v2 .two-path-v2 article,.hospital-v2 .evidence-v2 article,.hospital-v2 .body-system-grid button,.hospital-v2 .concern-picker button{background:#000000!important;color:#FFFFFF!important;border-color:rgba(255,255,255,.2)!important;box-shadow:none!important}
 .hospital-v2 .room-lead,.hospital-v2 .door-card p,.hospital-v2 .door-card small,.hospital-v2 .journey-v2 span,.hospital-v2 .body-system-grid span,.hospital-v2 .body-note,.hospital-v2 .two-path-v2 p,.hospital-v2 .evidence-v2 span,.hospital-v2 .trust-strip,.hospital-v2 .reception-boundary{color:rgba(255,255,255,.72)!important}
@@ -52,6 +56,9 @@ body.hospital-v2{background:#000000!important;color:#FFFFFF!important}
 .compare td,.medicine-table td,table.basic td{background:#FFFFFF!important;color:#000000!important}
 .compare td:first-child{background:#FFFFFF!important}
 .badge,.pill,.identity span,.legend span{background:#FFFFFF!important;color:#000000!important;border-color:rgba(0,0,0,.18)!important}
+
+/* Never flatten visual assets. */
+img,.brand-art,.hero-art,.heart-3d,[data-brand-art]{filter:none!important;mix-blend-mode:normal}
 
 /* Desktop: page itself never scrolls. Content panes may. */
 @media (min-width:1150px){
