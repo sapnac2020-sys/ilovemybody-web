@@ -1,0 +1,74 @@
+<?php
+declare(strict_types=1);
+require __DIR__ . '/_guard.php';
+require __DIR__ . '/lib.php';
+$pdo=db();
+$case=require_case();
+$subject=(string)$case['subject_key'];
+
+function norm_med(string $s): string {
+    return strtolower(preg_replace('/[^a-z0-9]+/i',' ',trim($s)) ?? '');
+}
+function parse_range(?string $s): ?array {
+    if(!$s) return null;
+    $s=str_replace([',','–','—'],['','-','-'],$s);
+    if(preg_match('/(-?\d+(?:\.\d+)?)\s*-\s*(-?\d+(?:\.\d+)?)/',$s,$m)) return [(float)$m[1],(float)$m[2]];
+    if(preg_match('/(?:<|less than)\s*(-?\d+(?:\.\d+)?)/i',$s,$m)) return [null,(float)$m[1]];
+    if(preg_match('/(?:>|greater than)\s*(-?\d+(?:\.\d+)?)/i',$s,$m)) return [(float)$m[1],null];
+    return null;
+}
+function optimistic_result(array $r): array {
+    $value=$r['reported_numeric_value']; $range=parse_range($r['reported_reference_range_text']??null);
+    $identity=(string)($r['identity_status']??'UNLINKED');
+    $base=['name'=>$r['reported_test_name'],'value'=>$r['reported_value_text'],'unit'=>$r['reported_unit'],'date'=>$r['observed_on'],
+      'range'=>$r['reported_reference_range_text'],'loinc'=>$r['exact_loinc_num'],'identity_status'=>$identity];
+    if($value===null || !$range){
+      return $base+['status'=>'unknown','headline'=>'Recorded — needs interpretation','meaning'=>'The result is preserved exactly as reported. A reliable numeric reference-range comparison is not available yet.'];
+    }
+    [$lo,$hi]=$range; $v=(float)$value;
+    $in=($lo===null||$v>=$lo)&&($hi===null||$v<=$hi);
+    if($in) return $base+['status'=>'reassuring','headline'=>'Within the printed reference range','meaning'=>'This part of the report is reassuring against the laboratory range printed on the source report.'];
+    $direction=$lo!==null&&$v<$lo?'below':'above';
+    return $base+['status'=>'attention','headline'=>ucfirst($direction).' the printed reference range','meaning'=>'This deserves attention, but one abnormal value is not a diagnosis. The next step is to connect it to the patient context, trend, medicines and exact test identity.'];
+}
+function medicine_knowledge(string $name,string $strength=''): array {
+    $n=norm_med($name.' '.$strength);
+    $rules=[
+      ['match'=>['clopidogrel','clopilet'],'effect'=>'Platelet aggregation ↓','mechanism'=>'P2Y12 inhibition → ADP signalling ↓','collateral'=>'The same platelet inhibition that reduces thrombosis also reduces normal hemostasis, so bleeding and bruising can increase; rare TTP is reported.','ilmb'=>'Reduce pathological thrombosis through endothelial state, metabolic load, fibrinolysis and vascular state without deliberately disabling P2Y12, unless equivalent protection is actually demonstrated.','measure'=>'Bleeding history, CBC/platelets and, when clinically used, platelet-function testing.','confidence'=>'mapped'],
+      ['match'=>['aspirin','ecosprin'],'effect'=>'TXA₂-mediated platelet aggregation ↓','mechanism'=>'COX-1 inhibition → thromboxane ↓','collateral'=>'Platelet hemostasis falls; gastrointestinal irritation and bleeding can occur.','ilmb'=>'Reduce net thrombosis through alternate vascular, endothelial and fibrinolytic routes while avoiding unnecessary gastrointestinal and bleeding burden. Direct COX-1/TXA₂ equivalence is not claimed.','measure'=>'Bleeding history, CBC/platelets and clinical recurrence context.','confidence'=>'mapped'],
+      ['match'=>['amlodipine'],'effect'=>'Blood pressure / vascular resistance ↓','mechanism'=>'L-type Ca²⁺ blockade → arterial relaxation','collateral'=>'Vasodilation can cause edema, dizziness and hypotension.','ilmb'=>'Lower vascular resistance and blood pressure through endothelial, sodium/fluid, sleep, autonomic and conditioning routes without pharmacologic calcium-channel blockade.','measure'=>'Home and clinic SBP/DBP, edema and dizziness.','confidence'=>'mapped'],
+      ['match'=>['atenolol'],'effect'=>'Heart rate and cardiac workload ↓','mechanism'=>'β1 blockade','collateral'=>'Can cause bradycardia, hypotension, fatigue, tiredness and dizziness and can suppress exercise heart-rate response.','ilmb'=>'Lower resting cardiac demand through conditioning, sleep and autonomic regulation without β1 blockade.','measure'=>'Resting HR/BP, symptoms and functional capacity.','confidence'=>'mapped'],
+      ['match'=>['atorvastatin','lipvas'],'effect'=>'LDL / apoB ↓','mechanism'=>'HMG-CoA reductase inhibition → LDL clearance ↑','collateral'=>'Muscle injury/myopathy and liver-enzyme abnormalities can occur; rare rhabdomyolysis is documented.','ilmb'=>'Lower LDL/apoB through intestinal, food-chemistry, hepatic-substrate and metabolic routes without directly inhibiting HMG-CoA reductase.','measure'=>'LDL-C, non-HDL-C, apoB if available, liver enzymes and muscle symptoms.','confidence'=>'mapped'],
+      ['match'=>['fenofibrate','finobrate'],'effect'=>'Triglyceride-rich particles ↓','mechanism'=>'PPARα activation → triglyceride clearance ↑','collateral'=>'Liver injury/enzyme rise, muscle injury, reversible creatinine rise and gallstones can occur; muscle risk is higher with a statin.','ilmb'=>'Reduce triglyceride production and increase fatty-acid/triglyceride utilisation through food chemistry, hepatic substrate control, gut-metabolic routes and muscle activity without pharmacologic PPARα activation.','measure'=>'Fasting triglycerides, ALT/AST, creatinine/eGFR and muscle symptoms.','confidence'=>'mapped'],
+      ['match'=>['cod liver oil','seacap'],'effect'=>'Nutrient exposure','mechanism'=>'Depends on actual EPA, DHA, vitamin A and vitamin D content','collateral'=>'Dose-dependent nutrient excess and interaction burden are possible; bleeding relevance depends on actual EPA/DHA exposure.','ilmb'=>'Read exact label chemistry → quantify chemical intake → compare with measured requirement → track response.','measure'=>'Exact product chemistry plus relevant nutrient biomarkers.','confidence'=>'conditional'],
+      ['match'=>['neurobion'],'effect'=>'B-vitamin cofactor support','mechanism'=>'Provides multiple B vitamins used in cofactor-dependent pathways','collateral'=>'Unnecessary or excessive dosing can also create effects; formulation matters.','ilmb'=>'Requirement-first food/supplement calculation for each nutrient rather than treating a multivitamin as a single intervention.','measure'=>'B12 and need-specific markers where relevant.','confidence'=>'conditional']
+    ];
+    foreach($rules as $r){foreach($r['match'] as $m){if(str_contains($n,$m)){unset($r['match']);return $r;}}}
+    return ['effect'=>'Not mapped yet','mechanism'=>'The medicine name is recorded, but a governed mechanism mapping has not yet been attached.','collateral'=>'Do not infer side effects from the name alone until the exact ingredient/formulation is verified.','ilmb'=>'No ILMB comparison is generated until the medicine identity, treatment target and required physiological output are verified.','measure'=>'Verify ingredient, strength, indication and monitoring plan.','confidence'=>'needs_mapping'];
+}
+
+if($_SERVER['REQUEST_METHOD']!=='GET') json_out(['ok'=>false,'error'=>'Unsupported action.'],405);
+$results=[];
+try{
+  $q=$pdo->prepare("SELECT result_id,source_document_id,observed_on,reported_test_name,reported_value_text,reported_numeric_value,reported_unit,reported_specimen_text,laboratory_name,reported_reference_range_text,exact_loinc_num,identity_status,created_at FROM v_ilb_subject_test_result_visible WHERE subject_key=? ORDER BY observed_on DESC,result_id DESC");
+  $q->execute([$subject]); foreach($q->fetchAll() as $r)$results[]=optimistic_result($r);
+}catch(Throwable $e){error_log('hospital review results: '.$e->getMessage());}
+$meds=[];
+$q=$pdo->prepare("SELECT medicine_report_id,reported_name,strength_text,dose_text,frequency_text,usual_time_text,reason_text,verification_status FROM ilb_subject_medicine_report WHERE subject_key=? AND status='active' ORDER BY medicine_report_id");
+$q->execute([$subject]);
+foreach($q->fetchAll() as $m){$k=medicine_knowledge((string)$m['reported_name'],(string)($m['strength_text']??''));$meds[]=array_merge($m,$k);}
+$docs=[];
+$q=$pdo->prepare("SELECT document_id,document_type,document_date,original_filename,extraction_status,human_review_status FROM ilb_subject_document WHERE subject_key=? ORDER BY COALESCE(document_date,DATE(created_at)) DESC,document_id DESC");
+$q->execute([$subject]);
+foreach($q->fetchAll() as $d){
+  $status=(string)($d['human_review_status']??'not_reviewed');
+  $d['patient_message']=$status==='reviewed'?'Reviewed and linked to your case.':'Safely stored. Structured reading/review is still pending.';
+  $docs[]=$d;
+}
+$count=['reassuring'=>0,'attention'=>0,'unknown'=>0];foreach($results as $r)$count[$r['status']]++;
+json_out(['ok'=>true,'case'=>['label'=>$case['frontend_label'],'age'=>$case['allowed_age_display'],'sex'=>$case['allowed_sex_display']],
+  'summary'=>['reassuring'=>$count['reassuring'],'attention'=>$count['attention'],'unknown'=>$count['unknown'],
+    'message'=>'Start with what is reassuring, then what needs attention, then what remains unknown. Nothing abnormal is hidden and nothing unverified is promoted to fact.'],
+  'results'=>$results,'medicines'=>$meds,'documents'=>$docs,
+  'identity_layer'=>['loinc'=>'Exact test identity when verified','chebi'=>'Chemical identity for governed nutrient/biochemical mappings','reactome'=>'Pathway connection where endpoint identity and evidence are resolved'],
+  'boundary'=>'This review explains records and treatment logic. It does not instruct a patient to stop or change a prescription.']);
