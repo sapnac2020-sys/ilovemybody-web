@@ -1,5 +1,5 @@
 name: Deploy I Love My Body
-# patient-readiness deployment gate
+# production retrigger: rebuilt Nilesh patient journey 2026-09-17
 
 on:
   workflow_dispatch:
@@ -48,6 +48,8 @@ jobs:
           grep -qi 'PATIENT ID.*PASSWORD' app/access.php
           grep -q 'FIRST VISIT' app/new.php
           grep -q 'PRIVATE PATIENT DASHBOARD' app/nilesh.php
+          grep -q 'Desired effect' app/nilesh.php
+          grep -q 'ILMB target' app/nilesh.php
 
       - name: Prepare dedicated SSH identity
         env:
@@ -107,7 +109,6 @@ jobs:
           cp -p "$STAGE/philosophy.html" "$TARGET/philosophy.html"
           cp -a "$STAGE/assets/." "$TARGET/assets/"
 
-          # Deploy app code while preserving server-only config and private uploads.
           for f in index.php access.php new.php nilesh.php api.php _guard.php lib.php; do
             cp -p "$STAGE/app/$f" "$TARGET/app/$f"
           done
@@ -140,8 +141,8 @@ jobs:
 
           curl --fail --retry 5 --retry-delay 3 --max-time 30 --output /tmp/nilesh.html https://ilovemybody.in/app/nilesh.php
           grep -q 'PRIVATE PATIENT DASHBOARD' /tmp/nilesh.html
+          grep -q 'Patient ID' /tmp/nilesh.html
 
-          # The live app API must be reachable publicly but still require authentication.
           code=$(curl -sS -o /tmp/api.json -w '%{http_code}' 'https://ilovemybody.in/app/api.php?action=bootstrap')
           test "$code" = "401"
           grep -q 'Please sign in' /tmp/api.json
