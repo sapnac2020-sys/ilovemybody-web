@@ -1,145 +1,55 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <meta name="theme-color" content="#191118">
-  <meta name="description" content="I Love My Body Self Care Hospital — where health meets happiness.">
-  <title>I Love My Body — Self Care Hospital</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Playfair+Display:ital,wght@0,500;1,500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/assets/site.css?v=20260724-4">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#09070b"><meta name="description" content="I Love My Body — Health & Happiness Hospital. Explore first. Sign in only when you need your private patient space.">
+<title>I Love My Body — Health & Happiness Hospital</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,500;1,500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/site.css?v=20260724-4"><link rel="stylesheet" href="/assets/hospital-v2.css?v=20260917-1">
 </head>
-<body class="hospital-world">
-  <div class="hospital-scene" aria-hidden="true"></div>
-  <div class="hospital-shade" aria-hidden="true"></div>
-
-  <header class="hospital-brand">
-    <span class="brand-heart">♥</span>
-    <span><b>I Love My Body</b><small>SELF CARE HOSPITAL</small></span>
-  </header>
-
-  <nav class="hospital-rail" aria-label="Hospital navigation">
-    <button class="rail-item active" data-room="reception" aria-label="Reception">
-      <svg viewBox="0 0 24 24"><path d="M4 11 12 4l8 7v9H4zM9 20v-6h6v6"/></svg><span>Reception</span>
-    </button>
-    <button class="rail-item" data-room="journey" aria-label="Patient journey">
-      <svg viewBox="0 0 24 24"><path d="M5 18C7 8 12 5 19 5M14 4h6v6"/></svg><span>My Journey</span>
-    </button>
-    <button class="rail-item" data-room="tests" aria-label="Self tests">
-      <svg viewBox="0 0 24 24"><path d="M7 3h10v4H7zM5 5H3v16h18V5h-2M7 12l3 3 7-7"/></svg><span>Self Tests</span>
-    </button>
-    <button class="rail-item" data-room="therapies" aria-label="Therapies">
-      <svg viewBox="0 0 24 24"><path d="M4 20C4.5 11 10 5.5 20 4c-.7 8.8-6.4 15.3-16 16Z"/><path d="M8 16c2.4-2.5 5-4.5 8.5-6"/></svg><span>Therapies</span>
-    </button>
-    <button class="rail-item" data-room="mentors" aria-label="Mentors">
-      <svg viewBox="0 0 24 24"><circle cx="8" cy="8" r="3"/><circle cx="17" cy="9" r="2"/><path d="M3 20c0-4 2-6 5-6s5 2 5 6M14 16c4 0 6 1 6 4"/></svg><span>Mentors</span>
-    </button>
-    <button class="rail-item" data-room="book" aria-label="Book and philosophy">
-      <svg viewBox="0 0 24 24"><path d="M5 4h10a4 4 0 0 1 4 4v12H9a4 4 0 0 0-4-4z"/><path d="M5 4v12a4 4 0 0 1 4 4"/></svg><span>Book</span>
-    </button>
-    <button class="rail-item" data-room="evidence" aria-label="Evidence">
-      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 13l2.5 2.5L16.5 9"/></svg><span>Evidence</span>
-    </button>
-  </nav>
-
-  <main class="hospital-stage">
-    <section class="hospital-room active" data-room-panel="reception">
-      <div class="reception-card">
-        <div class="reception-intro">
-          <p class="room-kicker">RECEPTION · WHERE HEALTH MEETS HAPPINESS</p>
-          <h2>Why are you here?</h2>
-          <p>Choose the entrance that describes what you want help with. It is a starting point—not a label.</p>
-        </div>
-        <div class="reception-paths" role="group" aria-label="Choose your starting point">
-          <button type="button" data-start-path="illness"><b>01</b><span>I have an illness</span></button>
-          <button type="button" data-start-path="stress"><b>02</b><span>I am anxious, tense or stressed</span></button>
-          <button type="button" data-start-path="addiction"><b>03</b><span>I am struggling with addiction</span></button>
-          <button type="button" data-start-path="direction"><b>04</b><span>I feel lost and seek direction</span></button>
-        </div>
-        <div class="reception-next" id="reception-next" hidden>
-          <div>
-            <small>YOUR NEXT STEP</small>
-            <strong id="reception-next-title">Create your private starting point.</strong>
-            <p id="reception-next-copy">We will collect only what is needed, explain why it matters and show what comes next.</p>
-          </div>
-          <a href="/app/?mode=register" id="reception-register">Register at reception <span>→</span></a>
-        </div>
-        <button class="reception-process-link" type="button" data-open-room="journey">
-          See the complete process before you begin <span>→</span>
-        </button>
-        <div class="reception-boundary">
-          This hospital supports self-care alongside medical treatment. It does not replace diagnosis, prescriptions or emergency care.
-        </div>
-      </div>
-    </section>
-
-    <section class="hospital-room" data-room-panel="journey">
-      <div class="room-card">
-        <p class="room-kicker">PATIENT JOURNEY</p>
-        <h2>Know exactly what to expect.</h2>
-        <p class="room-lead">One guided path. Your dashboard always shows where you are, why the current step matters, what completes it and what follows.</p>
-        <ol class="process-line">
-          <li><b>01</b><span><strong>Medical picture</strong>Reports, prescriptions, medicines, procedures and present concerns.</span></li>
-          <li><b>02</b><span><strong>10-day assessment</strong>Short guided questions across ten connected dimensions.</span></li>
-          <li><b>03</b><span><strong>Connected summary</strong>A sourced starting picture, written without labels or judgement.</span></li>
-          <li><b>04</b><span><strong>7-week journey</strong>One clear focus at a time, with private observations and daily support.</span></li>
-          <li><b>05</b><span><strong>2-day review</strong>Compare reports, experience, actions and changes before deciding anything.</span></li>
-          <li><b>06</b><span><strong>Finish or continue</strong>Maintain progress or begin another seven weeks only when useful.</span></li>
-        </ol>
-        <button class="room-cta" type="button" data-open-room="reception">Return to reception <span>→</span></button>
-      </div>
-    </section>
-
-    <section class="hospital-room" data-room-panel="tests">
-      <div class="room-card">
-        <p class="room-kicker">FREE SELF-DISCOVERY</p>
-        <h2>Understand yourself without labels.</h2>
-        <p class="room-lead">Short, private self-tests help you notice your present patterns across ten connected dimensions. They support reflection; they do not diagnose you.</p>
-        <div class="dimension-cloud"><span>Love</span><span>Instinct</span><span>Fear</span><span>Physical</span><span>Sexual</span><span>Emotional</span><span>Relational</span><span>Mental</span><span>Occupational</span><span>Money</span></div>
-        <a class="room-cta" href="/app/?section=tests">Choose a self-test <span>→</span></a>
-      </div>
-    </section>
-
-    <section class="hospital-room" data-room-panel="therapies">
-      <div class="room-card">
-        <p class="room-kicker">COMPLEMENTARY THERAPIES</p>
-        <h2>Explore more ways to support yourself.</h2>
-        <p class="room-lead">A carefully labelled library of non-invasive and complementary practices, with their traditional logic, available evidence, safety boundaries and original links.</p>
-        <div class="room-links"><a href="/therapies.html">Browse therapies <span>→</span></a><button data-open-room="evidence">How evidence is shown <span>→</span></button></div>
-      </div>
-    </section>
-
-    <section class="hospital-room" data-room-panel="mentors">
-      <div class="room-card">
-        <p class="room-kicker">SELECTED SUPPORT</p>
-        <h2>Meet a person, not a category.</h2>
-        <p class="room-lead">Profiles are published only after review. Each microsite states qualifications, scope, approach, availability and booking information clearly.</p>
-        <a class="room-cta" href="/mentors.html">Visit the mentor directory <span>→</span></a>
-      </div>
-    </section>
-
-    <section class="hospital-room" data-room-panel="book">
-      <div class="room-card">
-        <p class="room-kicker">THE BOOK &amp; PHILOSOPHY</p>
-        <h2>My body is my present.</h2>
-        <p class="room-lead">I care for my body because I am alive now. I love my body and I love my life.</p>
-        <a class="room-cta" href="/philosophy.html">Enter the book department <span>→</span></a>
-      </div>
-    </section>
-
-    <section class="hospital-room" data-room-panel="evidence">
-      <div class="room-card">
-        <p class="room-kicker">EVIDENCE-MAPPED</p>
-        <h2>See the source. See the boundary.</h2>
-        <p class="room-lead">Medical facts, scientific evidence, traditional frameworks, philosophy and personal observations remain visibly separate. Every explanation can show where it came from and what it does not establish.</p>
-        <div class="evidence-list"><span>Medical &amp; regulatory</span><span>Food identity &amp; chemistry</span><span>Psychology &amp; neuroscience</span><span>Traditional knowledge</span><span>Your own timeline</span></div>
-      </div>
-    </section>
-  </main>
-
-  <button class="jaadu-launch" type="button" aria-label="Ask Jaadu">✦ <span>Ask Jaadu</span></button>
-  <script src="/assets/hospital.js?v=20260724-4"></script>
-</body>
-</html>
+<body class="hospital-world hospital-v2">
+<div class="hospital-scene" aria-hidden="true"></div><div class="hospital-shade" aria-hidden="true"></div>
+<header class="hospital-brand"><span class="brand-heart">♥</span><span><b>I Love My Body</b><small>HEALTH &amp; HAPPINESS HOSPITAL</small></span></header>
+<div class="hospital-actions"><a class="patient-signin" href="/app/access.php">I have a Patient ID <span>→</span></a></div>
+<nav class="hospital-rail" aria-label="Hospital navigation">
+<button class="rail-item active" data-room="reception"><span class="rail-no">01</span><span>Reception</span></button>
+<button class="rail-item" data-room="journey"><span class="rail-no">02</span><span>Your Journey</span></button>
+<button class="rail-item" data-room="body"><span class="rail-no">03</span><span>Explore Body</span></button>
+<button class="rail-item" data-room="treatment"><span class="rail-no">04</span><span>Two Paths</span></button>
+<button class="rail-item" data-room="tests"><span class="rail-no">05</span><span>Self Tests</span></button>
+<button class="rail-item" data-room="therapies"><span class="rail-no">06</span><span>World Therapies</span></button>
+<button class="rail-item" data-room="evidence"><span class="rail-no">07</span><span>Evidence</span></button>
+</nav>
+<main class="hospital-stage">
+<section class="hospital-room active" data-room-panel="reception">
+ <div class="room-card reception-v2">
+  <p class="room-kicker">RECEPTION · NO LOGIN NEEDED TO EXPLORE</p>
+  <h1>Understand your body<br><em>before you are asked for anything.</em></h1>
+  <p class="room-lead">Walk through the hospital, understand how we think, see the complete patient journey and explore the two treatment paths. We ask for personal details only when they are needed to save your private health journey.</p>
+  <div class="front-door-grid">
+   <article class="door-card primary-door"><span>FIRST TIME HERE</span><h2>Explore the hospital</h2><p>No account. No OTP. No mobile number. Start by understanding what the hospital does.</p><button data-open-room="journey">Show me the complete journey <b>→</b></button></article>
+   <article class="door-card"><span>I WANT HELP WITH MY BODY</span><h2>Start from my concern</h2><p>Choose what brought you here. This only changes what we explain first; it does not label or diagnose you.</p><button id="choose-concern">Choose my starting point <b>→</b></button></article>
+   <article class="door-card returning"><span>RETURNING PATIENT</span><h2>Open my private space</h2><p>If the hospital has already given you a Patient ID and password, sign in directly.</p><a href="/app/access.php">Patient ID + password <b>→</b></a><small>Older mobile + PIN access remains available inside My Happy Space.</small></article>
+  </div>
+  <div class="concern-picker" id="concern-picker" hidden>
+   <button data-start-path="illness"><b>01</b><span>I have an illness or medical condition</span><small>Begin with reports, medicines and the body systems involved.</small></button>
+   <button data-start-path="recovery"><b>02</b><span>I am recovering from an illness, surgery or stroke</span><small>Begin with function, recovery, medicines and what still needs restoration.</small></button>
+   <button data-start-path="stress"><b>03</b><span>Stress, anxiety or emotions are affecting my body</span><small>Begin with the body signals, triggers and measurable impact.</small></button>
+   <button data-start-path="direction"><b>04</b><span>I want to understand my body and live better</span><small>Begin with your current state, needs and goals.</small></button>
+  </div>
+  <div class="reception-next" id="reception-next" hidden><div><small>YOUR STARTING POINT</small><strong id="reception-next-title"></strong><p id="reception-next-copy"></p></div><a href="/app/new.php" id="reception-register">Continue without login <span>→</span></a></div>
+  <div class="trust-strip"><span>Explore first</span><i>→</i><span>Understand</span><i>→</i><span>Share only what is needed</span><i>→</i><span>Receive your Patient ID</span><i>→</i><span>Track your journey privately</span></div>
+  <div class="reception-boundary">New sudden weakness, facial droop, speech difficulty, severe chest pain, serious breathing difficulty, fainting or other emergency symptoms require urgent medical care. This hospital experience is not an emergency service.</div>
+ </div>
+</section>
+<section class="hospital-room" data-room-panel="journey"><div class="room-card"><p class="room-kicker">ONE PATIENT · ONE COHERENT JOURNEY</p><h2>Know exactly what happens from day one.</h2><p class="room-lead">The database stays behind the scenes. You experience one logical story: what happened, why, what is affected, what treatment is doing, what your body can change, and whether it is working.</p><ol class="journey-v2"><li><b>01</b><div><strong>Tell us what happened</strong><span>Symptoms, diagnosis, event, timeline and what you want help with.</span></div></li><li><b>02</b><div><strong>Build your medical picture</strong><span>Reports, medicines, scans, tests and known measurements.</span></div></li><li><b>03</b><div><strong>Explore your body</strong><span>See the organs, systems, pathways and measurements connected to your case.</span></div></li><li><b>04</b><div><strong>Understand every treatment</strong><span>Target → pathway → benefit → side-effect burden → measurable output.</span></div></li><li><b>05</b><div><strong>See the two paths</strong><span>Current Pharma and ILMB are compared against the same required body outputs without pretending they use identical mechanisms.</span></div></li><li><b>06</b><div><strong>Get a concrete action plan</strong><span>What to do, how much, when, why and what number will tell us whether it worked.</span></div></li><li><b>07</b><div><strong>Measure your own response</strong><span>Your new results update your personal body model.</span></div></li><li><b>08</b><div><strong>Keep · modify · investigate</strong><span>Treatment evolves from your measured response and safety—not generic advice.</span></div></li></ol><div class="room-actions"><button class="room-cta" data-open-room="body">Explore the body <span>→</span></button><a class="quiet-cta" href="/app/new.php">Begin as a new visitor</a></div></div></section>
+<section class="hospital-room" data-room-panel="body"><div class="room-card"><p class="room-kicker">EXPLORE YOUR BODY</p><h2>See what is connected to what.</h2><p class="room-lead">The hospital translates tests and treatment into a body map a patient can understand. Tap a system to see the questions ILMB asks.</p><div class="body-system-grid"><button><b>Brain &amp; nerves</b><span>Blood supply · motor control · sensation · plasticity</span></button><button><b>Heart &amp; vessels</b><span>Pressure · flow · endothelial state · cardiac workload</span></button><button><b>Blood &amp; clotting</b><span>Platelets · coagulation · fibrinolysis · bleeding balance</span></button><button><b>Liver &amp; metabolism</b><span>Lipids · glucose · substrate production · clearance</span></button><button><b>Gut &amp; microbiome</b><span>Food chemistry · microbial metabolites · barrier · immune/vagal signals</span></button><button><b>Kidney &amp; fluids</b><span>Filtration · electrolytes · fluid chemistry · safety boundaries</span></button><button><b>Muscle &amp; movement</b><span>Strength · gait · endurance · motor learning · recovery</span></button><button><b>Mind &amp; autonomic state</b><span>Stress · sleep · behaviour · autonomic physiology</span></button></div><div class="body-note">Your private dashboard will be prefilled with what the hospital already knows about you. You add only the missing measurements and observations.</div></div></section>
+<section class="hospital-room" data-room-panel="treatment"><div class="room-card"><p class="room-kicker">TWO PATHS · ONE MEASURED BODY</p><h2>Understand what treatment changes—and what else it may affect.</h2><div class="two-path-v2"><article><span>PATH 1 · PHARMA</span><h3>Medicine → target → pathway</h3><p>We show the desired effect, measurable benefit and the collateral/side-effect pathway separately.</p><div>Drug → molecular target → desired effect</div><div>Same mechanism → possible collateral burden</div></article><article><span>PATH 2 · ILMB</span><h3>Inputs → body-state route → output</h3><p>Food chemistry, movement, rehabilitation, sleep, gut, environment and selected modalities are mapped only where the biology and evidence support the connection.</p><div>Input → pathway → measured body output</div><div>Benefit and burden are both tracked</div></article></div><div class="equation-card"><small>THE COMPARISON</small><strong>Required benefit<sub>ILMB</sub> ≈ Required benefit<sub>Pharma</sub></strong><span>while trying to minimise avoidable collateral burden — without claiming molecular equivalence where it has not been demonstrated.</span></div><a class="room-cta" href="/app/new.php">See how this works for a patient <span>→</span></a></div></section>
+<section class="hospital-room" data-room-panel="tests"><div class="room-card"><p class="room-kicker">SELF-DISCOVERY · OPTIONAL</p><h2>Measure what is relevant—not everything.</h2><p class="room-lead">Self-tests and check-ins help capture symptoms, function, sleep, stress, food, movement and lived experience. They support the medical picture; they do not diagnose you.</p><a class="room-cta" href="/app/new.php#checkin">Preview a patient check-in <span>→</span></a></div></section>
+<section class="hospital-room" data-room-panel="therapies"><div class="room-card"><p class="room-kicker">WORLD MODALITIES</p><h2>Many systems. One physiology layer.</h2><p class="room-lead">Conventional rehabilitation, physiotherapy, food chemistry, yoga, acupuncture, EMDR and other systems are not treated as automatically equivalent. Each is connected only to the body node it can reasonably influence, with evidence and uncertainty visible.</p><a class="room-cta" href="/therapies.html">Explore the modality library <span>→</span></a></div></section>
+<section class="hospital-room" data-room-panel="evidence"><div class="room-card"><p class="room-kicker">EVIDENCE &amp; BOUNDARIES</p><h2>See the source. See what it proves. See what it does not prove.</h2><div class="evidence-v2"><article><b>Measured patient data</b><span>Your own labs, scans, BP, function and responses.</span></article><article><b>Scientific / regulatory evidence</b><span>Used for mechanisms, ranges and external effect estimates.</span></article><article><b>Food &amp; chemical identity</b><span>LOINC, ChEBI, food composition and pathway identities.</span></article><article><b>Traditional systems</b><span>Kept visibly separate from established biomedical evidence.</span></article><article><b>Unknowns</b><span>Missing coefficients and unproven equivalences remain explicitly blocked.</span></article></div><div class="room-actions"><a class="room-cta" href="/app/access.php">Returning patient sign in <span>→</span></a><button class="quiet-cta" data-open-room="reception">Back to reception</button></div></div></section>
+</main>
+<button class="jaadu-launch" type="button" aria-label="Ask Jaadu">✦ <span>Ask Jaadu</span></button>
+<script src="/assets/hospital.js?v=20260917-1"></script>
+</body></html>
