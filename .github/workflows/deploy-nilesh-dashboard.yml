@@ -6,6 +6,7 @@ on:
     branches: [main]
     paths:
       - app/nilesh.php
+      - app/assets/hospital-entry-ux.js
       - .github/workflows/deploy-nilesh-dashboard.yml
 
 concurrency:
@@ -20,13 +21,17 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Validate dashboard
+      - name: Validate dashboard and hospital entry UX
         run: |
           set -euo pipefail
           test -s app/nilesh.php
           php -l app/nilesh.php
           grep -q 'Nilesh Yadav' app/nilesh.php
           grep -q 'P2Y12' app/nilesh.php
+          test -s app/assets/hospital-entry-ux.js
+          node --check app/assets/hospital-entry-ux.js
+          grep -q 'Patient ID' app/assets/hospital-entry-ux.js
+          grep -q 'Mobile + PIN' app/assets/hospital-entry-ux.js
 
       - name: Prepare dedicated SSH identity
         env:
@@ -44,26 +49,52 @@ jobs:
           echo "DEPLOY_USER=$(jq -r '.user' /tmp/ilb-deploy.json)" >> "$GITHUB_ENV"
           ssh-keyscan -p "$(jq -r '.port' /tmp/ilb-deploy.json)" "$(jq -r '.host' /tmp/ilb-deploy.json)" >> "$HOME/.ssh/known_hosts"
 
-      - name: Upload dashboard
-        run: scp -i "$HOME/.ssh/id_ed25519" -P "$DEPLOY_PORT" app/nilesh.php "$DEPLOY_USER@$DEPLOY_HOST:nilesh.php"
+      - name: Upload dashboard and entry UX
+        run: |
+          scp -i "$HOME/.ssh/id_ed25519" -P "$DEPLOY_PORT" app/nilesh.php "$DEPLOY_USER@$DEPLOY_HOST:nilesh.php"
+          scp -i "$HOME/.ssh/id_ed25519" -P "$DEPLOY_PORT" app/assets/hospital-entry-ux.js "$DEPLOY_USER@$DEPLOY_HOST:hospital-entry-ux.js"
 
-      - name: Deploy dashboard
+      - name: Deploy dashboard and hospital entrance
         run: |
           ssh -i "$HOME/.ssh/id_ed25519" -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" "bash -s" <<'REMOTE'
           set -euo pipefail
           TARGET="$HOME/domains/ilovemybody.in/public_html/app"
           STAMP="$(date +%Y%m%d-%H%M%S)"
-          mkdir -p "$HOME/backups/ilovemybody/$STAMP/app" "$TARGET"
+          mkdir -p "$HOME/backups/ilovemybody/$STAMP/app/assets" "$TARGET/assets"
           if test -f "$TARGET/nilesh.php"; then cp -p "$TARGET/nilesh.php" "$HOME/backups/ilovemybody/$STAMP/app/nilesh.php"; fi
+          if test -f "$TARGET/index.php"; then cp -p "$TARGET/index.php" "$HOME/backups/ilovemybody/$STAMP/app/index.php"; fi
+          if test -f "$TARGET/assets/hospital-entry-ux.js"; then cp -p "$TARGET/assets/hospital-entry-ux.js" "$HOME/backups/ilovemybody/$STAMP/app/assets/hospital-entry-ux.js"; fi
           test -s "$HOME/nilesh.php"
+          test -s "$HOME/hospital-entry-ux.js"
           cp -p "$HOME/nilesh.php" "$TARGET/nilesh.php"
-          rm -f "$HOME/nilesh.php"
+          cp -p "$HOME/hospital-entry-ux.js" "$TARGET/assets/hospital-entry-ux.js"
+          if ! grep -q 'hospital-entry-ux.js' "$TARGET/index.php"; then
+            python3 - "$TARGET/index.php" <<'PY'
+import sys
+p=sys.argv[1]
+s=open(p,encoding='utf-8').read()
+needle='</body></html>'
+script='<script src="assets/hospital-entry-ux.js?v=1"></script>'
+if needle not in s:
+    raise SystemExit('closing body tag not found')
+s=s.replace(needle,script+needle,1)
+open(p,'w',encoding='utf-8').write(s)
+PY
+          fi
+          rm -f "$HOME/nilesh.php" "$HOME/hospital-entry-ux.js"
           test -s "$TARGET/nilesh.php"
+          test -s "$TARGET/assets/hospital-entry-ux.js"
+          grep -q 'hospital-entry-ux.js' "$TARGET/index.php"
           REMOTE
 
-      - name: Verify production login page
+      - name: Verify production patient entry and Nilesh login
         run: |
           set -euo pipefail
           curl --fail --retry 5 --retry-delay 5 --max-time 30 --output /tmp/nilesh.html https://ilovemybody.in/app/nilesh.php
           grep -q 'PRIVATE PATIENT DASHBOARD' /tmp/nilesh.html
           grep -q 'User ID' /tmp/nilesh.html
+          curl --fail --retry 5 --retry-delay 5 --max-time 30 --output /tmp/entry.js https://ilovemybody.in/app/assets/hospital-entry-ux.js
+          grep -q 'Patient ID' /tmp/entry.js
+          grep -q 'Mobile + PIN' /tmp/entry.js
+          curl --fail --retry 5 --retry-delay 5 --max-time 30 --output /tmp/app.html https://ilovemybody.in/app/
+          grep -q 'hospital-entry-ux.js' /tmp/app.html
