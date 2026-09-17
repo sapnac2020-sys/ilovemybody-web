@@ -49,11 +49,14 @@ jobs:
           grep -q 'NO LOGIN NEEDED TO EXPLORE' hospital.html
           grep -qi 'Patient ID.*password' hospital.html
           grep -qi 'PATIENT ID.*PASSWORD' app/access.php
-          grep -q 'THE COMPARATIVE CHART' app/nilesh.php
+          grep -q 'PHARMACY RESULT = ILMB RESULT' app/nilesh.php
+          grep -q 'FULL CAUSAL FLOW' app/nilesh.php
           grep -q 'Clopidogrel 75 mg' app/nilesh.php
           grep -q 'Fenofibrate 160 mg' app/nilesh.php
-          grep -q 'ILMB target' app/nilesh.php
-          grep -q 'Optimistic, factual reading' app/hospital-review.php
+          grep -q 'pH GATE' app/nilesh.php
+          grep -q 'PHARMACY = ILMB · FULL CAUSAL FLOW' app/hospital-review.php
+          grep -q 'target_job' app/hospital-review-api.php
+          grep -q 'ph_gate' app/hospital-review-api.php
 
       - name: Prepare dedicated SSH identity
         env:
@@ -104,7 +107,6 @@ jobs:
           done
           cp -a "$STAGE/app/assets/." "$TARGET/app/assets/"
 
-          # Every patient-facing surface uses one common responsive/design layer.
           php -r '$files=array_slice($argv,1);$tag="<link rel=\"stylesheet\" href=\"/assets/ilmb-7screen.css?v=1\">";foreach($files as $p){if(!is_file($p))continue;$s=file_get_contents($p);if(strpos($s,"ilmb-7screen.css")===false){$s=str_replace("</head>",$tag."</head>",$s);file_put_contents($p,$s);}}' \
             "$TARGET/hospital.html" "$TARGET/app/index.php" "$TARGET/app/access.php" "$TARGET/app/new.php" "$TARGET/app/nilesh.php" "$TARGET/app/hospital-review.php" "$TARGET/app/test-results.php"
           php -r '$p=$argv[1];$s=file_get_contents($p);$tag="<script src=\"assets/hospital-review-link.js?v=1\"></script>";if(strpos($s,$tag)===false){$s=str_replace("</body></html>",$tag."</body></html>",$s);file_put_contents($p,$s);}' "$TARGET/app/index.php"
