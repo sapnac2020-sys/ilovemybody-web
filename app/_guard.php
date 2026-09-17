@@ -1,15 +1,18 @@
 <?php
 declare(strict_types=1);
 /**
- * Staging gate.
+ * Environment gate.
  *
- * .htaccess IP rules do not work on this host: Hostinger fronts the site with
- * a CDN, so the origin never sees the real client address, and Require ip is
- * ignored here in any case (Require all denied is honoured, Require ip is not).
- * So the gate lives in PHP, which always runs.
- *
- * Unknown visitors get 404, not 403 -- a 403 confirms there is something here.
+ * Production patient access on ilovemybody.in is public at the HTTP layer and
+ * protected by the app's own authentication/session checks. Non-production
+ * hosts remain behind the staging token gate.
  */
+$host = strtolower(preg_replace('/:\d+$/', '', (string)($_SERVER['HTTP_HOST'] ?? '')));
+if (in_array($host, ['ilovemybody.in', 'www.ilovemybody.in'], true)) {
+    header('X-Robots-Tag: noindex, nofollow, noarchive');
+    return;
+}
+
 $tokenFile = '/home/u756742628/domains/ilovemybody.in/private/stage_token.txt';
 $token = is_readable($tokenFile) ? trim((string)file_get_contents($tokenFile)) : '';
 if ($token === '') { http_response_code(500); exit('Staging token missing.'); }
