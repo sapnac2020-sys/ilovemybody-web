@@ -92,15 +92,7 @@ jobs:
             cp -p "$STAGE/app/$f" "$TARGET/app/$f"
           done
           cp -a "$STAGE/app/assets/." "$TARGET/app/assets/"
-          python3 - "$TARGET/app/index.php" <<'PY'
-          import sys
-          p=sys.argv[1]
-          s=open(p,encoding='utf-8').read()
-          tag='<script src="assets/hospital-review-link.js?v=1"></script>'
-          if tag not in s:
-              s=s.replace('</body></html>',tag+'</body></html>')
-              open(p,'w',encoding='utf-8').write(s)
-          PY
+          php -r '$p=$argv[1];$s=file_get_contents($p);$tag="<script src=\"assets/hospital-review-link.js?v=1\"></script>";if(strpos($s,$tag)===false){$s=str_replace("</body></html>",$tag."</body></html>",$s);file_put_contents($p,$s);}' "$TARGET/app/index.php"
           test -s "$TARGET/app/config.php"
           test -s "$TARGET/app/hospital-review.php"
           test -s "$TARGET/app/hospital-review-api.php"
@@ -121,5 +113,4 @@ jobs:
           test "$code" = "401"
           code=$(curl -sS -o /tmp/review.html -w '%{http_code}' 'https://ilovemybody.in/app/hospital-review.php')
           test "$code" = "404" -o "$code" = "401"
-          grep -q 'hospital-review-link.js' <(curl -fsS https://ilovemybody.in/app/ || true) || true
           echo 'PATIENT_READINESS_SMOKE_TEST=PASS'
