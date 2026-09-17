@@ -1,0 +1,88 @@
+name: Deploy Hospital Entry UX
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - app/assets/hospital-entry-ux.js
+      - .github/workflows/deploy-hospital-entry-ux.yml
+
+concurrency:
+  group: ilovemybody-hospital-entry-ux
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate entry UX
+        run: |
+          set -euo pipefail
+          test -s app/assets/hospital-entry-ux.js
+          node --check app/assets/hospital-entry-ux.js
+          grep -q 'Patient ID' app/assets/hospital-entry-ux.js
+          grep -q 'Mobile + PIN' app/assets/hospital-entry-ux.js
+
+      - name: Prepare SSH identity
+        env:
+          DEPLOY_BUNDLE: ${{ secrets.HOSTINGER_DEPLOY_BUNDLE }}
+        run: |
+          set -euo pipefail
+          test -n "$DEPLOY_BUNDLE"
+          mkdir -p "$HOME/.ssh"
+          printf '%s' "$DEPLOY_BUNDLE" | base64 --decode > /tmp/ilb-deploy.json
+          jq -e '.host and .port and .user and .key' /tmp/ilb-deploy.json >/dev/null
+          jq -r '.key' /tmp/ilb-deploy.json > "$HOME/.ssh/id_ed25519"
+          chmod 600 "$HOME/.ssh/id_ed25519"
+          echo "DEPLOY_HOST=$(jq -r '.host' /tmp/ilb-deploy.json)" >> "$GITHUB_ENV"
+          echo "DEPLOY_PORT=$(jq -r '.port' /tmp/ilb-deploy.json)" >> "$GITHUB_ENV"
+          echo "DEPLOY_USER=$(jq -r '.user' /tmp/ilb-deploy.json)" >> "$GITHUB_ENV"
+          ssh-keyscan -p "$(jq -r '.port' /tmp/ilb-deploy.json)" "$(jq -r '.host' /tmp/ilb-deploy.json)" >> "$HOME/.ssh/known_hosts"
+
+      - name: Upload UX patch
+        run: |
+          scp -i "$HOME/.ssh/id_ed25519" -P "$DEPLOY_PORT" app/assets/hospital-entry-ux.js "$DEPLOY_USER@$DEPLOY_HOST:hospital-entry-ux.js"
+
+      - name: Install and wire hospital entry UX
+        run: |
+          ssh -i "$HOME/.ssh/id_ed25519" -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" 'bash -s' <<'REMOTE'
+          set -euo pipefail
+          TARGET="$HOME/domains/ilovemybody.in/public_html/app"
+          test -d "$TARGET/assets"
+          test -s "$TARGET/index.php"
+          STAMP="$(date +%Y%m%d-%H%M%S)"
+          mkdir -p "$HOME/backups/ilovemybody/$STAMP/app/assets"
+          cp -p "$TARGET/index.php" "$HOME/backups/ilovemybody/$STAMP/app/index.php"
+          if test -f "$TARGET/assets/hospital-entry-ux.js"; then cp -p "$TARGET/assets/hospital-entry-ux.js" "$HOME/backups/ilovemybody/$STAMP/app/assets/hospital-entry-ux.js"; fi
+          cp -p "$HOME/hospital-entry-ux.js" "$TARGET/assets/hospital-entry-ux.js"
+          if ! grep -q 'hospital-entry-ux.js' "$TARGET/index.php"; then
+            python3 - "$TARGET/index.php" <<'PY'
+import sys
+p=sys.argv[1]
+s=open(p,encoding='utf-8').read()
+needle='</body></html>'
+script='<script src="assets/hospital-entry-ux.js?v=1"></script>'
+if needle not in s:
+    raise SystemExit('closing body tag not found')
+s=s.replace(needle,script+needle,1)
+open(p,'w',encoding='utf-8').write(s)
+PY
+          fi
+          grep -q 'hospital-entry-ux.js' "$TARGET/index.php"
+          test -s "$TARGET/assets/hospital-entry-ux.js"
+          rm -f "$HOME/hospital-entry-ux.js"
+          REMOTE
+
+      - name: Verify live hospital entry
+        run: |
+          set -euo pipefail
+          curl --fail --retry 5 --retry-delay 4 --max-time 30 -sS https://ilovemybody.in/app/assets/hospital-entry-ux.js -o /tmp/entry.js
+          grep -q 'Patient ID' /tmp/entry.js
+          grep -q 'Mobile + PIN' /tmp/entry.js
+          curl --fail --retry 5 --retry-delay 4 --max-time 30 -sS https://ilovemybody.in/app/ -o /tmp/app.html
+          grep -q 'hospital-entry-ux.js' /tmp/app.html
