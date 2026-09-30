@@ -37,7 +37,7 @@ jobs:
       - name: Deploy department files and database
         run: |
           set -euo pipefail
-          tar -czf /tmp/ehr.tgz app/energy-healing.php app/energy-healing-record.php backend/energy_healing_department.sql backend/energy_healing_loinc_links.sql backend/energy_healing_pranic_entry.sql backend/energy_healing_magnified_entry.sql ops/deploy-energy-healing.php
+          tar -czf /tmp/ehr.tgz app/energy-healing.php app/energy-healing-record.php backend/energy_healing_department.sql backend/energy_healing_loinc_links.sql backend/energy_healing_pranic_entry.sql backend/energy_healing_magnified_entry.sql backend/energy_healing_process_maps.sql ops/deploy-energy-healing.php
           scp -P "$DEPLOY_PORT" /tmp/ehr.tgz "$DEPLOY_USER@$DEPLOY_HOST:ehr-${GITHUB_SHA}.tgz"
           ssh -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" "SITE_SHA='$GITHUB_SHA' bash -s" <<'REMOTE'
           set -euo pipefail
