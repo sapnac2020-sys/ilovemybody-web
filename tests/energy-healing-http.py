@@ -21,8 +21,11 @@ try:
    status,body,_=req('/app/energy-healing.php');break
   except urllib.error.URLError:time.sleep(.1)
  assert status==200 and 'What has research found?' in body
- assert 'Magnified Healing' not in body, 'Draft practice exposed'
- assert req('/app/energy-healing.php?practice=MAGNIFIED_HEALING')[0]==404
+ assert 'Magnified Healing' in body
+ status,mh,_=req('/app/energy-healing.php?practice=MAGNIFIED_HEALING')
+ assert status==200 and 'What is Magnified Healing?' in mh and 'DNA/RNA' in mh
+ assert 'Reiki' not in body, 'Draft practice exposed'
+ assert req('/app/energy-healing.php?practice=REIKI')[0]==404
  assert req('/app/energy-healing-record.php')[0]==302
  _,sid,_=req('/app/ehr-test-auth.php');cookie='ilb_app='+sid
  status,body,_=req('/app/energy-healing-record.php',cookie=cookie)
@@ -35,6 +38,9 @@ try:
  assert req('/app/energy-healing-record.php',{**data,'result_id':'1'},cookie)[0]==303
  status,body,_=req('/app/energy-healing-record.php',cookie=cookie)
  assert status==200 and '2026-01-02 12:00:00' in body
+ assert req('/app/energy-healing-record.php',{**data,'practice':'MAGNIFIED_HEALING','result_id':'1'},cookie)[0]==303
+ status,body,_=req('/app/energy-healing-record.php',cookie=cookie)
+ assert status==200 and 'Magnified Healing' in body
  print('HTTP publication, authentication, CSRF, subject isolation and session-save checks passed')
 finally:
  server.terminate();server.wait()
