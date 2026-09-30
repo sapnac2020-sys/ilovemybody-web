@@ -4,7 +4,7 @@ $p=new PDO('mysql:host=127.0.0.1;dbname=ehr_test;charset=utf8mb4','root','ci-onl
 function runSql(PDO $p,string $path): void {$s=$p->query(file_get_contents($path));do{if($s->columnCount())$s->fetchAll();}while($s->nextRowset());}
 function check(bool $ok,string $msg):void{if(!$ok)throw new RuntimeException($msg);}
 runSql($p,__DIR__.'/fixtures/energy-healing.sql');
-foreach([1,2] as $pass)foreach(['energy_healing_department.sql','energy_healing_loinc_links.sql','energy_healing_pranic_entry.sql','energy_healing_magnified_entry.sql'] as $f)runSql($p,__DIR__.'/../backend/'.$f);
+foreach([1,2] as $pass)foreach(['energy_healing_department.sql','energy_healing_loinc_links.sql','energy_healing_pranic_entry.sql','energy_healing_magnified_entry.sql','energy_healing_process_maps.sql'] as $f)runSql($p,__DIR__.'/../backend/'.$f);
 check((int)$p->query('SELECT COUNT(*) FROM ilb_ehr_practice')->fetchColumn()===10,'Rerun duplicated practices');
 check((int)$p->query('SELECT COUNT(*) FROM ilb_ehr_section')->fetchColumn()===16,'Rerun duplicated sections');
 check((int)$p->query('SELECT COUNT(*) FROM ilb_ehr_evidence_review')->fetchColumn()===1,'Rerun duplicated reviews');
@@ -21,4 +21,7 @@ check((int)$p->query('SELECT COUNT(*) FROM v_ilb_ehr_session_loinc_result')->fet
 $p->exec("UPDATE ilb_ehr_session SET status='COMPLETED'; UPDATE ilb_subject_test_result_ledger SET entry_status='VOID' WHERE result_id=1");
 check((int)$p->query('SELECT COUNT(*) FROM v_ilb_ehr_session_loinc_result')->fetchColumn()===0,'Void result visible');
 $p->exec("UPDATE ilb_subject_test_result_ledger SET entry_status='ACTIVE' WHERE result_id=1; DELETE FROM ilb_ehr_session_result_link; DELETE FROM ilb_ehr_session;");
+check((int)$p->query('SELECT COUNT(*) FROM ilb_ehr_process_map')->fetchColumn()===2,'Process maps duplicated');
+check((int)$p->query('SELECT COUNT(*) FROM ilb_ehr_process_connection')->fetchColumn()===7,'Process connections duplicated');
+check((int)$p->query("SELECT COUNT(*) FROM ilb_ehr_process_connection WHERE modality_causal_status='SUPPORTED' OR sequence_position IS NOT NULL")->fetchColumn()===0,'Unsupported process validation or sequence inserted');
 echo "SQL integration checks passed\n";
