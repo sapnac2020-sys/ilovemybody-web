@@ -27,7 +27,7 @@ try {
   fwrite($fh,json_encode(['ddl'=>$ddl],JSON_THROW_ON_ERROR)."\n");
   $st=$p->query("SELECT * FROM $name");while($row=$st->fetch(PDO::FETCH_ASSOC))fwrite($fh,json_encode($row,JSON_THROW_ON_ERROR)."\n");fclose($fh);
  }
- foreach(['energy_healing_department.sql','energy_healing_loinc_links.sql','energy_healing_pranic_entry.sql'] as $file){
+ foreach(['energy_healing_department.sql','energy_healing_loinc_links.sql','energy_healing_pranic_entry.sql','energy_healing_magnified_entry.sql'] as $file){
   // PDO connection disallows multi-statements. Execute with a dedicated connection.
   $c=cfg()['db'];
   $m=new PDO(sprintf('mysql:host=%s;port=%d;dbname=%s;charset=%s',$c['host'],$c['port'],$c['name'],$c['charset']),$c['user'],$c['pass'],[PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION,PDO::MYSQL_ATTR_MULTI_STATEMENTS=>true]);
@@ -35,6 +35,8 @@ try {
  }
  $count=(int)$p->query("SELECT COUNT(*) FROM ilb_ehr_section WHERE practice_code='PRANIC_HEALING' AND publication_status='PUBLISHED'")->fetchColumn();
  if($count!==8)throw new RuntimeException('Entry count verification failed');
+ $mhCount=(int)$p->query("SELECT COUNT(*) FROM ilb_ehr_section WHERE practice_code='MAGNIFIED_HEALING' AND publication_status='PUBLISHED'")->fetchColumn();
+ if($mhCount!==8)throw new RuntimeException('Magnified entry verification failed');
  $p->query("SELECT * FROM v_ilb_ehr_session_loinc_result LIMIT 0");
  $p->query("SELECT RELEASE_LOCK('ilmb-energy-healing-deploy')");
  echo "Energy healing migration and schema checks passed.\n";
