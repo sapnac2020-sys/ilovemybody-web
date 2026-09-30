@@ -24,4 +24,5 @@ $p->exec("UPDATE ilb_subject_test_result_ledger SET entry_status='ACTIVE' WHERE 
 check((int)$p->query('SELECT COUNT(*) FROM ilb_ehr_process_map')->fetchColumn()===2,'Process maps duplicated');
 check((int)$p->query('SELECT COUNT(*) FROM ilb_ehr_process_connection')->fetchColumn()===7,'Process connections duplicated');
 check((int)$p->query("SELECT COUNT(*) FROM ilb_ehr_process_connection WHERE modality_causal_status='SUPPORTED' OR sequence_position IS NOT NULL")->fetchColumn()===0,'Unsupported process validation or sequence inserted');
+$p->exec("INSERT INTO ilb_ehr_process_map VALUES('TEST_DRAFT','REIKI','Synthetic hidden outcome','SOURCE_GAP','UNKNOWN',NULL,'Synthetic fixture','Synthetic private draft')");
 echo "SQL integration checks passed\n";
