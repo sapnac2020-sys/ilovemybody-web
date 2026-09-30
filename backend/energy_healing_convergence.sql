@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS ilb_ehr_convergence_observation (
  feature_code VARCHAR(64) NOT NULL, practice_code VARCHAR(64) NOT NULL,
  action_text TEXT NOT NULL, source_url TEXT NOT NULL, source_locator VARCHAR(255) NOT NULL,
  delivery_scope ENUM('SELF','OTHER','SELF_AND_OTHER','UNSPECIFIED') NOT NULL,
- component_status ENUM('UNSPECIFIED','OPTIONAL','UNSPECIFIED') NOT NULL,
+ component_status ENUM('REQUIRED','OPTIONAL','UNSPECIFIED') NOT NULL,
  limitation_text TEXT NOT NULL, source_checked_on DATE NOT NULL,
  finding_status ENUM('TEACHING_SIMILARITY','CLINICALLY_VALIDATED') NOT NULL DEFAULT 'TEACHING_SIMILARITY',
  PRIMARY KEY(feature_code,practice_code),
