@@ -109,4 +109,18 @@ INSERT INTO ilb_ehr_catalogue VALUES
 ('SAHAJA_YOGA','Meditation and subtle-body practices','MODALITY','RELATED',NULL,'Sahaja meditation','Meditative tradition describing kundalini and a subtle system.','https://shrimatajifoundation.org/sahaja-yoga/','Shri Mataji Foundation','2026-09-30','PUBLISHED'),
 ('MANTRA_PRACTICES','Sound and vibration','FAMILY','RELATED',NULL,'Chanting; mantra meditation','Lineage-specific spoken or sung practices; retain spiritual meaning and acoustic effects separately.','https://us.sahajayoga.org/faq/','Sahaja Yoga US','2026-09-30','PUBLISHED')
 ON DUPLICATE KEY UPDATE category_name=VALUES(category_name),record_kind=VALUES(record_kind),scope_status=VALUES(scope_status),parent_practice_code=VALUES(parent_practice_code),aliases_text=VALUES(aliases_text),overview_text=VALUES(overview_text),source_url=VALUES(source_url),source_name=VALUES(source_name),source_checked_on=VALUES(source_checked_on);
+INSERT INTO ilb_ehr_practice(practice_code,department_code,practice_name) VALUES
+('CORE_SHAMANISM','ENERGY_HEALING','Core Shamanism healing practices'),
+('SPIRITUALIST_HEALING','ENERGY_HEALING','Spiritualist healing'),
+('CHRISTIAN_SCIENCE_HEALING','ENERGY_HEALING','Christian Science prayer healing'),
+('RADIONICS','ENERGY_HEALING','Radionics'),
+('HEALING_DOWSING','ENERGY_HEALING','Healing dowsing and radiesthesia')
+ON DUPLICATE KEY UPDATE practice_name=VALUES(practice_name);
+INSERT INTO ilb_ehr_catalogue VALUES
+('CORE_SHAMANISM','Spirit and ritual practices','FAMILY','RELATED',NULL,'Extraction healing; power soul retrieval; power animal retrieval','Modern Foundation for Shamanic Studies teaching framework; does not represent all Indigenous healing traditions.','https://www.shamanism.org/workshops/core-shamanism-healing-practice/','Foundation for Shamanic Studies','2026-09-30','PUBLISHED'),
+('SPIRITUALIST_HEALING','Spiritual transmission','FAMILY','CORE',NULL,'Healing mediumship; spiritual healing','Spiritualist healing framework describing channelled spiritual forces, hands, prayer and directed thought.','https://www.mdcsnu.org/healing','Manchester District Council of the Spiritualists National Union','2026-09-30','PUBLISHED'),
+('CHRISTIAN_SCIENCE_HEALING','Prayer and religious practices','MODALITY','RELATED',NULL,'Christian Science treatment','Specific religious prayer-healing tradition; not an umbrella for all Christian healing practices.','https://www.christianscience.com/what-we-believe/healing-in-christian-science','Christian Science organisation','2026-09-30','PUBLISHED'),
+('RADIONICS','Instrument and intention practices','MODALITY','CORE',NULL,'Radionic healing','Practice described through distant energy work and radionic instruments; distinct from validated electromagnetic medical treatments.','https://www.radionic.co.uk/what-is-radionics/','Radionic Association','2026-09-30','PUBLISHED'),
+('HEALING_DOWSING','Instrument and intention practices','FAMILY','RELATED',NULL,'Pendulum healing; radiesthesia; environmental energy clearing','Dowsing-based assessment and spiritual energy work; distinguish personal and environmental applications.','https://britishdowsing.net/healing-sick-houses-from-a-spiritual-healing-perspective/','Roy and Ann Procter original article archive','2026-09-30','PUBLISHED')
+ON DUPLICATE KEY UPDATE overview_text=VALUES(overview_text),source_url=VALUES(source_url),source_name=VALUES(source_name),source_checked_on=VALUES(source_checked_on);
 COMMIT;
