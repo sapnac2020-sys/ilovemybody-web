@@ -34,12 +34,19 @@ jobs:
           echo "DEPLOY_PORT=$(jq -r '.port' /tmp/ehr-deploy.json)" >>"$GITHUB_ENV"
           echo "DEPLOY_USER=$(jq -r '.user' /tmp/ehr-deploy.json)" >>"$GITHUB_ENV"
           ssh-keyscan -p "$(jq -r '.port' /tmp/ehr-deploy.json)" "$(jq -r '.host' /tmp/ehr-deploy.json)" >>"$HOME/.ssh/known_hosts"
+      - name: Show public deployment key for server authorization
+        run: |
+          set -euo pipefail
+          ssh-keygen -y -P "" -f "$HOME/.ssh/id_ed25519" > /tmp/ehr-deploy.pub
+          printf 'Public key to add in Hostinger SSH Keys:\n'
+          cat /tmp/ehr-deploy.pub
+          ssh-keygen -lf /tmp/ehr-deploy.pub
       - name: Deploy department files and database
         run: |
           set -euo pipefail
           tar -czf /tmp/ehr.tgz app/energy-healing.php app/energy-healing-record.php app/energy-healing-processes.php backend/energy_healing_department.sql backend/energy_healing_loinc_links.sql backend/energy_healing_pranic_entry.sql backend/energy_healing_magnified_entry.sql backend/energy_healing_process_maps.sql ops/deploy-energy-healing.php
-          scp -P "$DEPLOY_PORT" /tmp/ehr.tgz "$DEPLOY_USER@$DEPLOY_HOST:ehr-${GITHUB_SHA}.tgz"
-          ssh -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" "SITE_SHA='$GITHUB_SHA' bash -s" <<'REMOTE'
+          scp -o BatchMode=yes -o IdentitiesOnly=yes -i "$HOME/.ssh/id_ed25519" -P "$DEPLOY_PORT" /tmp/ehr.tgz "$DEPLOY_USER@$DEPLOY_HOST:ehr-${GITHUB_SHA}.tgz"
+          ssh -o BatchMode=yes -o IdentitiesOnly=yes -i "$HOME/.ssh/id_ed25519" -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" "SITE_SHA='$GITHUB_SHA' bash -s" <<'REMOTE'
           set -euo pipefail
           umask 077
           TARGET="$HOME/domains/ilovemybody.in/public_html"
