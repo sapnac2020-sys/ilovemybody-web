@@ -13,12 +13,12 @@ $groups=[];$practices=[];foreach($rows as $r){$groups[$r['feature_code']][]=$r;$
 ?>
 <!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Convergence comparison | Energy Healing Research</title><style>body{margin:0;background:#102321;color:#edf5ef;font:17px/1.6 system-ui}main{max-width:1000px;margin:auto;padding:24px}a{color:#b8e6c4}nav{display:flex;gap:18px;flex-wrap:wrap}article{padding:20px;margin:18px 0;border:1px solid #52786b;border-radius:16px;background:#19342f}h1,h2,h3{line-height:1.25}p{overflow-wrap:anywhere}small{color:#bcd0c6}</style></head><body><main>
 <nav><a href="/app/energy-healing-catalogue.php">All modalities</a><a href="/app/energy-healing-processes.php">Outcome processes</a><a href="/app/energy-healing.php">Research entries</a></nav>
-<h1>Convergence comparison</h1>
-<p><?=count($groups)?> candidate themes · <?=count($practices)?> modalities with documented components · <?=$total?> catalogue records.</p>
+<h1>Convergence comparison</h1><p><a href="/app/energy-healing-methods.php">Review all 50 processes and their gaps</a></p>
+<p><?=count($groups)?> candidate themes · <?=count($practices)?> catalogue records with documented components · <?=$total?> catalogue records.</p>
 <p>This first extraction compares public teaching descriptions. It is not a complete assessment of the catalogue. An unlisted modality or component is not an absence finding. Counts describe source coverage, not efficacy, independence of traditions or strength of evidence.</p>
 <p>Recurring actions can generate hypotheses. They do not establish a shared energy field, biological mechanism, weight-loss effect or treatment. Practitioner instructions require a separate review before any self-practice adaptation.</p>
 <?php foreach($groups as $items):$first=$items[0];?>
-<section><h2><?=conv_h($first['feature_name'])?> · <?=count($items)?> documented modalities</h2><p><?=conv_h($first['interpretation_limit'])?></p>
+<section><h2><?=conv_h($first['feature_name'])?> · <?=count($items)?> documented records</h2><p><?=conv_h($first['interpretation_limit'])?></p>
 <?php foreach($items as $r):?><article><h3><?=conv_h($r['practice_name'])?></h3><p><?=conv_h($r['action_text'])?></p>
 <p>Delivery scope: <?=conv_h($r['delivery_scope'])?> · Component: <?=conv_h($r['component_status'])?> · Finding: <?=conv_h($r['finding_status'])?></p>
 <p><?=conv_h($r['limitation_text'])?></p>
