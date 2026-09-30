@@ -13,13 +13,17 @@ $selected=null;$index=0;foreach($rows as $i=>$row){if($row['practice_code']===$c
 if(!$selected){http_response_code(404);exit('Process review not found.');}
 $tab=(string)($_GET['tab']??'process');
 if(!in_array($tab,['process','self','source','evidence','gaps'],true)){http_response_code(404);exit('Review tab not found.');}
-$studies=[];$searches=[];
+$studies=[];$searches=[];$databaseSearch=null;$researchGate=null;$screenCounts=[];$notices=[];
 if($tab==='evidence'){
  try{
-  $st=db()->prepare("SELECT s.title,s.source_url,c.evidence_status,e.study_design,e.sample_size,e.comparator_text,e.masking_text,e.findings_text,e.effect_estimate,e.limitations_text,x.material_reviewed,x.procedure_text,x.notice_status,x.population_scope,x.next_steps FROM ilb_ehr_claim c JOIN ilb_ehr_evidence_review e ON e.claim_id=c.claim_id JOIN ilb_ehr_source s ON s.source_id=e.source_id JOIN ilb_ehr_study_scope x ON x.claim_key=c.claim_key WHERE c.practice_code=? AND c.publication_status='PUBLISHED' AND s.publication_status='PUBLISHED' ORDER BY c.claim_key");
+  $st=db()->prepare("SELECT s.title,s.source_url,c.population_text,c.outcome_text,c.evidence_status,e.study_design,e.sample_size,e.comparator_text,e.masking_text,e.funding_text,e.findings_text,e.effect_estimate,e.uncertainty_text,e.limitations_text,COALESCE(x.material_reviewed,'NOT_RECORDED') AS material_reviewed,COALESCE(x.procedure_text,'Procedure extraction not recorded for this earlier review.') AS procedure_text,COALESCE(x.notice_status,'PENDING') AS notice_status,COALESCE(x.population_scope,'NOT_RECORDED') AS population_scope,COALESCE(x.next_steps,'Verify review material, complete procedure and notice checks.') AS next_steps FROM ilb_ehr_claim c JOIN ilb_ehr_evidence_review e ON e.claim_id=c.claim_id JOIN ilb_ehr_source s ON s.source_id=e.source_id LEFT JOIN ilb_ehr_study_scope x ON x.claim_key=c.claim_key WHERE c.practice_code=? AND c.publication_status='PUBLISHED' AND s.publication_status='PUBLISHED' ORDER BY c.claim_key");
   $st->execute([$code]);$studies=$st->fetchAll();
   $st=db()->prepare('SELECT query_text,searched_on,retrieval_status,search_limitations FROM ilb_ehr_search_audit WHERE practice_code=? ORDER BY searched_on DESC');
   $st->execute([$code]);$searches=$st->fetchAll();
+  $st=db()->prepare('SELECT * FROM ilb_ehr_database_search WHERE practice_code=?');$st->execute([$code]);$databaseSearch=$st->fetch();
+  $st=db()->prepare('SELECT * FROM ilb_ehr_research_gate WHERE practice_code=?');$st->execute([$code]);$researchGate=$st->fetch();
+  $st=db()->prepare('SELECT screening_status,COUNT(*) AS record_count FROM ilb_ehr_candidate_screen WHERE practice_code=? GROUP BY screening_status ORDER BY screening_status');$st->execute([$code]);$screenCounts=$st->fetchAll();
+  $st=db()->prepare("SELECT n.* FROM ilb_ehr_notice_review n JOIN ilb_ehr_claim c ON c.claim_key=CONCAT('ABSTRACT_',n.original_pmid) WHERE c.practice_code=?");$st->execute([$code]);$notices=$st->fetchAll();
  }catch(Throwable $e){http_response_code(503);exit('Evidence reviews are being prepared. Please try again later.');}
 }
 function method_url(string $code,string $tab='process'):string{return '/app/energy-healing-methods.php?practice='.urlencode($code).'&tab='.urlencode($tab);}
@@ -35,11 +39,18 @@ function method_url(string $code,string $tab='process'):string{return '/app/ener
 <?php elseif($tab==='source'):?><p><a href="<?=method_h($selected['source_url'])?>" rel="noopener noreferrer">Read teaching source</a></p><p><?=method_h($selected['source_locator'])?> · Checked <?=method_h($selected['source_checked_on'])?>.</p><p>Family entries use named examples. Related branches and shared lineage are not independent confirmation.</p>
 <?php elseif($tab==='evidence'):?>
 <p>Focused literature appraisals. These records do not constitute a complete systematic review or a validated treatment procedure.</p>
+<?php if($researchGate):?><details><summary>Research completion · <?=$researchGate['research_complete']?'Complete within recorded scope':'Open'?></summary><p><?=method_h($researchGate['summary_text'])?></p><p><?=method_h($researchGate['next_actions'])?></p></details><?php endif;?>
+<?php if($databaseSearch):?><details><summary>Primary PubMed query · <?=method_h($databaseSearch['retrieval_status'])?> · <?=method_h($databaseSearch['result_count'])?> returned records</summary><p>Publication cutoff: <?=method_h($databaseSearch['cutoff_on'])?>. Search date: <?=method_h($databaseSearch['searched_on'])?>.</p><p><?=method_h($databaseSearch['query_text'])?></p><p>Translated query: <?=method_h($databaseSearch['query_translation'])?></p><p><?=method_h($databaseSearch['warnings_text'])?></p><p>Raw hits can include unrelated meanings. Zero hits do not establish absence of research; publisher reports and aliases require separate checks.</p></details><?php endif;?>
+<?php if($screenCounts):?><details><summary>Earlier discovery cohort · screening register</summary><p>These are practice–paper mappings. Title eligibility is not a completed evidence review; overlapping reports are not independent replications.</p><ul><?php foreach($screenCounts as $screen):?><li><?=method_h($screen['screening_status'])?>: <?=method_h($screen['record_count'])?></li><?php endforeach;?></ul></details><?php endif;?>
+<?php foreach($notices as $notice):?><details><summary>Correction reviewed · PMID <?=method_h($notice['notice_pmid'])?></summary><p><?=method_h($notice['correction_scope'])?></p><p><?=method_h($notice['remaining_issue'])?></p><a href="<?=method_h($notice['notice_url'])?>" rel="noopener noreferrer">Correction record</a></details><?php endforeach;?>
 <?php if(!$studies):?><p>No primary-study appraisal has been completed in this register for this record. This is a review gap, not proof that evidence is absent.</p><?php endif;?>
 <?php foreach($studies as $study):?><details><summary><?=method_h($study['title'])?> · <?=method_h($study['evidence_status'])?></summary>
 <p><?=method_h($study['material_reviewed'])?> · <?=method_h($study['population_scope'])?> · <?=method_h($study['study_design'])?></p>
 <p>Sample count: <?=$study['sample_size']===null?'Not extracted':method_h($study['sample_size'])?>. Comparator: <?=method_h($study['comparator_text'])?>.</p>
+<p>Population: <?=method_h($study['population_text'])?>. Outcomes: <?=method_h($study['outcome_text'])?>.</p>
+<p>Masking: <?=method_h($study['masking_text'])?>. Funding and disclosures: <?=method_h($study['funding_text'])?>.</p>
 <p><?=method_h($study['findings_text'])?></p><p><?=method_h($study['effect_estimate'])?></p>
+<p>Uncertainty: <?=method_h($study['uncertainty_text'])?></p>
 <p>Described study procedure: <?=method_h($study['procedure_text'])?></p>
 <p>Limitations: <?=method_h($study['limitations_text'])?></p>
 <p>Notice check: <?=method_h($study['notice_status'])?>. <?=method_h($study['next_steps'])?></p>

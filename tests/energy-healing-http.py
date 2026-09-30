@@ -53,11 +53,17 @@ try:
  status,evidence,_=req('/app/energy-healing-methods.php?practice=REIKI&tab=evidence')
  assert status==200 and 'fibromyalgia' in evidence and 'ABSTRACT' in evidence and 'No benefit for pain' in evidence
  status,animal,_=req('/app/energy-healing-methods.php?practice=BENGSTON_METHOD&tab=evidence')
- assert status==200 and 'ANIMAL' in animal and 'cannot validate human cancer treatment' in animal
+ assert status==200 and 'ANIMAL' in animal and 'no human cancer efficacy' in animal
  status,notice,_=req('/app/energy-healing-methods.php?practice=JIN_SHIN_JYUTSU&tab=evidence')
- assert status==200 and 'NOTICE_FOUND' in notice and '36398997' in notice
+ assert status==200 and 'CHECKED' in notice and '36398997' in notice
  status,gap,_=req('/app/energy-healing-methods.php?practice=MAGNIFIED_HEALING&tab=evidence')
  assert status==200 and 'review gap, not proof' in gap and 'NO_INDEXED_RESULTS_RETURNED' in gap
+ status,rh,_=req('/app/energy-healing-methods.php?practice=RECONNECTIVE_HEALING&tab=evidence')
+ assert status==200 and 'Nonrandomized' in rh and 'FULL_TEXT' in rh
+ status,access,_=req('/app/energy-healing-methods.php?practice=ACCESS_BARS&tab=evidence')
+ assert status==200 and 'Pilot Study' in access and 'uncontrolled' in access
+ status,psoriasis,_=req('/app/energy-healing-methods.php?practice=HEARTFULNESS&tab=evidence')
+ assert status==200 and '0.548' in psoriasis and 'not statistically significant' in psoriasis
  _,sid,_=req('/app/ehr-test-auth.php');cookie='ilb_app='+sid
  status,body,_=req('/app/energy-healing-record.php',cookie=cookie)
  assert status==200 and 'Synthetic other observation' not in body
