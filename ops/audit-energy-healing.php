@@ -9,7 +9,7 @@ function auditEnergyHealing(PDO $p): array {
   'cross_subject_session_links' => "SELECT COUNT(*) FROM ilb_ehr_session_result_link l JOIN ilb_ehr_session s ON s.session_id=l.session_id JOIN ilb_subject_test_result_ledger r ON r.result_id=l.result_id WHERE CONVERT(s.subject_key USING utf8mb4) COLLATE utf8mb4_bin <> CONVERT(r.subject_key USING utf8mb4) COLLATE utf8mb4_bin",
   'convergence_without_locator' => "SELECT COUNT(*) FROM ilb_ehr_convergence_observation WHERE TRIM(source_url)='' OR TRIM(source_locator)=''",
   'appraisal_without_effect_limits' => "SELECT COUNT(*) FROM ilb_ehr_evidence_review WHERE TRIM(limitations_text)='' OR TRIM(source_locator)=''",
-  'completed_research_with_pending_candidates' => "SELECT COUNT(*) FROM ilb_ehr_research_gate g WHERE g.research_complete=1 AND EXISTS(SELECT 1 FROM ilb_ehr_candidate_screen c WHERE c.practice_code=g.practice_code AND c.screening_status IN ('AWAITING_SCREENING','TITLE_ELIGIBLE_EXTRACTION_PENDING','IDENTITY_UNCONFIRMED'))",
+  'completed_research_with_pending_candidates' => "SELECT COUNT(*) FROM ilb_ehr_research_gate g WHERE g.research_complete=1 AND EXISTS(SELECT 1 FROM ilb_ehr_candidate_screen c WHERE c.practice_code=g.practice_code AND c.screening_status IN ('AWAITING_SCREENING','TITLE_ELIGIBLE_EXTRACTION_PENDING','IDENTITY_UNCONFIRMED','ABSTRACT_EXTRACTED_FULL_REVIEW_PENDING','SOURCE_GAP_NO_ABSTRACT'))",
   'screen_assessment_without_reason' => "SELECT COUNT(*) FROM ilb_ehr_screen_assessment a JOIN ilb_ehr_candidate_screen c ON c.practice_code=a.practice_code AND c.pmid=a.pmid WHERE TRIM(c.screening_reason)=''",
   'process_review_without_locator' => "SELECT COUNT(*) FROM ilb_ehr_process_review WHERE TRIM(source_url)='' OR TRIM(source_locator)=''"
  ];
@@ -17,6 +17,7 @@ function auditEnergyHealing(PDO $p): array {
  $rows=$p->query("SELECT c.practice_code,c.record_kind,c.scope_status,p.practice_name,p.review_status,
   (SELECT COUNT(*) FROM ilb_ehr_section s WHERE s.practice_code=c.practice_code AND s.publication_status='PUBLISHED') AS published_sections,
   (SELECT COUNT(*) FROM ilb_ehr_evidence_review e JOIN ilb_ehr_claim cl ON cl.claim_id=e.claim_id WHERE cl.practice_code=c.practice_code) AS evidence_reviews,
+  (SELECT COUNT(*) FROM ilb_ehr_candidate_extraction x WHERE x.practice_code=c.practice_code) AS primary_record_extractions,
   (SELECT COUNT(*) FROM ilb_ehr_process_review r WHERE r.practice_code=c.practice_code) AS process_reviews,
   (SELECT COUNT(*) FROM ilb_ehr_search_audit a WHERE a.practice_code=c.practice_code) AS discovery_searches,
   (SELECT COUNT(*) FROM ilb_ehr_database_search a WHERE a.practice_code=c.practice_code AND a.retrieval_status='OK') AS primary_database_searches,
@@ -26,7 +27,7 @@ function auditEnergyHealing(PDO $p): array {
   (SELECT COUNT(*) FROM ilb_ehr_convergence_observation o WHERE o.practice_code=c.practice_code) AS convergence_observations
   FROM ilb_ehr_catalogue c JOIN ilb_ehr_practice p ON p.practice_code=c.practice_code ORDER BY c.practice_code")->fetchAll(PDO::FETCH_ASSOC);
  $kinds=[];$pending=[];foreach($rows as &$r){
-  foreach(['published_sections','evidence_reviews','process_reviews','discovery_searches','primary_database_searches','full_text_appraisals','abstract_appraisals','completed_protocols_with_results','convergence_observations'] as $key)$r[$key]=(int)$r[$key];
+  foreach(['published_sections','evidence_reviews','primary_record_extractions','process_reviews','discovery_searches','primary_database_searches','full_text_appraisals','abstract_appraisals','completed_protocols_with_results','convergence_observations'] as $key)$r[$key]=(int)$r[$key];
   $kinds[$r['record_kind']]=($kinds[$r['record_kind']]??0)+1;
   $gaps=[];if(!$r['published_sections'])$gaps[]='DETAILED_ENTRY_MISSING';
   if(!$r['evidence_reviews'])$gaps[]='STRUCTURED_EVIDENCE_REVIEW_MISSING';

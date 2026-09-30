@@ -52,6 +52,7 @@ try:
  assert status==200 and 'IDENTITY_ONLY' in gaps and 'NOT_REVIEWED' in gaps
  status,evidence,_=req('/app/energy-healing-methods.php?practice=REIKI&tab=evidence')
  assert status==200 and 'fibromyalgia' in evidence and 'ABSTRACT' in evidence and 'No benefit for pain' in evidence
+ assert 'Additional primary-record extractions' in evidence and 'p=.053 remains nonsignificant' in evidence and 'FULL_REVIEW_PENDING' in evidence
  status,animal,_=req('/app/energy-healing-methods.php?practice=BENGSTON_METHOD&tab=evidence')
  assert status==200 and 'ANIMAL' in animal and 'no human cancer efficacy' in animal
  status,notice,_=req('/app/energy-healing-methods.php?practice=JIN_SHIN_JYUTSU&tab=evidence')
@@ -64,6 +65,10 @@ try:
  assert status==200 and 'Pilot Study' in access and 'uncontrolled' in access
  status,psoriasis,_=req('/app/energy-healing-methods.php?practice=HEARTFULNESS&tab=evidence')
  assert status==200 and '0.548' in psoriasis and 'not statistically significant' in psoriasis
+ status,jsj,_=req('/app/energy-healing-methods.php?practice=JIN_SHIN_JYUTSU&tab=evidence')
+ assert status==200 and 'NO_ABSTRACT' in jsj and 'SOURCE_GAP_NO_ABSTRACT' in jsj
+ status,mantra,_=req('/app/energy-healing-methods.php?practice=MANTRA_PRACTICES&tab=evidence')
+ assert status==200 and 'p=.13 nonsignificant' in mantra and 'overlapping PMID34600308' in mantra
  _,sid,_=req('/app/ehr-test-auth.php');cookie='ilb_app='+sid
  status,body,_=req('/app/energy-healing-record.php',cookie=cookie)
  assert status==200 and 'Synthetic other observation' not in body

@@ -14,13 +14,15 @@ Research date: 30 September 2026. Scope: the 50 existing catalogue identities, w
 
 ## Verified coverage
 
-All 50 primary PubMed API queries completed successfully. They returned 1897 unique identifiers across 2061 practice mappings. These include unverified name collisions; counts are not eligible-study counts. Expanded results outside the earlier cohort still need metadata screening.
+All 50 primary PubMed API queries completed successfully. They returned 1897 unique identifiers across 2061 practice mappings. These include unverified name collisions; counts are not eligible-study counts. Primary metadata has now been retrieved and reconciled for all 1897 search identifiers, plus earlier records outside those queries: 1976 unique records in total (1975 journal records and one book record). The 1693 records outside the earlier cohort still require eligibility screening.
 
-The earlier 290 practice–paper cohort has a single-reviewer title/metadata decision for every mapping. There are 100 retained titles awaiting extraction, 35 unresolved identities, 49 context-only records and 79 exclusions. Two correction records were reconciled. Appraisal status counts refer to mappings and can overlap between practices.
+The earlier 290 practice–paper cohort has a single-reviewer title/metadata decision for every mapping. All 100 formerly retained mappings now have primary-record extraction notes: 99 available abstracts were reviewed and one record lacks an abstract. Of these mappings, 97 remain pending full review, two were reassigned to methods/protocol context and one remains a source gap. There are still 35 unresolved identities, 51 context-only records and 79 exclusions. Two correction records were reconciled. Appraisal status counts refer to mappings and can overlap between practices.
 
 The database contains 25 structured evidence reviews, of which 24 have explicit material scope: seven FULL_TEXT and seventeen ABSTRACT. The legacy depression review has no material-scope record and is displayed as NOT_RECORDED. Full-text access is not the same as an independently checked risk-of-bias assessment.
 
 The publisher-only Access Bars reports prevent a zero-hit PubMed query being interpreted as absent research. Additional research leads were located for VortexHealing, PSYCH-K, Emotion Code and BioGeometry; these are discovery leads requiring primary appraisal and are not evidence of clinical efficacy.
+
+The [100 extraction notes](research/energy-healing-abstract-extractions.csv) and [1976-record retrieval inventory](research/energy-healing-primary-record-inventory.csv) are downloadable audit artifacts. They contain derived summaries and bibliographic metadata, not copied paper bodies. The extractions do not increase the count of structured full-study appraisals or close any research gate.
 
 ## Key changes in interpretation
 
@@ -30,6 +32,8 @@ The publisher-only Access Bars reports prevent a zero-hit PubMed query being int
 - Pranic diabetic foot: corrected results and funding were used. Revised prose/tables still show inconsistent wound-change/sample values; raw-data reconciliation is open.
 - Heartfulness psoriasis: primary PASI 75 difference was nonsignificant (p=0.548); no psoriasis cure claim.
 - Biofield Tuning: the quantitative and qualitative feasibility papers are overlapping reports of one cohort, not independent efficacy replications. A separate inter-rater study found poor agreement.
+
+Additional abstract findings include null Reiki physiology results (PMID33639516), no TT advantage for carpal tunnel or breast biopsy (11572538/17661855), unfavorable Healing Touch fatigue results (24105358), failed external-qi cell replication (15102336), null Johrei cell/radiation results (15667653/17549235), and a nonsignificant primary TM distress outcome despite favorable secondary outcomes (36121655). Combined packages, within-arm improvements, surrogate measurements and probable repeated cohort reports remain distinct from isolated clinical efficacy.
 
 ## What remains before full research completion
 

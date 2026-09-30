@@ -4,7 +4,7 @@ $p=new PDO('mysql:host=127.0.0.1;dbname=ehr_test;charset=utf8mb4','root','ci-onl
 function runSql(PDO $p,string $path): void {$s=$p->query(file_get_contents($path));do{if($s->columnCount())$s->fetchAll();}while($s->nextRowset());}
 function check(bool $ok,string $msg):void{if(!$ok)throw new RuntimeException($msg);}
 runSql($p,__DIR__.'/fixtures/energy-healing.sql');
-foreach([1,2] as $pass)foreach(['energy_healing_department.sql','energy_healing_loinc_links.sql','energy_healing_pranic_entry.sql','energy_healing_magnified_entry.sql','energy_healing_process_maps.sql','energy_healing_catalogue.sql','energy_healing_convergence.sql','energy_healing_process_reviews.sql','energy_healing_literature.sql','energy_healing_research_followup.sql'] as $f)runSql($p,__DIR__.'/../backend/'.$f);
+foreach([1,2] as $pass)foreach(['energy_healing_department.sql','energy_healing_loinc_links.sql','energy_healing_pranic_entry.sql','energy_healing_magnified_entry.sql','energy_healing_process_maps.sql','energy_healing_catalogue.sql','energy_healing_convergence.sql','energy_healing_process_reviews.sql','energy_healing_literature.sql','energy_healing_research_followup.sql','energy_healing_candidate_extraction.sql'] as $f)runSql($p,__DIR__.'/../backend/'.$f);
 check((int)$p->query('SELECT COUNT(*) FROM ilb_ehr_practice')->fetchColumn()===50,'Rerun duplicated practices');
 check((int)$p->query('SELECT COUNT(*) FROM ilb_ehr_section')->fetchColumn()===16,'Rerun duplicated sections');
 check((int)$p->query('SELECT COUNT(*) FROM ilb_ehr_evidence_review')->fetchColumn()===25,'Rerun duplicated reviews');
@@ -47,6 +47,12 @@ check((int)$p->query('SELECT COUNT(*) FROM ilb_ehr_notice_review')->fetchColumn(
 check((int)$p->query("SELECT COUNT(*) FROM ilb_ehr_database_search WHERE retrieval_status='OK'")->fetchColumn()===50,'Expanded database searches missing');
 check((int)$p->query('SELECT COUNT(*) FROM ilb_ehr_research_gate WHERE research_complete=1')->fetchColumn()===0,'Open research falsely completed');
 check($p->query("SELECT study_design FROM ilb_ehr_evidence_review e JOIN ilb_ehr_claim c ON c.claim_id=e.claim_id WHERE c.claim_key='ABSTRACT_24327820'")->fetchColumn()==='Nonrandomized controlled study; rotating recruitment-order assignment','Allocation misclassified');
+check((int)$p->query('SELECT COUNT(*) FROM ilb_ehr_candidate_extraction')->fetchColumn()===100,'Primary-record extractions missing or duplicated');
+check((int)$p->query("SELECT COUNT(*) FROM ilb_ehr_candidate_extraction WHERE material_reviewed='NO_ABSTRACT'")->fetchColumn()===1,'Unavailable abstract falsely extracted');
+check((int)$p->query("SELECT COUNT(*) FROM ilb_ehr_candidate_screen WHERE screening_status='ABSTRACT_EXTRACTED_FULL_REVIEW_PENDING'")->fetchColumn()===97,'Full review pending status lost');
+check((int)$p->query("SELECT COUNT(*) FROM ilb_ehr_candidate_screen WHERE screening_status='TITLE_ELIGIBLE_EXTRACTION_PENDING'")->fetchColumn()===0,'Earlier extraction queue not processed');
+check(str_contains($p->query("SELECT interpretation_text FROM ilb_ehr_candidate_extraction WHERE pmid='36121655'")->fetchColumn(),'p=.13 nonsignificant'),'Primary null outcome lost');
+check(str_contains($p->query("SELECT interpretation_text FROM ilb_ehr_candidate_extraction WHERE pmid='15102336'")->fetchColumn(),'failed replication'),'Replication failure lost');
 require __DIR__.'/../ops/audit-energy-healing.php';
 $audit=auditEnergyHealing($p);
 check($audit['integrity_status']==='PASS','Coverage integrity audit failed');
