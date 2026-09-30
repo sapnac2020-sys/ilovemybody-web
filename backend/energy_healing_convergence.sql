@@ -2,7 +2,7 @@
 CREATE TABLE IF NOT EXISTS ilb_ehr_convergence_feature (
  feature_code VARCHAR(64) PRIMARY KEY, feature_name VARCHAR(255) NOT NULL,
  interpretation_limit TEXT NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 CREATE TABLE IF NOT EXISTS ilb_ehr_convergence_observation (
  feature_code VARCHAR(64) NOT NULL, practice_code VARCHAR(64) NOT NULL,
  action_text TEXT NOT NULL, source_url TEXT NOT NULL, source_locator VARCHAR(255) NOT NULL,
@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS ilb_ehr_convergence_observation (
  PRIMARY KEY(feature_code,practice_code),
  FOREIGN KEY(feature_code) REFERENCES ilb_ehr_convergence_feature(feature_code),
  FOREIGN KEY(practice_code) REFERENCES ilb_ehr_practice(practice_code)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 INSERT INTO ilb_ehr_convergence_feature VALUES
 ('BREATH','Breathing','Compare breathing instructions, duration and optionality. No shared physiological effect has been established.'),
 ('ATTENTION','Focused attention','Compare attention tasks and recipient experience. Similar wording does not establish an identical mental or biological process.'),
