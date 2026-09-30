@@ -35,4 +35,12 @@ check((int)$p->query("SELECT COUNT(*) FROM ilb_ehr_convergence_observation WHERE
 check((int)$p->query('SELECT COUNT(*) FROM ilb_ehr_process_review')->fetchColumn()===50,'Process reviews missing or duplicated');
 check((int)$p->query("SELECT COUNT(*) FROM ilb_ehr_process_review WHERE clinical_review_status<>'NOT_REVIEWED'")->fetchColumn()===0,'Teaching extraction promoted to clinical evidence');
 check($p->query("SELECT delivery_scope FROM ilb_ehr_process_review WHERE practice_code='CORE_SHAMANISM'")->fetchColumn()==='OTHER','Recipient-only course misrepresented');
-echo "SQL integration checks passed\n";
+require __DIR__.'/../ops/audit-energy-healing.php';
+$audit=auditEnergyHealing($p);
+check($audit['integrity_status']==='PASS','Coverage integrity audit failed');
+check($audit['catalogue_records']===50,'Coverage audit lost catalogue records');
+check($audit['records_with_open_research_gaps']===50,'Incomplete research incorrectly marked complete');
+$p->exec("UPDATE ilb_ehr_catalogue SET parent_practice_code=NULL WHERE practice_code='JIKIDEN_REIKI'");
+check(auditEnergyHealing($p)['integrity_status']==='FAIL','Audit missed broken branch identity');
+$p->exec("UPDATE ilb_ehr_catalogue SET parent_practice_code='REIKI' WHERE practice_code='JIKIDEN_REIKI'");
+echo "SQL integration and research coverage audit checks passed\n";

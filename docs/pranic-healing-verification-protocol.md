@@ -93,3 +93,6 @@ This worksheet has not yet been completed as a systematic review. The published 
 | Full-text book hosting | Permission/licence review required |
 
 Keep patient narratives and credentials out of this public repository. Scientific study status must not be changed merely because website implementation is complete.
+
+## Dated status correction — 30 September 2026
+The earlier SSH-blocked/deployment-pending statements above describe the initial implementation stage. Production migration and page checks passed for commit bebffef in [run 36728282791](https://github.com/sapnac2020-sys/ilovemybody-web/actions/runs/36728282791). Later commits require their own deployment evidence. See [completion register](energy-healing-completion-register.md) for current coverage and remaining scientific gates. No scientific status is promoted by deployment.

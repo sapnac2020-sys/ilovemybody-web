@@ -44,7 +44,7 @@ jobs:
       - name: Deploy department files and database
         run: |
           set -euo pipefail
-          tar -czf /tmp/ehr.tgz app/energy-healing.php app/energy-healing-record.php app/energy-healing-processes.php app/energy-healing-catalogue.php app/energy-healing-convergence.php app/energy-healing-methods.php backend/energy_healing_department.sql backend/energy_healing_loinc_links.sql backend/energy_healing_pranic_entry.sql backend/energy_healing_magnified_entry.sql backend/energy_healing_process_maps.sql backend/energy_healing_catalogue.sql backend/energy_healing_convergence.sql backend/energy_healing_process_reviews.sql ops/deploy-energy-healing.php
+          tar -czf /tmp/ehr.tgz app/energy-healing.php app/energy-healing-record.php app/energy-healing-processes.php app/energy-healing-catalogue.php app/energy-healing-convergence.php app/energy-healing-methods.php backend/energy_healing_department.sql backend/energy_healing_loinc_links.sql backend/energy_healing_pranic_entry.sql backend/energy_healing_magnified_entry.sql backend/energy_healing_process_maps.sql backend/energy_healing_catalogue.sql backend/energy_healing_convergence.sql backend/energy_healing_process_reviews.sql ops/deploy-energy-healing.php ops/audit-energy-healing.php
           scp -o BatchMode=yes -o IdentitiesOnly=yes -i "$HOME/.ssh/id_ed25519" -P "$DEPLOY_PORT" /tmp/ehr.tgz "$DEPLOY_USER@$DEPLOY_HOST:ehr-${GITHUB_SHA}.tgz"
           ssh -o BatchMode=yes -o IdentitiesOnly=yes -i "$HOME/.ssh/id_ed25519" -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" "SITE_SHA='$GITHUB_SHA' bash -s" <<'REMOTE'
           set -euo pipefail
@@ -59,6 +59,7 @@ jobs:
             if test -f "$TARGET/app/$f"; then cp -p "$TARGET/app/$f" "$BACKUP/$f"; fi
           done
           php "$WORK/ops/deploy-energy-healing.php" "$TARGET" "$WORK" "$BACKUP"
+          php "$WORK/ops/audit-energy-healing.php" "$TARGET" > "$BACKUP/research-coverage-audit.json"
           for f in energy-healing.php energy-healing-record.php energy-healing-processes.php energy-healing-catalogue.php energy-healing-convergence.php energy-healing-methods.php; do
             install -m 644 "$WORK/app/$f" "$TARGET/app/$f.new"
             mv "$TARGET/app/$f.new" "$TARGET/app/$f"
