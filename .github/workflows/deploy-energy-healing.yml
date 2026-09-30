@@ -1,0 +1,67 @@
+name: Deploy Energy Healing Research
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ['app/energy-healing*.php','backend/energy_healing*.sql','ops/deploy-energy-healing.php','.github/workflows/deploy-energy-healing.yml']
+permissions:
+  contents: read
+concurrency:
+  group: ilovemybody-production
+  cancel-in-progress: false
+jobs:
+  checks:
+    uses: ./.github/workflows/test-energy-healing.yml
+  deploy:
+    needs: checks
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: php -l ops/deploy-energy-healing.php
+      - name: Prepare existing deployment identity
+        env:
+          DEPLOY_BUNDLE: ${{ secrets.HOSTINGER_DEPLOY_BUNDLE }}
+        run: |
+          set -euo pipefail
+          umask 077
+          test -n "$DEPLOY_BUNDLE"
+          mkdir -p "$HOME/.ssh"
+          printf '%s' "$DEPLOY_BUNDLE" | base64 --decode >/tmp/ehr-deploy.json
+          jq -e '.host and .port and .user and .key' /tmp/ehr-deploy.json >/dev/null
+          jq -r '.key' /tmp/ehr-deploy.json >"$HOME/.ssh/id_ed25519"
+          echo "DEPLOY_HOST=$(jq -r '.host' /tmp/ehr-deploy.json)" >>"$GITHUB_ENV"
+          echo "DEPLOY_PORT=$(jq -r '.port' /tmp/ehr-deploy.json)" >>"$GITHUB_ENV"
+          echo "DEPLOY_USER=$(jq -r '.user' /tmp/ehr-deploy.json)" >>"$GITHUB_ENV"
+          ssh-keyscan -p "$(jq -r '.port' /tmp/ehr-deploy.json)" "$(jq -r '.host' /tmp/ehr-deploy.json)" >>"$HOME/.ssh/known_hosts"
+      - name: Deploy department files and database
+        run: |
+          set -euo pipefail
+          tar -czf /tmp/ehr.tgz app/energy-healing.php app/energy-healing-record.php backend/energy_healing_department.sql backend/energy_healing_loinc_links.sql backend/energy_healing_pranic_entry.sql ops/deploy-energy-healing.php
+          scp -P "$DEPLOY_PORT" /tmp/ehr.tgz "$DEPLOY_USER@$DEPLOY_HOST:ehr-${GITHUB_SHA}.tgz"
+          ssh -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" "SITE_SHA='$GITHUB_SHA' bash -s" <<'REMOTE'
+          set -euo pipefail
+          umask 077
+          TARGET="$HOME/domains/ilovemybody.in/public_html"
+          WORK="$HOME/deployments/energy-healing/$SITE_SHA"
+          BACKUP="$HOME/backups/energy-healing/$(date +%Y%m%d-%H%M%S)-$SITE_SHA"
+          mkdir -p "$WORK" "$BACKUP"
+          tar -xzf "$HOME/ehr-$SITE_SHA.tgz" -C "$WORK"
+          for f in energy-healing.php energy-healing-record.php; do
+            php -l "$WORK/app/$f"
+            if test -f "$TARGET/app/$f"; then cp -p "$TARGET/app/$f" "$BACKUP/$f"; fi
+          done
+          php "$WORK/ops/deploy-energy-healing.php" "$TARGET" "$WORK" "$BACKUP"
+          for f in energy-healing.php energy-healing-record.php; do
+            install -m 644 "$WORK/app/$f" "$TARGET/app/$f.new"
+            mv "$TARGET/app/$f.new" "$TARGET/app/$f"
+          done
+          REMOTE
+      - name: Verify published entry and private sign-in
+        run: |
+          set -euo pipefail
+          curl --fail --retry 3 --max-time 30 https://ilovemybody.in/app/energy-healing.php -o /tmp/ehr.html
+          grep -q 'What has research found?' /tmp/ehr.html
+          grep -q 'Claims and evidence' /tmp/ehr.html
+          code=$(curl -sS --max-time 30 -o /tmp/ehr-private.html -w '%{http_code}' https://ilovemybody.in/app/energy-healing-record.php)
+          test "$code" = '302'
