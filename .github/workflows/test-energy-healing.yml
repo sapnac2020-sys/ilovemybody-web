@@ -1,0 +1,27 @@
+name: Energy healing integration checks
+on:
+  push:
+    branches: [codex/energy-healing-department]
+  pull_request:
+    paths: ['app/energy-healing*.php','backend/energy_healing*.sql','tests/energy-healing*','tests/fixtures/energy-healing.sql','.github/workflows/test-energy-healing.yml']
+permissions:
+  contents: read
+jobs:
+  integration:
+    runs-on: ubuntu-latest
+    services:
+      mariadb:
+        image: mariadb:10.11
+        env:
+          MARIADB_ROOT_PASSWORD: ci-only-password
+          MARIADB_DATABASE: ehr_test
+        ports: ['3306:3306']
+        options: >-
+          --health-cmd="healthcheck.sh --connect --innodb_initialized"
+          --health-interval=10s --health-timeout=5s --health-retries=10
+    steps:
+      - uses: actions/checkout@v4
+      - run: sudo apt-get update -qq && sudo apt-get install -y php-cli php-mysql php-mbstring
+      - run: php -l app/energy-healing.php && php -l app/energy-healing-record.php && php -l tests/energy-healing.php
+      - run: php tests/energy-healing.php
+      - run: python3 tests/energy-healing-http.py
