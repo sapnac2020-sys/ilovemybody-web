@@ -18,7 +18,7 @@ try {
 ?>
 <!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title><?=ehr_h($practice['practice_name'])?> | Energy Healing Research</title>
 <style>body{margin:0;background:#102321;color:#edf5ef;font:17px/1.6 system-ui}main{max-width:900px;margin:auto;padding:24px}a{color:#b8e6c4}nav{display:flex;gap:18px;flex-wrap:wrap}article,details{padding:20px;margin:18px 0;border:1px solid #52786b;border-radius:16px;background:#19342f}h1{line-height:1.2}small{color:#bcd0c6}summary{cursor:pointer}footer{padding:20px 0}</style></head><body><main>
-<nav><a href="/hospital.html">I Love My Body</a><a href="/app/energy-healing-processes.php">Compare processes</a><a href="/app/energy-healing-record.php">My private session log</a></nav>
+<nav><a href="/hospital.html">I Love My Body</a><a href="/app/energy-healing-catalogue.php">All modalities</a><a href="/app/energy-healing-processes.php">Compare processes</a><a href="/app/energy-healing-record.php">My private session log</a></nav>
 <p>Energy Healing Research Department</p><h1><?=ehr_h($practice['practice_name'])?></h1><p><?=ehr_h($practice['description_text'])?></p>
 <nav aria-label="Published practices"><?php foreach($p as $x):?><a href="?practice=<?=urlencode($x['practice_code'])?>"><?=ehr_h($x['practice_name'])?></a><?php endforeach;?></nav>
 <?php foreach($sections as $s):?><article id="<?=ehr_h($s['section_key'])?>"><h2><?=ehr_h($s['title'])?></h2><p><?=ehr_h($s['body_text'])?></p>

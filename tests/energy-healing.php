@@ -4,8 +4,8 @@ $p=new PDO('mysql:host=127.0.0.1;dbname=ehr_test;charset=utf8mb4','root','ci-onl
 function runSql(PDO $p,string $path): void {$s=$p->query(file_get_contents($path));do{if($s->columnCount())$s->fetchAll();}while($s->nextRowset());}
 function check(bool $ok,string $msg):void{if(!$ok)throw new RuntimeException($msg);}
 runSql($p,__DIR__.'/fixtures/energy-healing.sql');
-foreach([1,2] as $pass)foreach(['energy_healing_department.sql','energy_healing_loinc_links.sql','energy_healing_pranic_entry.sql','energy_healing_magnified_entry.sql','energy_healing_process_maps.sql'] as $f)runSql($p,__DIR__.'/../backend/'.$f);
-check((int)$p->query('SELECT COUNT(*) FROM ilb_ehr_practice')->fetchColumn()===10,'Rerun duplicated practices');
+foreach([1,2] as $pass)foreach(['energy_healing_department.sql','energy_healing_loinc_links.sql','energy_healing_pranic_entry.sql','energy_healing_magnified_entry.sql','energy_healing_process_maps.sql','energy_healing_catalogue.sql'] as $f)runSql($p,__DIR__.'/../backend/'.$f);
+check((int)$p->query('SELECT COUNT(*) FROM ilb_ehr_practice')->fetchColumn()===50,'Rerun duplicated practices');
 check((int)$p->query('SELECT COUNT(*) FROM ilb_ehr_section')->fetchColumn()===16,'Rerun duplicated sections');
 check((int)$p->query('SELECT COUNT(*) FROM ilb_ehr_evidence_review')->fetchColumn()===1,'Rerun duplicated reviews');
 check((int)$p->query("SELECT COUNT(*) FROM ilb_ehr_claim WHERE practice_code='MAGNIFIED_HEALING'")->fetchColumn()===5,'Magnified claims missing or duplicated');
@@ -24,5 +24,8 @@ $p->exec("UPDATE ilb_subject_test_result_ledger SET entry_status='ACTIVE' WHERE 
 check((int)$p->query('SELECT COUNT(*) FROM ilb_ehr_process_map')->fetchColumn()===2,'Process maps duplicated');
 check((int)$p->query('SELECT COUNT(*) FROM ilb_ehr_process_connection')->fetchColumn()===8,'Process connections duplicated');
 check((int)$p->query("SELECT COUNT(*) FROM ilb_ehr_process_connection WHERE modality_causal_status='SUPPORTED' OR sequence_position IS NOT NULL")->fetchColumn()===0,'Unsupported process validation or sequence inserted');
+check((int)$p->query('SELECT COUNT(*) FROM ilb_ehr_catalogue')->fetchColumn()===50,'Catalogue missing or duplicated');
+check((int)$p->query("SELECT COUNT(*) FROM ilb_ehr_catalogue WHERE record_kind='BRANCH' AND parent_practice_code IS NULL")->fetchColumn()===0,'Branch parent missing');
+check((int)$p->query("SELECT COUNT(*) FROM ilb_ehr_practice WHERE publication_status='PUBLISHED'")->fetchColumn()===2,'Catalogue published unreviewed entries');
 $p->exec("INSERT INTO ilb_ehr_process_map VALUES('TEST_DRAFT','REIKI','Synthetic hidden outcome','SOURCE_GAP','UNKNOWN',NULL,'Synthetic fixture','Synthetic private draft')");
 echo "SQL integration checks passed\n";

@@ -44,7 +44,7 @@ jobs:
       - name: Deploy department files and database
         run: |
           set -euo pipefail
-          tar -czf /tmp/ehr.tgz app/energy-healing.php app/energy-healing-record.php app/energy-healing-processes.php backend/energy_healing_department.sql backend/energy_healing_loinc_links.sql backend/energy_healing_pranic_entry.sql backend/energy_healing_magnified_entry.sql backend/energy_healing_process_maps.sql ops/deploy-energy-healing.php
+          tar -czf /tmp/ehr.tgz app/energy-healing.php app/energy-healing-record.php app/energy-healing-processes.php app/energy-healing-catalogue.php backend/energy_healing_department.sql backend/energy_healing_loinc_links.sql backend/energy_healing_pranic_entry.sql backend/energy_healing_magnified_entry.sql backend/energy_healing_process_maps.sql backend/energy_healing_catalogue.sql ops/deploy-energy-healing.php
           scp -o BatchMode=yes -o IdentitiesOnly=yes -i "$HOME/.ssh/id_ed25519" -P "$DEPLOY_PORT" /tmp/ehr.tgz "$DEPLOY_USER@$DEPLOY_HOST:ehr-${GITHUB_SHA}.tgz"
           ssh -o BatchMode=yes -o IdentitiesOnly=yes -i "$HOME/.ssh/id_ed25519" -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" "SITE_SHA='$GITHUB_SHA' bash -s" <<'REMOTE'
           set -euo pipefail
@@ -54,12 +54,12 @@ jobs:
           BACKUP="$HOME/backups/energy-healing/$(date +%Y%m%d-%H%M%S)-$SITE_SHA"
           mkdir -p "$WORK" "$BACKUP"
           tar -xzf "$HOME/ehr-$SITE_SHA.tgz" -C "$WORK"
-          for f in energy-healing.php energy-healing-record.php energy-healing-processes.php; do
+          for f in energy-healing.php energy-healing-record.php energy-healing-processes.php energy-healing-catalogue.php; do
             php -l "$WORK/app/$f"
             if test -f "$TARGET/app/$f"; then cp -p "$TARGET/app/$f" "$BACKUP/$f"; fi
           done
           php "$WORK/ops/deploy-energy-healing.php" "$TARGET" "$WORK" "$BACKUP"
-          for f in energy-healing.php energy-healing-record.php energy-healing-processes.php; do
+          for f in energy-healing.php energy-healing-record.php energy-healing-processes.php energy-healing-catalogue.php; do
             install -m 644 "$WORK/app/$f" "$TARGET/app/$f.new"
             mv "$TARGET/app/$f.new" "$TARGET/app/$f"
           done
@@ -74,5 +74,8 @@ jobs:
           grep -q 'What is Magnified Healing?' /tmp/ehr-magnified.html
           curl --fail --retry 3 --max-time 30 https://ilovemybody.in/app/energy-healing-processes.php -o /tmp/ehr-processes.html
           grep -q 'Process comparison' /tmp/ehr-processes.html
+          curl --fail --retry 3 --max-time 30 https://ilovemybody.in/app/energy-healing-catalogue.php -o /tmp/ehr-catalogue.html
+          grep -q '50 records shown' /tmp/ehr-catalogue.html
+          grep -q 'Jikiden Reiki' /tmp/ehr-catalogue.html
           code=$(curl -sS --max-time 30 -o /tmp/ehr-private.html -w '%{http_code}' https://ilovemybody.in/app/energy-healing-record.php)
           test "$code" = '302'
