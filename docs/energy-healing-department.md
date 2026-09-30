@@ -39,3 +39,6 @@ Build public read-only pages from these database tables, showing only PUBLISHED 
 Private cases will need a separate authenticated implementation; the public research tables do not store patient data.
 Migration is rerunnable for its own seed records; CREATE TABLE IF NOT EXISTS does not validate a pre-existing conflicting schema.
 Before production: back up, compare actual schema, test migration twice, confirm counts, verify public/private access, then integrate navigation.
+
+## Dated status correction — 30 September 2026
+The earlier SSH-blocked/deployment-pending statements above describe the initial implementation stage. Production migration and page checks passed for commit bebffef in [run 36728282791](https://github.com/sapnac2020-sys/ilovemybody-web/actions/runs/36728282791). Later commits require their own deployment evidence. See [completion register](energy-healing-completion-register.md) for current coverage and remaining scientific gates. No scientific status is promoted by deployment.

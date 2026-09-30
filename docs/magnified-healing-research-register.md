@@ -48,3 +48,6 @@ Integration checks apply migrations twice; assert 16 sections, five Magnified cl
 Deployment packages the new migration and verifies both entries. Production remains subject to the existing Hostinger SSH authentication blocker.
 
 Implementation completion does not mean scientific verification is complete.
+
+## Dated status correction — 30 September 2026
+The earlier SSH-blocked/deployment-pending statements above describe the initial implementation stage. Production migration and page checks passed for commit bebffef in [run 36728282791](https://github.com/sapnac2020-sys/ilovemybody-web/actions/runs/36728282791). Later commits require their own deployment evidence. See [completion register](energy-healing-completion-register.md) for current coverage and remaining scientific gates. No scientific status is promoted by deployment.
