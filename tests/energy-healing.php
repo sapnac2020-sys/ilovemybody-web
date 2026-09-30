@@ -4,10 +4,12 @@ $p=new PDO('mysql:host=127.0.0.1;dbname=ehr_test;charset=utf8mb4','root','ci-onl
 function runSql(PDO $p,string $path): void {$s=$p->query(file_get_contents($path));do{if($s->columnCount())$s->fetchAll();}while($s->nextRowset());}
 function check(bool $ok,string $msg):void{if(!$ok)throw new RuntimeException($msg);}
 runSql($p,__DIR__.'/fixtures/energy-healing.sql');
-foreach([1,2] as $pass)foreach(['energy_healing_department.sql','energy_healing_loinc_links.sql','energy_healing_pranic_entry.sql'] as $f)runSql($p,__DIR__.'/../backend/'.$f);
+foreach([1,2] as $pass)foreach(['energy_healing_department.sql','energy_healing_loinc_links.sql','energy_healing_pranic_entry.sql','energy_healing_magnified_entry.sql'] as $f)runSql($p,__DIR__.'/../backend/'.$f);
 check((int)$p->query('SELECT COUNT(*) FROM ilb_ehr_practice')->fetchColumn()===10,'Rerun duplicated practices');
-check((int)$p->query('SELECT COUNT(*) FROM ilb_ehr_section')->fetchColumn()===8,'Rerun duplicated sections');
+check((int)$p->query('SELECT COUNT(*) FROM ilb_ehr_section')->fetchColumn()===16,'Rerun duplicated sections');
 check((int)$p->query('SELECT COUNT(*) FROM ilb_ehr_evidence_review')->fetchColumn()===1,'Rerun duplicated reviews');
+check((int)$p->query("SELECT COUNT(*) FROM ilb_ehr_claim WHERE practice_code='MAGNIFIED_HEALING'")->fetchColumn()===5,'Magnified claims missing or duplicated');
+check((int)$p->query("SELECT COUNT(*) FROM ilb_ehr_protocol WHERE practice_code='MAGNIFIED_HEALING' AND research_status='DRAFT'")->fetchColumn()===3,'Magnified draft protocols missing');
 $p->exec("INSERT INTO ilb_ehr_session(session_key,practice_code,subject_key,started_at,delivery_mode,status) VALUES('fixture','PRANIC_HEALING','test-subject','2026-01-01','PROXIMITY','COMPLETED')");
 $id=(int)$p->lastInsertId();$p->exec("INSERT INTO ilb_ehr_session_result_link VALUES($id,1,'BASELINE','Synthetic','test-login',CURRENT_TIMESTAMP),($id,2,'BASELINE','Synthetic','test-login',CURRENT_TIMESTAMP)");
 check((int)$p->query('SELECT COUNT(*) FROM v_ilb_ehr_session_loinc_result')->fetchColumn()===1,'Cross-subject result visible');
