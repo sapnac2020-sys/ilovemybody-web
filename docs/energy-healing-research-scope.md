@@ -14,15 +14,32 @@ Research date: 30 September 2026. Scope: the 50 existing catalogue identities, w
 
 ## Verified coverage
 
-All 50 primary PubMed API queries completed successfully. They returned 1897 unique identifiers across 2061 practice mappings. These include unverified name collisions; counts are not eligible-study counts. Primary metadata has now been retrieved and reconciled for all 1897 search identifiers, plus earlier records outside those queries: 1976 unique records in total (1975 journal records and one book record). The 1693 records outside the earlier cohort still require eligibility screening.
+All 50 primary PubMed API queries completed successfully. They returned 1897 unique identifiers across 2061 practice mappings. These include unverified name collisions; counts are not eligible-study counts. Primary metadata has now been retrieved and reconciled for all 1897 search identifiers, plus earlier records outside those queries: 1976 unique records in total (1975 journal records and one book record). All 1693 records outside the earlier cohort now have transparent metadata priorities. Thirty-two have primary-record decisions; 1661 still require eligibility screening. Automated priorities are not completed screening.
 
-The earlier 290 practice–paper cohort has a single-reviewer title/metadata decision for every mapping. All 100 formerly retained mappings now have primary-record extraction notes: 99 available abstracts were reviewed and one record lacks an abstract. Of these mappings, 97 remain pending full review, two were reassigned to methods/protocol context and one remains a source gap. There are still 35 unresolved identities, 51 context-only records and 79 exclusions. Two correction records were reconciled. Appraisal status counts refer to mappings and can overlap between practices.
+The earlier 290-mapping cohort and 44 newly screened practice–paper mappings now form a 334-mapping register. Current decisions: 116 ABSTRACT_EXTRACTED_FULL_REVIEW_PENDING, 77 CONTEXT_ONLY, 56 EXCLUDED_NAME_COLLISION, 38 EXCLUDED_WRONG_MODALITY, 17 ABSTRACT_APPRAISED, 12 IDENTITY_UNCONFIRMED, seven FULL_TEXT_APPRAISED, six FULL_TEXT_EXTRACTED_BIAS_PENDING, two NOTICE_RECONCILED, one EXISTING_APPRAISAL, one SOURCE_GAP_NO_ABSTRACT and one EXCLUDED_WRONG_DESIGN. Counts are mappings, not independent trials.
+
+There are 180 primary-record extraction notes: 168 ABSTRACT, six targeted FULL_TEXT and six NO_ABSTRACT. This includes context, excluded records and explicit source gaps. The six targeted full-text extractions read Methods, Results and Discussion and remain pending independent bias/protocol/notice assessment; they do not close full-study appraisal gates.
+
+The 35 initially unresolved identities have now been reviewed against available primary material. Twelve remain unresolved. The Core Shamanism TMD cohort's Foundation for Shamanic Studies/Sandra Ingerman lineage was confirmed in full companion Methods; randomization was to practitioners without a treatment-control group. Generic spiritual healing remains distinct from Spiritualist healing, and Spiritist passe is not relabeled as that catalogue lineage.
 
 The database contains 25 structured evidence reviews, of which 24 have explicit material scope: seven FULL_TEXT and seventeen ABSTRACT. The legacy depression review has no material-scope record and is displayed as NOT_RECORDED. Full-text access is not the same as an independently checked risk-of-bias assessment.
 
 The publisher-only Access Bars reports prevent a zero-hit PubMed query being interpreted as absent research. Additional research leads were located for VortexHealing, PSYCH-K, Emotion Code and BioGeometry; these are discovery leads requiring primary appraisal and are not evidence of clinical efficacy.
 
-The [100 extraction notes](research/energy-healing-abstract-extractions.csv) and [1976-record retrieval inventory](research/energy-healing-primary-record-inventory.csv) are downloadable audit artifacts. They contain derived summaries and bibliographic metadata, not copied paper bodies. The extractions do not increase the count of structured full-study appraisals or close any research gate.
+The [original 100 extraction notes](research/energy-healing-abstract-extractions.csv), [subsequent source-specific notes](research/energy-healing-source-followup.csv), [1976-record retrieval snapshot](research/energy-healing-primary-record-inventory.csv) and [current expanded triage](research/energy-healing-expanded-triage.csv) are downloadable audit artifacts. Read the subsequent notes and current triage as updates to earlier snapshots. They contain derived summaries and bibliographic metadata, not copied paper bodies. The extractions do not increase the count of structured full-study appraisals or close any research gate.
+
+## Source access and registry checks
+
+[Full-text access ledger](research/energy-healing-full-text-access.csv): 44 PMC attempts, 38 returned bodies, six targeted reviews and 32 retrieved bodies still awaiting review. Six attempts returned no body; these are route-specific gaps, not claims of global unavailability or paywalls. Sources without a PMC link have not been declared inaccessible merely because no PMC identifier was found.
+
+[Registry correspondence ledger](research/energy-healing-registry-checks.csv): six current ClinicalTrials.gov records examined, four discrepancies and two partial matches. Current records are not proof of original prespecification; historical versions, amendments, statistical plans and publisher updates remain open.
+
+- NCT06526949: published Reiki ICU trial says randomized; registry allocation field says NON_RANDOMIZED while its narrative mentions random assignment. Design remains unresolved.
+- NCT05483842: first submission/posting after completion; registry enrollment 66 versus abstract 65; seven primary outcomes require multiplicity review.
+- NCT03696056: posted after listed start, registry enrollment 36 versus paper randomized 31; published biomarker panel needs historical reconciliation. Cognitive/biomarker papers share one cohort.
+- NCT04766242: feasibility is primary, depression scores secondary; status is stale. Generic spiritual-healing pilot is not a confirmed Spiritualist intervention.
+- NCT00288795: registry SINGLE_GROUP field conflicts with the three-arm report; fatigue remains the primary outcome and the published BFI comparison nonsignificant.
+- NCT04632368: current primary BSI-18 stress outcome corresponds broadly to the TM report; no significant primary benefit. One-month app-related missing data and unadjusted secondary testing were confirmed in full Methods/Results.
 
 ## Key changes in interpretation
 

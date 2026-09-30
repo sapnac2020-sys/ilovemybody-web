@@ -50,3 +50,7 @@ See [research scope and evidence register](energy-healing-research-scope.md). Al
 ### Primary-record extraction and retrieval reconciliation
 
 The 100 retained mappings now have review notes from available primary abstracts (99 available, one absent). Two were reassigned to context; 97 need full review and one remains a source gap. The expanded retrieval inventory reconciles all 1976 identifiers across current searches and the earlier cohort, including a book record. All research gates remain open; see [research scope](energy-healing-research-scope.md).
+
+### Source validation follow-up
+
+35 original identity questions reviewed; 12 remain unresolved. 32 additional primary records screened across 44 practice mappings. Register now has 334 mappings and 180 source notes, including six targeted full-text extractions. Six current trial registries checked; allocation, timing, enrollment and outcome discrepancies are explicit. All 1693 expanded records have provenance-labeled review priorities, with 1661 still awaiting eligibility screening. Current reports and exact counts are in [research scope](energy-healing-research-scope.md). No complete systematic-review or clinical-validation claim is made.

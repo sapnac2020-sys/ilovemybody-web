@@ -22,3 +22,24 @@ assert sum(r['screening_status']=='ABSTRACT_EXTRACTED_FULL_REVIEW_PENDING' for r
 assert next(r for r in extracted if r['pmid']=='12233795')['material_reviewed']=='NO_ABSTRACT'
 assert all(r['remaining_work'] and r['interpretation'] for r in extracted)
 print('Primary record retrieval reconciliation and extraction scope checks passed')
+
+with (root/'docs/research/energy-healing-expanded-triage.csv').open() as f:
+ triage=list(csv.DictReader(f))
+assert len(triage)==1693 and len({r['pmid'] for r in triage})==1693
+assert {r['pmid'] for r in triage}=={r['pmid'] for r in rows if r['earlier_cohort']=='False'}
+assert sum(r['review_status']=='PRIMARY_RECORD_REVIEWED' for r in triage)==32
+assert sum(r['review_status']=='SCREENING_PENDING' for r in triage)==1661
+assert all('Automated metadata' in r['triage_provenance'] for r in triage if r['review_status']=='SCREENING_PENDING')
+with (root/'docs/research/energy-healing-source-followup.csv').open() as f:
+ followup=list(csv.DictReader(f))
+combined={(r['practice_code'],r['pmid']):r for r in extracted}
+combined.update({(r['practice_code'],r['pmid']):r for r in followup})
+assert len(combined)==180 and sum(r['material_reviewed']=='FULL_TEXT' for r in combined.values())==6
+with (root/'docs/research/energy-healing-full-text-access.csv').open() as f:
+ access={r['pmid']:r for r in csv.DictReader(f)}
+assert len(access)==44 and sum(r['access_status']=='BODY_RETRIEVED' for r in access.values())==38
+assert all(access[r['pmid']]['review_status']=='TARGETED_FULL_TEXT_REVIEWED' for r in combined.values() if r['material_reviewed']=='FULL_TEXT')
+with (root/'docs/research/energy-healing-registry-checks.csv').open() as f:
+ registry={r['registry_id']:r for r in csv.DictReader(f)}
+assert len(registry)==6 and registry['NCT06526949']['correspondence_status']=='DISCREPANCY'
+print('Source access, registry correspondence and expanded triage provenance checks passed')

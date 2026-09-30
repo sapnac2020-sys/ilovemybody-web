@@ -51,6 +51,7 @@ try:
  status,gaps,_=req('/app/energy-healing-methods.php?practice=JIKIDEN_REIKI&tab=gaps')
  assert status==200 and 'IDENTITY_ONLY' in gaps and 'NOT_REVIEWED' in gaps
  status,evidence,_=req('/app/energy-healing-methods.php?practice=REIKI&tab=evidence')
+ assert 'NCT06526949' in evidence and 'NON_RANDOMIZED' in evidence and 'Expanded search records' in evidence
  assert status==200 and 'fibromyalgia' in evidence and 'ABSTRACT' in evidence and 'No benefit for pain' in evidence
  assert 'Additional primary-record extractions' in evidence and 'p=.053 remains nonsignificant' in evidence and 'FULL_REVIEW_PENDING' in evidence
  status,animal,_=req('/app/energy-healing-methods.php?practice=BENGSTON_METHOD&tab=evidence')
@@ -69,6 +70,10 @@ try:
  assert status==200 and 'NO_ABSTRACT' in jsj and 'SOURCE_GAP_NO_ABSTRACT' in jsj
  status,mantra,_=req('/app/energy-healing-methods.php?practice=MANTRA_PRACTICES&tab=evidence')
  assert status==200 and 'p=.13 nonsignificant' in mantra and 'overlapping PMID34600308' in mantra
+ status,core,_=req('/app/energy-healing-methods.php?practice=CORE_SHAMANISM&tab=evidence')
+ assert status==200 and 'Foundation for Shamanic Studies' in core and 'Randomization was to practitioners' in core
+ status,qi,_=req('/app/energy-healing-methods.php?practice=EXTERNAL_QIGONG&tab=evidence')
+ assert status==200 and 'BODY_RETRIEVED' in qi and 'FULL_TEXT_EXTRACTED_BIAS_PENDING' in qi
  _,sid,_=req('/app/ehr-test-auth.php');cookie='ilb_app='+sid
  status,body,_=req('/app/energy-healing-record.php',cookie=cookie)
  assert status==200 and 'Synthetic other observation' not in body
