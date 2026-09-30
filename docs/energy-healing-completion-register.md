@@ -46,3 +46,7 @@ Verification uses twice-run SQL migrations, exact record counts, animal/abstract
 ## Follow-up research pass, 30 September 2026
 
 See [research scope and evidence register](energy-healing-research-scope.md). All 50 direct PubMed queries now completed. All 290 earlier mappings have a recorded title/metadata decision; this is not completed full-text screening. Evidence reviews increased to 25, with seven scoped full-text reviews and two reconciled correction records. Expanded search identifiers and retained papers still require review, so every catalogue research-completion gate remains open. Software checks do not close scientific gates.
+
+### Primary-record extraction and retrieval reconciliation
+
+The 100 retained mappings now have review notes from available primary abstracts (99 available, one absent). Two were reassigned to context; 97 need full review and one remains a source gap. The expanded retrieval inventory reconciles all 1976 identifiers across current searches and the earlier cohort, including a book record. All research gates remain open; see [research scope](energy-healing-research-scope.md).
