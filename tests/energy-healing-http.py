@@ -39,6 +39,11 @@ try:
  assert 'Magnified Healing' in processes and 'SOURCE_GAP' in processes and 'Synthetic hidden outcome' not in processes
  assert req('/app/energy-healing-processes.php?outcome=Synthetic%20hidden%20outcome')[0]==404
  assert req('/app/energy-healing-processes.php?outcome=unknown')[0]==404
+ status,convergence,_=req('/app/energy-healing-convergence.php')
+ assert status==200 and '4 candidate themes' in convergence and '6 modalities with documented components' in convergence
+ assert 'OPTIONAL' in convergence and 'TEACHING_SIMILARITY' in convergence
+ assert 'CLINICALLY_VALIDATED' not in convergence and 'Synthetic hidden outcome' not in convergence
+ assert 'not an absence finding' in convergence
  _,sid,_=req('/app/ehr-test-auth.php');cookie='ilb_app='+sid
  status,body,_=req('/app/energy-healing-record.php',cookie=cookie)
  assert status==200 and 'Synthetic other observation' not in body
