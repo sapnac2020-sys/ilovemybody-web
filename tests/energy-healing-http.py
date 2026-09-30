@@ -44,6 +44,12 @@ try:
  assert 'OPTIONAL' in convergence and 'TEACHING_SIMILARITY' in convergence
  assert 'CLINICALLY_VALIDATED' not in convergence and 'Synthetic hidden outcome' not in convergence
  assert 'not an absence finding' in convergence
+ status,methods,_=req('/app/energy-healing-methods.php?practice=CORE_SHAMANISM&tab=self')
+ assert status==200 and '50 catalogue records assessed' in methods and 'Described delivery: OTHER' in methods
+ assert req('/app/energy-healing-methods.php?practice=unknown')[0]==404
+ assert req('/app/energy-healing-methods.php?practice=REIKI&tab=unknown')[0]==404
+ status,gaps,_=req('/app/energy-healing-methods.php?practice=JIKIDEN_REIKI&tab=gaps')
+ assert status==200 and 'IDENTITY_ONLY' in gaps and 'NOT_REVIEWED' in gaps
  _,sid,_=req('/app/ehr-test-auth.php');cookie='ilb_app='+sid
  status,body,_=req('/app/energy-healing-record.php',cookie=cookie)
  assert status==200 and 'Synthetic other observation' not in body
