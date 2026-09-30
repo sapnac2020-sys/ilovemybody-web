@@ -7,8 +7,8 @@ header('Cache-Control: no-store');
 function cat_h(mixed $v):string{return htmlspecialchars((string)$v,ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8');}
 $search=trim((string)($_GET['q']??''));
 try{
- $st=db()->prepare("SELECT c.*,p.practice_name,p.review_status,p.publication_status AS entry_status,parent.practice_name AS parent_name FROM ilb_ehr_catalogue c JOIN ilb_ehr_practice p ON p.practice_code=c.practice_code JOIN ilb_ehr_department d ON d.department_code=p.department_code LEFT JOIN ilb_ehr_practice parent ON parent.practice_code=c.parent_practice_code WHERE c.publication_status='PUBLISHED' AND d.publication_status='PUBLISHED' AND (?='' OR p.practice_name LIKE ? OR c.aliases_text LIKE ? OR c.category_name LIKE ?) ORDER BY c.category_name,p.practice_name");
- $term='%'.$search.'%';$st->execute([$search,$term,$term,$term]);$rows=$st->fetchAll();
+ $st=db()->prepare("SELECT c.*,p.practice_name,p.review_status,p.publication_status AS entry_status,parent.practice_name AS parent_name FROM ilb_ehr_catalogue c JOIN ilb_ehr_practice p ON p.practice_code=c.practice_code JOIN ilb_ehr_department d ON d.department_code=p.department_code LEFT JOIN ilb_ehr_practice parent ON parent.practice_code=c.parent_practice_code WHERE c.publication_status='PUBLISHED' AND d.publication_status='PUBLISHED'".($search!==''?" AND (p.practice_name LIKE ? OR c.aliases_text LIKE ? OR c.category_name LIKE ?)":"")." ORDER BY c.category_name,p.practice_name");
+ $term='%'.$search.'%';$st->execute($search!==''?[$term,$term,$term]:[]);$rows=$st->fetchAll();
  $counts=db()->query("SELECT c.record_kind,COUNT(*) AS total FROM ilb_ehr_catalogue c JOIN ilb_ehr_practice p ON p.practice_code=c.practice_code JOIN ilb_ehr_department d ON d.department_code=p.department_code WHERE c.publication_status='PUBLISHED' AND d.publication_status='PUBLISHED' GROUP BY c.record_kind")->fetchAll();
 }catch(Throwable $e){http_response_code(503);exit('The modality catalogue is being prepared. Please try again later.');}
 ?>
