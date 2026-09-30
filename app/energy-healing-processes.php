@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 require __DIR__.'/_guard.php';
-require __DIR__.'lib.php';
+require __DIR__.'/lib.php';
 header('Content-Type: text/html; charset=utf-8');
 header('Cache-Control: no-store');
 function pm_h(mixed $s):string{return htmlspecialchars((string)$s,ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8');}
