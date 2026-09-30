@@ -27,7 +27,7 @@ try:
  assert 'Reiki' not in body, 'Draft practice exposed'
  assert req('/app/energy-healing.php?practice=REIKI')[0]==404
  status,catalogue,_=req('/app/energy-healing-catalogue.php')
- assert status==200 and '45 records shown' in catalogue and 'Jikiden Reiki' in catalogue and 'Domancic' in catalogue
+ assert status==200 and '50 records shown' in catalogue and 'Jikiden Reiki' in catalogue and 'Domancic' in catalogue
  assert 'Detailed research entry pending' in catalogue and 'NOT_REVIEWED' in catalogue
  status,filtered,_=req('/app/energy-healing-catalogue.php?q=Jikiden')
  assert status==200 and '1 records shown' in filtered and 'Magnified Healing' not in filtered
