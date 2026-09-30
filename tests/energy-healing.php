@@ -60,7 +60,7 @@ check((int)$p->query("SELECT COUNT(*) FROM ilb_ehr_expanded_triage WHERE review_
 check((int)$p->query('SELECT COUNT(*) FROM ilb_ehr_source_access')->fetchColumn()===44,'Access checks missing');
 check((int)$p->query("SELECT COUNT(*) FROM ilb_ehr_source_access WHERE access_status='BODY_RETRIEVED'")->fetchColumn()===38,'PMC link falsely promoted to body access');
 check($p->query("SELECT correspondence_status FROM ilb_ehr_registry_review WHERE registry_id='NCT06526949'")->fetchColumn()==='DISCREPANCY','Allocation contradiction lost');
-check(str_contains($p->query("SELECT interpretation_text FROM ilb_ehr_candidate_extraction WHERE practice_code='CORE_SHAMANISM' AND pmid='21040886'")->fetchColumn(),'Random assignment was to practitioners'),'Uncontrolled cohort presented as treatment RCT');
+check(str_contains($p->query("SELECT interpretation_text FROM ilb_ehr_candidate_extraction WHERE practice_code='CORE_SHAMANISM' AND pmid='21040886'")->fetchColumn(),'Randomization was to practitioners'),'Uncontrolled cohort presented as treatment RCT');
 require __DIR__.'/../ops/audit-energy-healing.php';
 $audit=auditEnergyHealing($p);
 check($audit['integrity_status']==='PASS','Coverage integrity audit failed');

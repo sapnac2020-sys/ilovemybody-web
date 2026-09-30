@@ -71,7 +71,7 @@ try:
  status,mantra,_=req('/app/energy-healing-methods.php?practice=MANTRA_PRACTICES&tab=evidence')
  assert status==200 and 'p=.13 nonsignificant' in mantra and 'overlapping PMID34600308' in mantra
  status,core,_=req('/app/energy-healing-methods.php?practice=CORE_SHAMANISM&tab=evidence')
- assert status==200 and 'Foundation for Shamanic Studies' in core and 'Random assignment was to practitioners' in core
+ assert status==200 and 'Foundation for Shamanic Studies' in core and 'Randomization was to practitioners' in core
  status,qi,_=req('/app/energy-healing-methods.php?practice=EXTERNAL_QIGONG&tab=evidence')
  assert status==200 and 'BODY_RETRIEVED' in qi and 'FULL_TEXT_EXTRACTED_BIAS_PENDING' in qi
  _,sid,_=req('/app/ehr-test-auth.php');cookie='ilb_app='+sid
