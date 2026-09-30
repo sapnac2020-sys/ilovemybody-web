@@ -1,5 +1,6 @@
 name: Energy healing integration checks
 on:
+  workflow_call:
   push:
     branches: [codex/energy-healing-department]
   pull_request:
