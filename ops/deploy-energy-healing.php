@@ -46,7 +46,7 @@ try {
   $searchCheck->execute(['%Jikiden%','%Jikiden%','%Jikiden%']);if(!$searchCheck->fetchAll())throw new RuntimeException('Catalogue search check failed');
  }catch(PDOException $e){fwrite(STDERR,"Catalogue read query: ".($e->errorInfo[1]??0)." ".($e->errorInfo[2]??'query failure')."\n");throw $e;}
  $convergence=$p->query("SELECT COUNT(*) FROM ilb_ehr_convergence_observation WHERE finding_status='TEACHING_SIMILARITY'")->fetchColumn();
- if((int)$convergence!==13)throw new RuntimeException('Convergence source verification failed');
+ if((int)$convergence!==34)throw new RuntimeException('Convergence source verification failed');
  if((int)$p->query("SELECT COUNT(*) FROM ilb_ehr_process_review")->fetchColumn()<50)throw new RuntimeException('Process reviews missing');
  $p->query("SELECT * FROM v_ilb_ehr_session_loinc_result LIMIT 0");
  $p->query("SELECT RELEASE_LOCK('ilmb-energy-healing-deploy')");
