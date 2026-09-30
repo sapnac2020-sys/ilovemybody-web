@@ -23,6 +23,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: sudo apt-get update -qq && sudo apt-get install -y php-cli php-mysql php-mbstring
-      - run: php -l app/energy-healing.php && php -l app/energy-healing-record.php && php -l tests/energy-healing.php
+      - run: php -l app/energy-healing.php && php -l app/energy-healing-record.php && php -l tests/energy-healing.php && php -l ops/deploy-energy-healing.php
       - run: php tests/energy-healing.php
       - run: python3 tests/energy-healing-http.py
