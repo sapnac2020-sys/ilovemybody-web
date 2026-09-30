@@ -14,7 +14,7 @@ try{
 ?>
 <!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Modality catalogue | Energy Healing Research</title><style>body{margin:0;background:#102321;color:#edf5ef;font:17px/1.6 system-ui}main{max-width:1000px;margin:auto;padding:24px}a{color:#b8e6c4}nav{display:flex;gap:18px;flex-wrap:wrap}article{padding:20px;margin:18px 0;border:1px solid #52786b;border-radius:16px;background:#19342f}h1,h2,h3{line-height:1.25}small{color:#bcd0c6}input,button{font:inherit;padding:10px;border-radius:8px;border:1px solid #52786b;background:#19342f;color:#edf5ef;max-width:100%;box-sizing:border-box}form{display:flex;gap:12px;flex-wrap:wrap}input{flex:1;min-width:0}p{overflow-wrap:anywhere}</style></head><body><main>
 <nav><a href="/hospital.html">I Love My Body</a><a href="/app/energy-healing.php">Research entries</a><a href="/app/energy-healing-processes.php">Compare processes</a><a href="/app/energy-healing-convergence.php">Convergence comparison</a></nav>
-<h1>Energy healing modality catalogue</h1>
+<h1>Energy healing modality catalogue</h1><p><a href="/app/energy-healing-methods.php">Browse process and self-practice reviews</a></p>
 <p>Explore named methods, branches and broader practice families. Related spiritual, sound and bodywork approaches are labelled separately. Catalogue inclusion records an identity and source; clinical findings and self-practice procedures require their own review.</p>
 <p><?php foreach($counts as $c):?><span><?=cat_h($c['total'])?> <?=cat_h(strtolower(str_replace('_',' ',$c['record_kind'])))?> records. </span><?php endforeach;?></p>
 <p>Coverage is open: new regional traditions, lineages and names can be added with sources. Search names aid discovery and do not imply that different lineages are identical. Acupuncture and general acupressure are outside this catalogue's scope.</p>
@@ -25,7 +25,7 @@ try{
 <p><?=cat_h($r['overview_text'])?></p>
 <p><?=cat_h(strtolower(str_replace('_',' ',$r['record_kind'])))?> · <?=$r['scope_status']==='CORE'?'Energy-healing scope':'Related practice'?> · Research review: <?=cat_h($r['review_status'])?></p>
 <?php if($r['parent_name']):?><p>Related parent: <?=cat_h($r['parent_name'])?></p><?php endif;?>
-<small>Search names: <?=cat_h($r['aliases_text'])?></small>
+<p><a href="/app/energy-healing-methods.php?practice=<?=urlencode($r['practice_code'])?>">Process review</a></p><small>Search names: <?=cat_h($r['aliases_text'])?></small>
 <p><?php if(preg_match('#^https://#',$r['source_url'])):?><a href="<?=cat_h($r['source_url'])?>" rel="noopener noreferrer"><?=cat_h($r['source_name'])?></a><?php endif;?> · Source checked <?=cat_h($r['source_checked_on'])?></p>
 <?php if($r['entry_status']==='PUBLISHED'):?><a href="/app/energy-healing.php?practice=<?=urlencode($r['practice_code'])?>">Read research entry</a><?php else:?><p>Detailed research entry pending.</p><?php endif;?>
 </article><?php endforeach;?>
