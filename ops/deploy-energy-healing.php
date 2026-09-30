@@ -27,7 +27,7 @@ try {
   fwrite($fh,json_encode(['ddl'=>$ddl],JSON_THROW_ON_ERROR)."\n");
   $st=$p->query("SELECT * FROM $name");while($row=$st->fetch(PDO::FETCH_ASSOC))fwrite($fh,json_encode($row,JSON_THROW_ON_ERROR)."\n");fclose($fh);
  }
- foreach(['energy_healing_department.sql','energy_healing_loinc_links.sql','energy_healing_pranic_entry.sql','energy_healing_magnified_entry.sql','energy_healing_process_maps.sql','energy_healing_catalogue.sql','energy_healing_convergence.sql','energy_healing_process_reviews.sql','energy_healing_literature.sql','energy_healing_research_followup.sql','energy_healing_candidate_extraction.sql'] as $file){
+ foreach(['energy_healing_department.sql','energy_healing_loinc_links.sql','energy_healing_pranic_entry.sql','energy_healing_magnified_entry.sql','energy_healing_process_maps.sql','energy_healing_catalogue.sql','energy_healing_convergence.sql','energy_healing_process_reviews.sql','energy_healing_literature.sql','energy_healing_research_followup.sql','energy_healing_candidate_extraction.sql','energy_healing_source_validation.sql'] as $file){
   // PDO connection disallows multi-statements. Execute with a dedicated connection.
   $c=cfg()['db'];
   $m=new PDO(sprintf('mysql:host=%s;port=%d;dbname=%s;charset=%s',$c['host'],$c['port'],$c['name'],$c['charset']),$c['user'],$c['pass'],[PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION,PDO::MYSQL_ATTR_MULTI_STATEMENTS=>true]);
@@ -50,8 +50,10 @@ try {
  if((int)$p->query("SELECT COUNT(*) FROM ilb_ehr_process_review")->fetchColumn()<50)throw new RuntimeException('Process reviews missing');
  if((int)$p->query("SELECT COUNT(DISTINCT practice_code) FROM ilb_ehr_search_audit")->fetchColumn()<50)throw new RuntimeException('Literature discovery records missing');
  if((int)$p->query("SELECT COUNT(*) FROM ilb_ehr_database_search WHERE retrieval_status='OK'")->fetchColumn()<50)throw new RuntimeException('Primary database searches missing');
- if((int)$p->query("SELECT COUNT(*) FROM ilb_ehr_candidate_extraction")->fetchColumn()<100)throw new RuntimeException('Primary-record extractions missing');
+ if((int)$p->query("SELECT COUNT(*) FROM ilb_ehr_candidate_extraction")->fetchColumn()<180)throw new RuntimeException('Primary-record extractions missing');
  if((int)$p->query("SELECT COUNT(*) FROM ilb_ehr_study_scope")->fetchColumn()<24)throw new RuntimeException('Study appraisals missing');
+ if((int)$p->query('SELECT COUNT(*) FROM ilb_ehr_expanded_triage')->fetchColumn()!==1693)throw new RuntimeException('Expanded queue reconciliation failed');
+ if((int)$p->query('SELECT COUNT(*) FROM ilb_ehr_registry_review')->fetchColumn()!==6)throw new RuntimeException('Registry checks missing');
  $p->query("SELECT * FROM v_ilb_ehr_session_loinc_result LIMIT 0");
  $p->query("SELECT RELEASE_LOCK('ilmb-energy-healing-deploy')");
  echo "Energy healing migration and schema checks passed.\n";

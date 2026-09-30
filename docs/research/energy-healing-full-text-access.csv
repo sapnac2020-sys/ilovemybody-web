@@ -1,0 +1,45 @@
+pmid,pmc_id,source_url,access_status,review_status,checked_on,access_note
+40837116,PMC12361723,https://pmc.ncbi.nlm.nih.gov/articles/PMC12361723/,BODY_RETRIEVED,REVIEW_PENDING,2026-09-30,NCBI PMC EFetch returned an article body. Retrieval alone is not review.
+39939954,PMC11823196,https://pmc.ncbi.nlm.nih.gov/articles/PMC11823196/,BODY_RETRIEVED,REVIEW_PENDING,2026-09-30,NCBI PMC EFetch returned an article body. Retrieval alone is not review.
+38939830,PMC11208854,https://pmc.ncbi.nlm.nih.gov/articles/PMC11208854/,BODY_RETRIEVED,REVIEW_PENDING,2026-09-30,NCBI PMC EFetch returned an article body. Retrieval alone is not review.
+36949840,PMC10026342,https://pmc.ncbi.nlm.nih.gov/articles/PMC10026342/,BODY_RETRIEVED,REVIEW_PENDING,2026-09-30,NCBI PMC EFetch returned an article body. Retrieval alone is not review.
+38304734,PMC10832441,https://pmc.ncbi.nlm.nih.gov/articles/PMC10832441/,BODY_RETRIEVED,REVIEW_PENDING,2026-09-30,NCBI PMC EFetch returned an article body. Retrieval alone is not review.
+37342644,PMC10278541,https://pmc.ncbi.nlm.nih.gov/articles/PMC10278541/,BODY_RETRIEVED,REVIEW_PENDING,2026-09-30,NCBI PMC EFetch returned an article body. Retrieval alone is not review.
+30679411,PMC10565051,https://pmc.ncbi.nlm.nih.gov/articles/PMC10565051/,BODY_RETRIEVED,REVIEW_PENDING,2026-09-30,NCBI PMC EFetch returned an article body. Retrieval alone is not review.
+39680432,PMC11686021,https://pmc.ncbi.nlm.nih.gov/articles/PMC11686021/,BODY_RETRIEVED,REVIEW_PENDING,2026-09-30,NCBI PMC EFetch returned an article body. Retrieval alone is not review.
+35384302,PMC10084022,https://pmc.ncbi.nlm.nih.gov/articles/PMC10084022/,BODY_RETRIEVED,REVIEW_PENDING,2026-09-30,NCBI PMC EFetch returned an article body. Retrieval alone is not review.
+38848338,PMC11161083,https://pmc.ncbi.nlm.nih.gov/articles/PMC11161083/,BODY_RETRIEVED,REVIEW_PENDING,2026-09-30,NCBI PMC EFetch returned an article body. Retrieval alone is not review.
+16762126,PMC1839019,https://pmc.ncbi.nlm.nih.gov/articles/PMC1839019/,NO_BODY_RETURNED,ACCESS_GAP,2026-09-30,NCBI PMC EFetch returned no body. This route-specific access gap does not establish a paywall or global unavailability.
+21040886,PMC13023138,https://pmc.ncbi.nlm.nih.gov/articles/PMC13023138/,BODY_RETRIEVED,TARGETED_FULL_TEXT_REVIEWED,2026-09-30,NCBI PMC EFetch returned an article body. Retrieval alone is not review.
+41281382,PMC12636857,https://pmc.ncbi.nlm.nih.gov/articles/PMC12636857/,BODY_RETRIEVED,REVIEW_PENDING,2026-09-30,NCBI PMC EFetch returned an article body. Retrieval alone is not review.
+41709616,PMC12927342,https://pmc.ncbi.nlm.nih.gov/articles/PMC12927342/,BODY_RETRIEVED,TARGETED_FULL_TEXT_REVIEWED,2026-09-30,NCBI PMC EFetch returned an article body. Retrieval alone is not review.
+42328361,PMC13278605,https://pmc.ncbi.nlm.nih.gov/articles/PMC13278605/,BODY_RETRIEVED,REVIEW_PENDING,2026-09-30,NCBI PMC EFetch returned an article body. Retrieval alone is not review.
+42605255,PMC13477499,https://pmc.ncbi.nlm.nih.gov/articles/PMC13477499/,BODY_RETRIEVED,REVIEW_PENDING,2026-09-30,NCBI PMC EFetch returned an article body. Retrieval alone is not review.
+41305815,PMC12643779,https://pmc.ncbi.nlm.nih.gov/articles/PMC12643779/,BODY_RETRIEVED,REVIEW_PENDING,2026-09-30,NCBI PMC EFetch returned an article body. Retrieval alone is not review.
+42140041,PMC13199881,https://pmc.ncbi.nlm.nih.gov/articles/PMC13199881/,BODY_RETRIEVED,REVIEW_PENDING,2026-09-30,NCBI PMC EFetch returned an article body. Retrieval alone is not review.
+12356595,PMC1447282,https://pmc.ncbi.nlm.nih.gov/articles/PMC1447282/,NO_BODY_RETURNED,ACCESS_GAP,2026-09-30,NCBI PMC EFetch returned no body. This route-specific access gap does not establish a paywall or global unavailability.
+17173118,PMC1697735,https://pmc.ncbi.nlm.nih.gov/articles/PMC1697735/,BODY_RETRIEVED,REVIEW_PENDING,2026-09-30,NCBI PMC EFetch returned an article body. Retrieval alone is not review.
+21716708,PMC3118731,https://pmc.ncbi.nlm.nih.gov/articles/PMC3118731/,BODY_RETRIEVED,REVIEW_PENDING,2026-09-30,NCBI PMC EFetch returned an article body. Retrieval alone is not review.
+25614748,PMC4294308,https://pmc.ncbi.nlm.nih.gov/articles/PMC4294308/,BODY_RETRIEVED,REVIEW_PENDING,2026-09-30,NCBI PMC EFetch returned an article body. Retrieval alone is not review.
+22745613,PMC3383158,https://pmc.ncbi.nlm.nih.gov/articles/PMC3383158/,NO_BODY_RETURNED,ACCESS_GAP,2026-09-30,NCBI PMC EFetch returned no body. This route-specific access gap does not establish a paywall or global unavailability.
+17549235,PMC1876615,https://pmc.ncbi.nlm.nih.gov/articles/PMC1876615/,BODY_RETRIEVED,TARGETED_FULL_TEXT_REVIEWED,2026-09-30,NCBI PMC EFetch returned an article body. Retrieval alone is not review.
+22132706,PMC3239316,https://pmc.ncbi.nlm.nih.gov/articles/PMC3239316/,NO_BODY_RETURNED,ACCESS_GAP,2026-09-30,NCBI PMC EFetch returned no body. This route-specific access gap does not establish a paywall or global unavailability.
+15102336,PMC387832,https://pmc.ncbi.nlm.nih.gov/articles/PMC387832/,BODY_RETRIEVED,TARGETED_FULL_TEXT_REVIEWED,2026-09-30,NCBI PMC EFetch returned an article body. Retrieval alone is not review.
+27482166,PMC4949034,https://pmc.ncbi.nlm.nih.gov/articles/PMC4949034/,BODY_RETRIEVED,TARGETED_FULL_TEXT_REVIEWED,2026-09-30,NCBI PMC EFetch returned an article body. Retrieval alone is not review.
+21584234,PMC3092553,https://pmc.ncbi.nlm.nih.gov/articles/PMC3092553/,BODY_RETRIEVED,REVIEW_PENDING,2026-09-30,NCBI PMC EFetch returned an article body. Retrieval alone is not review.
+15667653,PMC548282,https://pmc.ncbi.nlm.nih.gov/articles/PMC548282/,BODY_RETRIEVED,REVIEW_PENDING,2026-09-30,NCBI PMC EFetch returned an article body. Retrieval alone is not review.
+19377083,PMC2682170,https://pmc.ncbi.nlm.nih.gov/articles/PMC2682170/,NO_BODY_RETURNED,ACCESS_GAP,2026-09-30,NCBI PMC EFetch returned no body. This route-specific access gap does not establish a paywall or global unavailability.
+30245732,PMC6136530,https://pmc.ncbi.nlm.nih.gov/articles/PMC6136530/,BODY_RETRIEVED,REVIEW_PENDING,2026-09-30,NCBI PMC EFetch returned an article body. Retrieval alone is not review.
+34612802,PMC9135436,https://pmc.ncbi.nlm.nih.gov/articles/PMC9135436/,NO_BODY_RETURNED,ACCESS_GAP,2026-09-30,NCBI PMC EFetch returned no body. This route-specific access gap does not establish a paywall or global unavailability.
+33412954,PMC7797599,https://pmc.ncbi.nlm.nih.gov/articles/PMC7797599/,BODY_RETRIEVED,REVIEW_PENDING,2026-09-30,NCBI PMC EFetch returned an article body. Retrieval alone is not review.
+34149467,PMC8208488,https://pmc.ncbi.nlm.nih.gov/articles/PMC8208488/,BODY_RETRIEVED,REVIEW_PENDING,2026-09-30,NCBI PMC EFetch returned an article body. Retrieval alone is not review.
+34600308,PMC8783371,https://pmc.ncbi.nlm.nih.gov/articles/PMC8783371/,BODY_RETRIEVED,REVIEW_PENDING,2026-09-30,NCBI PMC EFetch returned an article body. Retrieval alone is not review.
+34421729,PMC8375679,https://pmc.ncbi.nlm.nih.gov/articles/PMC8375679/,BODY_RETRIEVED,REVIEW_PENDING,2026-09-30,NCBI PMC EFetch returned an article body. Retrieval alone is not review.
+30022894,PMC6047252,https://pmc.ncbi.nlm.nih.gov/articles/PMC6047252/,BODY_RETRIEVED,REVIEW_PENDING,2026-09-30,NCBI PMC EFetch returned an article body. Retrieval alone is not review.
+34255215,PMC8276206,https://pmc.ncbi.nlm.nih.gov/articles/PMC8276206/,BODY_RETRIEVED,REVIEW_PENDING,2026-09-30,NCBI PMC EFetch returned an article body. Retrieval alone is not review.
+30485713,PMC6346416,https://pmc.ncbi.nlm.nih.gov/articles/PMC6346416/,BODY_RETRIEVED,REVIEW_PENDING,2026-09-30,NCBI PMC EFetch returned an article body. Retrieval alone is not review.
+34802955,PMC9085959,https://pmc.ncbi.nlm.nih.gov/articles/PMC9085959/,BODY_RETRIEVED,REVIEW_PENDING,2026-09-30,NCBI PMC EFetch returned an article body. Retrieval alone is not review.
+36142006,PMC9517053,https://pmc.ncbi.nlm.nih.gov/articles/PMC9517053/,BODY_RETRIEVED,REVIEW_PENDING,2026-09-30,NCBI PMC EFetch returned an article body. Retrieval alone is not review.
+36121655,PMC9486450,https://pmc.ncbi.nlm.nih.gov/articles/PMC9486450/,BODY_RETRIEVED,TARGETED_FULL_TEXT_REVIEWED,2026-09-30,NCBI PMC EFetch returned an article body. Retrieval alone is not review.
+36109024,PMC9478841,https://pmc.ncbi.nlm.nih.gov/articles/PMC9478841/,BODY_RETRIEVED,REVIEW_PENDING,2026-09-30,NCBI PMC EFetch returned an article body. Retrieval alone is not review.
+35956171,PMC9369882,https://pmc.ncbi.nlm.nih.gov/articles/PMC9369882/,BODY_RETRIEVED,REVIEW_PENDING,2026-09-30,NCBI PMC EFetch returned an article body. Retrieval alone is not review.
