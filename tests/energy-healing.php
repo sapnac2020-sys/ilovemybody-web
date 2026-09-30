@@ -28,8 +28,8 @@ check((int)$p->query('SELECT COUNT(*) FROM ilb_ehr_catalogue')->fetchColumn()===
 check((int)$p->query("SELECT COUNT(*) FROM ilb_ehr_catalogue WHERE record_kind='BRANCH' AND parent_practice_code IS NULL")->fetchColumn()===0,'Branch parent missing');
 check((int)$p->query("SELECT COUNT(*) FROM ilb_ehr_practice WHERE publication_status='PUBLISHED'")->fetchColumn()===2,'Catalogue published unreviewed entries');
 $p->exec("INSERT INTO ilb_ehr_process_map VALUES('TEST_DRAFT','REIKI','Synthetic hidden outcome','SOURCE_GAP','UNKNOWN',NULL,'Synthetic fixture','Synthetic private draft')");
-check((int)$p->query('SELECT COUNT(*) FROM ilb_ehr_convergence_feature')->fetchColumn()===4,'Convergence themes duplicated');
-check((int)$p->query('SELECT COUNT(*) FROM ilb_ehr_convergence_observation')->fetchColumn()===13,'Convergence observations duplicated');
+check((int)$p->query('SELECT COUNT(*) FROM ilb_ehr_convergence_feature')->fetchColumn()===9,'Convergence themes duplicated');
+check((int)$p->query('SELECT COUNT(*) FROM ilb_ehr_convergence_observation')->fetchColumn()===34,'Convergence observations duplicated');
 check((int)$p->query("SELECT COUNT(*) FROM ilb_ehr_convergence_observation WHERE finding_status='CLINICALLY_VALIDATED'")->fetchColumn()===0,'Teaching similarity presented as clinical validation');
 check((int)$p->query("SELECT COUNT(*) FROM ilb_ehr_convergence_observation WHERE component_status='OPTIONAL' AND practice_code='THERAPEUTIC_TOUCH'")->fetchColumn()===1,'Optional breathing lost');
 check((int)$p->query('SELECT COUNT(*) FROM ilb_ehr_process_review')->fetchColumn()===50,'Process reviews missing or duplicated');
