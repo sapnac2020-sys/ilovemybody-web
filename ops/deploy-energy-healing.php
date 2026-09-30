@@ -38,7 +38,7 @@ try {
  $mhCount=(int)$p->query("SELECT COUNT(*) FROM ilb_ehr_section WHERE practice_code='MAGNIFIED_HEALING' AND publication_status='PUBLISHED'")->fetchColumn();
  if($mhCount!==8)throw new RuntimeException('Magnified entry verification failed');
  $catalogueCount=(int)$p->query("SELECT COUNT(*) FROM ilb_ehr_catalogue WHERE publication_status='PUBLISHED'")->fetchColumn();
- if($catalogueCount<45)throw new RuntimeException('Catalogue verification failed');
+ if($catalogueCount<50)throw new RuntimeException('Catalogue verification failed');
  $p->query("SELECT * FROM v_ilb_ehr_session_loinc_result LIMIT 0");
  $p->query("SELECT RELEASE_LOCK('ilmb-energy-healing-deploy')");
  echo "Energy healing migration and schema checks passed.\n";
