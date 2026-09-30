@@ -27,6 +27,11 @@ try:
  assert 'Reiki' not in body, 'Draft practice exposed'
  assert req('/app/energy-healing.php?practice=REIKI')[0]==404
  assert req('/app/energy-healing-record.php')[0]==302
+ status,processes,_=req('/app/energy-healing-processes.php')
+ assert status==200 and 'Process comparison' in processes and 'Regulate appetite and cravings' in processes
+ assert 'Magnified Healing' in processes and 'SOURCE_GAP' in processes and 'Synthetic hidden outcome' not in processes
+ assert req('/app/energy-healing-processes.php?outcome=Synthetic%20hidden%20outcome')[0]==404
+ assert req('/app/energy-healing-processes.php?outcome=unknown')[0]==404
  _,sid,_=req('/app/ehr-test-auth.php');cookie='ilb_app='+sid
  status,body,_=req('/app/energy-healing-record.php',cookie=cookie)
  assert status==200 and 'Synthetic other observation' not in body
