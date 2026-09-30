@@ -39,6 +39,10 @@ try {
  if($mhCount!==8)throw new RuntimeException('Magnified entry verification failed');
  $catalogueCount=(int)$p->query("SELECT COUNT(*) FROM ilb_ehr_catalogue WHERE publication_status='PUBLISHED'")->fetchColumn();
  if($catalogueCount<50)throw new RuntimeException('Catalogue verification failed');
+ try{
+  $st=$p->prepare("SELECT c.*,p.practice_name,p.review_status,p.publication_status AS entry_status,parent.practice_name AS parent_name FROM ilb_ehr_catalogue c JOIN ilb_ehr_practice p ON p.practice_code=c.practice_code JOIN ilb_ehr_department d ON d.department_code=p.department_code LEFT JOIN ilb_ehr_practice parent ON parent.practice_code=c.parent_practice_code WHERE c.publication_status='PUBLISHED' AND d.publication_status='PUBLISHED' AND (?='' OR p.practice_name LIKE ? OR c.aliases_text LIKE ? OR c.category_name LIKE ?) ORDER BY c.category_name,p.practice_name");
+  $st->execute(['','%','%','%']);$st->fetchAll();
+ }catch(PDOException $e){fwrite(STDERR,"Catalogue read query: ".($e->errorInfo[1]??0)." ".($e->errorInfo[2]??'query failure')."\n");throw $e;}
  $p->query("SELECT * FROM v_ilb_ehr_session_loinc_result LIMIT 0");
  $p->query("SELECT RELEASE_LOCK('ilmb-energy-healing-deploy')");
  echo "Energy healing migration and schema checks passed.\n";
