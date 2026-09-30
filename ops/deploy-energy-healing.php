@@ -27,7 +27,7 @@ try {
   fwrite($fh,json_encode(['ddl'=>$ddl],JSON_THROW_ON_ERROR)."\n");
   $st=$p->query("SELECT * FROM $name");while($row=$st->fetch(PDO::FETCH_ASSOC))fwrite($fh,json_encode($row,JSON_THROW_ON_ERROR)."\n");fclose($fh);
  }
- foreach(['energy_healing_department.sql','energy_healing_loinc_links.sql','energy_healing_pranic_entry.sql','energy_healing_magnified_entry.sql','energy_healing_process_maps.sql','energy_healing_catalogue.sql','energy_healing_convergence.sql','energy_healing_process_reviews.sql'] as $file){
+ foreach(['energy_healing_department.sql','energy_healing_loinc_links.sql','energy_healing_pranic_entry.sql','energy_healing_magnified_entry.sql','energy_healing_process_maps.sql','energy_healing_catalogue.sql','energy_healing_convergence.sql','energy_healing_process_reviews.sql','energy_healing_literature.sql'] as $file){
   // PDO connection disallows multi-statements. Execute with a dedicated connection.
   $c=cfg()['db'];
   $m=new PDO(sprintf('mysql:host=%s;port=%d;dbname=%s;charset=%s',$c['host'],$c['port'],$c['name'],$c['charset']),$c['user'],$c['pass'],[PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION,PDO::MYSQL_ATTR_MULTI_STATEMENTS=>true]);
@@ -48,6 +48,8 @@ try {
  $convergence=$p->query("SELECT COUNT(*) FROM ilb_ehr_convergence_observation WHERE finding_status='TEACHING_SIMILARITY'")->fetchColumn();
  if((int)$convergence!==34)throw new RuntimeException('Convergence source verification failed');
  if((int)$p->query("SELECT COUNT(*) FROM ilb_ehr_process_review")->fetchColumn()<50)throw new RuntimeException('Process reviews missing');
+ if((int)$p->query("SELECT COUNT(DISTINCT practice_code) FROM ilb_ehr_search_audit")->fetchColumn()<50)throw new RuntimeException('Literature discovery records missing');
+ if((int)$p->query("SELECT COUNT(*) FROM ilb_ehr_study_scope")->fetchColumn()<12)throw new RuntimeException('Study appraisals missing');
  $p->query("SELECT * FROM v_ilb_ehr_session_loinc_result LIMIT 0");
  $p->query("SELECT RELEASE_LOCK('ilmb-energy-healing-deploy')");
  echo "Energy healing migration and schema checks passed.\n";

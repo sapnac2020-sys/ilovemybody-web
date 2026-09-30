@@ -30,3 +30,15 @@ The audit reports record kinds and per-record counts for published sections, str
 | Operations | Confirm latest deployment, backup restoration, permissions and responsive journeys | Commit-linked run, restoration evidence and live checks |
 
 No department experiment is complete. Scientific validation cannot be created by a migration, source count or website test.
+
+## Literature progress, 30 September 2026
+
+Executed and recorded one PubMed-indexed web discovery query for each of the 50 catalogue identities. Fifteen queries returned no indexed results; that is not proof of absent evidence. This is a bounded discovery pass, not an exhaustive systematic search.
+
+The new migration preserves 290 practice–PMID candidate records: 12 abstract appraisals, one existing appraisal, 204 awaiting screening, two notices to reconcile, 46 excluded name collisions, one wrong-design exclusion and 24 unconfirmed lineage identities. These are candidate mappings, not 290 eligible studies. Alias expansion, registry searches, citation chasing, independent screening and non-English databases remain open.
+
+Twelve focused primary-study appraisals bring the structured evidence-review total to 13. They cover Reiki, Therapeutic Touch, Pranic Healing, Quantum Touch, Jin Shin Jyutsu, Johrei, Polarity Therapy, ThetaHealing, healing dowsing, Biofield Tuning, Bengston and Healing Touch. Each records the tested population/outcome, comparator, findings, uncertainty, limitations and available procedure information. All twelve are ABSTRACT reviews; none is presented as a full-text appraisal. The Bengston record is ANIMAL research. The Jin Shin Jyutsu correction notice (PMID 36398997) is flagged for reconciliation; all other new notice audits remain pending.
+
+Findings include condition-specific null results (Reiki fibromyalgia), negative operational tests (Therapeutic Touch hand detection, dowsing identification, ThetaHealing theta increase), preliminary adjunctive clinical findings and uncontrolled participant experiences. Immune markers are not cancer survival outcomes. Within-arm improvement is not a between-arm treatment effect. Shared teaching components do not establish a shared physical mechanism.
+
+Verification uses twice-run SQL migrations, exact record counts, animal/abstract/notice classification checks, integrity auditing and HTTP evidence-page checks. Deployment additionally checks the live evidence page and private sign-in redirect. These verify data and software behavior; scientific validation still requires full-text bias appraisal, reconciled corrections, complete reproducible procedures and appropriate independent controlled studies. No department experiment or research protocol is marked complete by this change.
