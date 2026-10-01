@@ -1,0 +1,13 @@
+{
+    "checked_at": "2026-10-01T11:33:04+00:00",
+    "app": {
+        "checked": true,
+        "anthropic_present": false
+    },
+    "shared": {
+        "checked": false,
+        "matches": [],
+        "provider_records": [],
+        "error": "Shared database could not be inspected"
+    }
+}
