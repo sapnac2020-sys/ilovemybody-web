@@ -1,0 +1,86 @@
+name: Check Anthropic Credential Presence
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "ops/audit-anthropic-connection.php"
+      - ".github/workflows/audit-anthropic-connection.yml"
+
+concurrency:
+  group: ilovemybody-anthropic-presence-audit
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  audit-schema:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate read-only audit source
+        run: |
+          set -euo pipefail
+          test -s ops/audit-anthropic-connection.php
+          php -l ops/audit-anthropic-connection.php
+          if grep -Eiq '\b(INSERT|UPDATE|DELETE|REPLACE|ALTER|CREATE|DROP|TRUNCATE|GRANT|REVOKE)[[:space:]]' ops/audit-anthropic-connection.php; then
+            echo "Audit script contains a database mutation keyword."
+            exit 1
+          fi
+
+      - name: Prepare dedicated SSH identity
+        env:
+          DEPLOY_BUNDLE: ${{ secrets.HOSTINGER_DEPLOY_BUNDLE }}
+        run: |
+          set -euo pipefail
+          test -n "$DEPLOY_BUNDLE"
+          mkdir -p "$HOME/.ssh"
+          chmod 700 "$HOME/.ssh"
+          printf '%s' "$DEPLOY_BUNDLE" | base64 --decode > "$RUNNER_TEMP/deploy.json"
+          jq -e '.host and .port and .user and .key' "$RUNNER_TEMP/deploy.json" >/dev/null
+          jq -r '.key' "$RUNNER_TEMP/deploy.json" > "$HOME/.ssh/ilovemybody_audit"
+          chmod 600 "$HOME/.ssh/ilovemybody_audit"
+          echo "DEPLOY_HOST=$(jq -r '.host' "$RUNNER_TEMP/deploy.json")" >> "$GITHUB_ENV"
+          echo "DEPLOY_PORT=$(jq -r '.port' "$RUNNER_TEMP/deploy.json")" >> "$GITHUB_ENV"
+          echo "DEPLOY_USER=$(jq -r '.user' "$RUNNER_TEMP/deploy.json")" >> "$GITHUB_ENV"
+          host="$(jq -r '.host' "$RUNNER_TEMP/deploy.json")"
+          port="$(jq -r '.port' "$RUNNER_TEMP/deploy.json")"
+          scanned=false
+          for attempt in 1 2 3 4 5; do
+            if ssh-keyscan -T 20 -p "$port" "$host" >> "$HOME/.ssh/known_hosts" 2>/dev/null; then scanned=true; break; fi
+            sleep $((attempt * 10))
+          done
+          test "$scanned" = true
+          chmod 600 "$HOME/.ssh/known_hosts"
+
+      - name: Run metadata-only production audit
+        run: |
+          set -euo pipefail
+          remote_script="/tmp/ilovemybody_schema_audit_${GITHUB_RUN_ID}_${GITHUB_RUN_ATTEMPT}.php"
+          echo "REMOTE_SCRIPT=$remote_script" >> "$GITHUB_ENV"
+          scp -o ConnectTimeout=30 -i "$HOME/.ssh/ilovemybody_audit" -P "$DEPLOY_PORT" ops/audit-anthropic-connection.php "$DEPLOY_USER@$DEPLOY_HOST:$remote_script"
+          ssh -o IdentitiesOnly=yes -o BatchMode=yes -o ConnectTimeout=30 -i "$HOME/.ssh/ilovemybody_audit" -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" \
+            "set -euo pipefail; CONFIG=\$(find \"\$HOME/domains/ilovemybody.in\" -maxdepth 5 -type f -name 'ilmb-config.php' -print -quit); test -n \"\$CONFIG\"; test -s \"\$CONFIG\"; php '$remote_script' \"\$CONFIG\"" \
+            > "$RUNNER_TEMP/current-schema-audit.json"
+          jq -e '.app and .shared' "$RUNNER_TEMP/current-schema-audit.json" >/dev/null
+
+      - name: Publish credential presence only
+        run: |
+          set -euo pipefail
+          mkdir -p docs/audits
+          cp "$RUNNER_TEMP/current-schema-audit.json" docs/audits/ANTHROPIC_CONNECTION_STATUS.json
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/audits/ANTHROPIC_CONNECTION_STATUS.json
+          if ! git diff --cached --quiet; then git commit -m "docs: check Anthropic credential presence without secret values"; git push; fi
+
+      - name: Remove temporary audit script
+        if: always()
+        run: |
+          if [ -n "${REMOTE_SCRIPT:-}" ] && [ -n "${DEPLOY_HOST:-}" ]; then
+            ssh -o ConnectTimeout=20 -i "$HOME/.ssh/ilovemybody_audit" -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" "rm -f '$REMOTE_SCRIPT'" || true
+          fi
