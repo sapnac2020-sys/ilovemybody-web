@@ -1,163 +1,95 @@
-name: Deploy I Love My Body
-# patient-readiness deployment gate
+name: Deploy I Love My Body Hospital
 
 on:
-  workflow_dispatch:
+  pull_request:
+    paths: [index.html, 'assets/visual-*.jpg', 'assets/visual-*.png', .github/workflows/deploy-hostinger.yml]
   push:
     branches: [main]
-    paths:
-      - index.html
-      - hospital.html
-      - journey.html
-      - therapies.html
-      - mentors.html
-      - philosophy.html
-      - assets/**
-      - app/**
-      - .github/workflows/deploy-hostinger.yml
+    paths: [index.html, 'assets/visual-*.jpg', 'assets/visual-*.png', .github/workflows/deploy-hostinger.yml]
+  workflow_dispatch:
 
 concurrency:
-  group: ilovemybody-production
+  group: ilovemybody-public-hospital
   cancel-in-progress: false
+permissions:
+  contents: read
 
 jobs:
-  validate-and-deploy:
+  validate:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
     steps:
       - uses: actions/checkout@v4
-
-      - name: Validate source
+      - name: Validate hospital source
         run: |
           set -euo pipefail
-          for f in index.html hospital.html assets/hospital-v2.css assets/hospital.js assets/ilmb-7screen.css app/index.php app/access.php app/new.php app/nilesh.php app/api.php app/_guard.php app/lib.php app/test-results.php app/test-results-api.php app/hospital-review.php app/hospital-review-api.php app/patient.php app/disease-default-stroke.php app/assets/hospital-review-link.js app/assets/nilesh-plan-inject.js; do test -s "$f"; done
-          node --check assets/hospital.js
-          node --check app/assets/app.js
-          node --check app/assets/hospital-review-link.js
-          node --check app/assets/nilesh-plan-inject.js
-          php -l app/nilesh.php
-          php -l app/hospital-review.php
-          php -l app/hospital-review-api.php
-          php -l app/patient.php
-          php -l app/disease-default-stroke.php
-          grep -q 'WIDE >=1680' assets/ilmb-7screen.css
-          grep -q 'DESKTOP 1150-1679' assets/ilmb-7screen.css
-          grep -q 'LAPTOP 896-1149' assets/ilmb-7screen.css
-          grep -q 'TABLET 768-895' assets/ilmb-7screen.css
-          grep -q 'MEDIUM MOBILE 600-767' assets/ilmb-7screen.css
-          grep -q 'SMALL MOBILE 390-599' assets/ilmb-7screen.css
-          grep -q 'EXTRA SMALL <=389' assets/ilmb-7screen.css
-          grep -q 'NO LOGIN NEEDED TO EXPLORE' hospital.html
-          grep -qi 'Patient ID.*password' hospital.html
-          grep -qi 'PATIENT ID.*PASSWORD' app/access.php
-          grep -q 'PHARMACY RESULT = ILMB RESULT' app/nilesh.php
-          grep -q 'FULL CAUSAL FLOW' app/nilesh.php
-          grep -q 'Clopidogrel 75 mg' app/nilesh.php
-          grep -q 'Fenofibrate 160 mg' app/nilesh.php
-          grep -q 'pH GATE' app/nilesh.php
-          grep -q 'PHARMACY = ILMB · FULL CAUSAL FLOW' app/hospital-review.php
-          grep -q 'target_job' app/hospital-review-api.php
-          grep -q 'ph_gate' app/hospital-review-api.php
-          grep -q 'GENERIC ADULT DEFAULT' app/disease-default-stroke.php
-          grep -q 'Psyllium 10.2 g/day' app/disease-default-stroke.php
-          grep -q '7-DAY FOOD PLAN' app/disease-default-stroke.php
-          grep -q 'My 7-Day Plan' app/assets/nilesh-plan-inject.js
-          grep -q 'Previous' app/assets/nilesh-plan-inject.js
-          grep -q 'Next' app/assets/nilesh-plan-inject.js
+          test -s index.html
+          for f in visual-37f243ec27c6.jpg visual-4e97e089ffa6.jpg visual-743ce6202334.png visual-a70606b81c9e.jpg; do test -s "assets/$f"; done
+          for text in 'I LOVE MY BODY' 'Self-Care Hospital' 'Everything is connected' 'Hospital Lobby' 'Two Paths' 'Free Self-Tests' 'Complementary Therapies' 'My Journey' 'Evidence and Sources'; do grep -q "$text" index.html; done
+          ! grep -qi 'Happiness Mall' index.html
+          ! grep -q 'data:image/' index.html
 
-      - name: Prepare dedicated SSH identity
+  deploy:
+    if: github.event_name != 'pull_request'
+    needs: validate
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+      - name: Prepare Hostinger SSH identity
         env:
           DEPLOY_BUNDLE: ${{ secrets.HOSTINGER_DEPLOY_BUNDLE }}
         run: |
           set -euo pipefail
           test -n "$DEPLOY_BUNDLE"
           mkdir -p "$HOME/.ssh"
-          printf '%s' "$DEPLOY_BUNDLE" | base64 --decode > /tmp/ilb-deploy.json
-          jq -e '.host and .port and .user and .key' /tmp/ilb-deploy.json >/dev/null
-          jq -r '.key' /tmp/ilb-deploy.json > "$HOME/.ssh/id_ed25519"
+          printf '%s' "$DEPLOY_BUNDLE" | base64 --decode > "$RUNNER_TEMP/deploy.json"
+          jq -e '.host and .port and .user and .key' "$RUNNER_TEMP/deploy.json" >/dev/null
+          jq -r '.key' "$RUNNER_TEMP/deploy.json" > "$HOME/.ssh/id_ed25519"
           chmod 600 "$HOME/.ssh/id_ed25519"
-          echo "DEPLOY_HOST=$(jq -r '.host' /tmp/ilb-deploy.json)" >> "$GITHUB_ENV"
-          echo "DEPLOY_PORT=$(jq -r '.port' /tmp/ilb-deploy.json)" >> "$GITHUB_ENV"
-          echo "DEPLOY_USER=$(jq -r '.user' /tmp/ilb-deploy.json)" >> "$GITHUB_ENV"
-          ssh-keyscan -p "$(jq -r '.port' /tmp/ilb-deploy.json)" "$(jq -r '.host' /tmp/ilb-deploy.json)" >> "$HOME/.ssh/known_hosts"
-
-      - name: Package website
+          echo "DEPLOY_HOST=$(jq -r '.host' "$RUNNER_TEMP/deploy.json")" >> "$GITHUB_ENV"
+          echo "DEPLOY_PORT=$(jq -r '.port' "$RUNNER_TEMP/deploy.json")" >> "$GITHUB_ENV"
+          echo "DEPLOY_USER=$(jq -r '.user' "$RUNNER_TEMP/deploy.json")" >> "$GITHUB_ENV"
+          ssh-keyscan -p "$(jq -r '.port' "$RUNNER_TEMP/deploy.json")" "$(jq -r '.host' "$RUNNER_TEMP/deploy.json")" >> "$HOME/.ssh/known_hosts"
+      - name: Package public hospital only
         run: |
-          base64 --decode assets/hospital-lobby-final.b64 > assets/hospital-lobby-final.jpg
-          tar -czf "/tmp/ilovemybody-${GITHUB_SHA}.tgz" index.html hospital.html journey.html therapies.html mentors.html philosophy.html assets app
-
+          tar -czf "$RUNNER_TEMP/hospital-${GITHUB_SHA}.tgz" index.html assets/visual-37f243ec27c6.jpg assets/visual-4e97e089ffa6.jpg assets/visual-743ce6202334.png assets/visual-a70606b81c9e.jpg
       - name: Upload release
-        run: scp -i "$HOME/.ssh/id_ed25519" -P "$DEPLOY_PORT" "/tmp/ilovemybody-${GITHUB_SHA}.tgz" "$DEPLOY_USER@$DEPLOY_HOST:ilovemybody-${GITHUB_SHA}.tgz"
-
-      - name: Deploy
+        run: |
+          scp -i "$HOME/.ssh/id_ed25519" -P "$DEPLOY_PORT" "$RUNNER_TEMP/hospital-${GITHUB_SHA}.tgz" "$DEPLOY_USER@$DEPLOY_HOST:hospital-${GITHUB_SHA}.tgz"
+      - name: Deploy without touching the private application or database
         run: |
           ssh -i "$HOME/.ssh/id_ed25519" -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" "SITE_SHA='$GITHUB_SHA' bash -s" <<'REMOTE'
           set -euo pipefail
           TARGET="$HOME/domains/ilovemybody.in/public_html"
-          PACKAGE="$HOME/ilovemybody-${SITE_SHA}.tgz"
+          PACKAGE="$HOME/hospital-${SITE_SHA}.tgz"
           STAMP="$(date +%Y%m%d-%H%M%S)"
-          BACKUP="$HOME/backups/ilovemybody/$STAMP"
-          STAGE="$HOME/deployments/ilovemybody/$SITE_SHA"
-          mkdir -p "$BACKUP/app" "$STAGE" "$TARGET/assets" "$TARGET/app/assets"
-          test -f "$PACKAGE"
+          BACKUP="$HOME/backups/ilovemybody-public/$STAMP"
+          STAGE="$HOME/deployments/ilovemybody-public/$SITE_SHA"
+          mkdir -p "$BACKUP/assets" "$STAGE" "$TARGET/assets"
+          test -s "$PACKAGE"
           tar -xzf "$PACKAGE" -C "$STAGE"
-          cp -p "$STAGE/index.html" "$TARGET/index.html"
-          cp -p "$STAGE/hospital.html" "$TARGET/hospital.html"
-          cp -p "$STAGE/journey.html" "$TARGET/journey.html"
-          cp -p "$STAGE/therapies.html" "$TARGET/therapies.html"
-          cp -p "$STAGE/mentors.html" "$TARGET/mentors.html"
-          cp -p "$STAGE/philosophy.html" "$TARGET/philosophy.html"
-          cp -a "$STAGE/assets/." "$TARGET/assets/"
-          for f in index.php access.php new.php nilesh.php api.php _guard.php lib.php test-results.php test-results-api.php hospital-review.php hospital-review-api.php patient.php disease-default-stroke.php; do
-            if test -f "$TARGET/app/$f"; then cp -p "$TARGET/app/$f" "$BACKUP/app/$f"; fi
-            cp -p "$STAGE/app/$f" "$TARGET/app/$f"
-          done
-          cp -a "$STAGE/app/assets/." "$TARGET/app/assets/"
-
-          php -r '$files=array_slice($argv,1);$tag="<link rel=\"stylesheet\" href=\"/assets/ilmb-7screen.css?v=1\">";foreach($files as $p){if(!is_file($p))continue;$s=file_get_contents($p);if(strpos($s,"ilmb-7screen.css")===false){$s=str_replace("</head>",$tag."</head>",$s);file_put_contents($p,$s);}}' \
-            "$TARGET/hospital.html" "$TARGET/app/index.php" "$TARGET/app/access.php" "$TARGET/app/new.php" "$TARGET/app/nilesh.php" "$TARGET/app/hospital-review.php" "$TARGET/app/test-results.php" "$TARGET/app/disease-default-stroke.php"
-          php -r '$p=$argv[1];$s=file_get_contents($p);$tag="<script src=\"assets/hospital-review-link.js?v=1\"></script>";if(strpos($s,$tag)===false){$s=str_replace("</body></html>",$tag."</body></html>",$s);file_put_contents($p,$s);}' "$TARGET/app/index.php"
-          php -r '$p=$argv[1];$s=file_get_contents($p);$tag="<script src=\"/app/assets/nilesh-plan-inject.js?v=3\"></script>";$s=preg_replace("#<script src=\\\"/app/assets/nilesh-plan-inject\\.js\\?v=[^\\\"]+\\\"></script>#",$tag,$s);if(strpos($s,"nilesh-plan-inject.js")===false){$s=str_replace("</body></html>",$tag."</body></html>",$s);}file_put_contents($p,$s);' "$TARGET/app/nilesh.php"
-
+          test -s "$STAGE/index.html"
+          test -d "$TARGET/app"
           test -s "$TARGET/app/config.php"
-          test -s "$TARGET/app/hospital-review.php"
-          test -s "$TARGET/app/hospital-review-api.php"
-          test -s "$TARGET/app/patient.php"
-          test -s "$TARGET/app/disease-default-stroke.php"
-          test -s "$TARGET/app/assets/nilesh-plan-inject.js"
-          test -s "$TARGET/assets/ilmb-7screen.css"
+          test -f "$TARGET/index.html" && cp -p "$TARGET/index.html" "$BACKUP/index.html"
+          for f in visual-37f243ec27c6.jpg visual-4e97e089ffa6.jpg visual-743ce6202334.png visual-a70606b81c9e.jpg; do
+            test -f "$TARGET/assets/$f" && cp -p "$TARGET/assets/$f" "$BACKUP/assets/$f"
+            cp -p "$STAGE/assets/$f" "$TARGET/assets/$f"
+          done
+          cp -p "$STAGE/index.html" "$TARGET/index.html.new"
+          mv "$TARGET/index.html.new" "$TARGET/index.html"
+          rm -f "$PACKAGE"
           REMOTE
-
-      - name: Verify production
+      - name: Verify production and protected application boundary
         run: |
           set -euo pipefail
-          curl --fail --retry 5 --retry-delay 3 --max-time 30 --output /tmp/home.html https://ilovemybody.in/
-          grep -q 'hospital-entrance' /tmp/home.html
-          curl --fail --retry 5 --retry-delay 3 --max-time 30 --output /tmp/hospital.html https://ilovemybody.in/hospital.html
-          grep -q 'NO LOGIN NEEDED TO EXPLORE' /tmp/hospital.html
-          grep -q 'ilmb-7screen.css' /tmp/hospital.html
-          curl --fail --retry 5 --retry-delay 3 --max-time 30 --output /tmp/access.html https://ilovemybody.in/app/access.php
-          grep -qi 'PATIENT ID.*PASSWORD' /tmp/access.html
-          grep -q 'ilmb-7screen.css' /tmp/access.html
-          curl --fail --retry 5 --retry-delay 3 --max-time 30 --output /tmp/nilesh.html https://ilovemybody.in/app/nilesh.php
-          grep -q 'PRIVATE PATIENT' /tmp/nilesh.html
-          grep -q 'ilmb-7screen.css' /tmp/nilesh.html
-          grep -q 'nilesh-plan-inject.js?v=3' /tmp/nilesh.html
-          curl --fail --retry 5 --retry-delay 3 --max-time 30 --output /tmp/nilesh-plan.js 'https://ilovemybody.in/app/assets/nilesh-plan-inject.js?v=3'
-          grep -q 'My 7-Day Plan' /tmp/nilesh-plan.js
-          grep -q 'Previous' /tmp/nilesh-plan.js
-          grep -q 'Next' /tmp/nilesh-plan.js
-          grep -q 'weekly-scroll' /tmp/nilesh-plan.js
-          curl --fail --retry 5 --retry-delay 3 --max-time 30 --output /tmp/default-stroke.html https://ilovemybody.in/app/disease-default-stroke.php
-          grep -q 'GENERIC ADULT DEFAULT' /tmp/default-stroke.html
-          grep -q '7-DAY FOOD PLAN' /tmp/default-stroke.html
-          grep -q 'ilmb-7screen.css' /tmp/default-stroke.html
-          curl --fail --retry 5 --retry-delay 3 --max-time 30 --output /tmp/7screen.css https://ilovemybody.in/assets/ilmb-7screen.css
-          grep -q 'DESKTOP 1150-1679' /tmp/7screen.css
-          grep -q 'EXTRA SMALL <=389' /tmp/7screen.css
-          code=$(curl -sS -o /tmp/api.json -w '%{http_code}' 'https://ilovemybody.in/app/api.php?action=bootstrap')
-          test "$code" = "401"
-          code=$(curl -sS -o /tmp/review.html -w '%{http_code}' 'https://ilovemybody.in/app/hospital-review.php')
-          test "$code" = "404" -o "$code" = "401"
-          echo 'PATIENT_READINESS_SMOKE_TEST=PASS'
+          curl --fail --retry 5 --retry-delay 3 --max-time 30 -o "$RUNNER_TEMP/home.html" https://ilovemybody.in/
+          grep -q 'I LOVE MY BODY' "$RUNNER_TEMP/home.html"
+          grep -q 'Hospital Lobby' "$RUNNER_TEMP/home.html"
+          grep -q 'Free Self-Tests' "$RUNNER_TEMP/home.html"
+          for f in visual-37f243ec27c6.jpg visual-4e97e089ffa6.jpg visual-743ce6202334.png visual-a70606b81c9e.jpg; do curl --fail --head --retry 3 --max-time 20 "https://ilovemybody.in/assets/$f"; done
+          code=$(curl -sS -o "$RUNNER_TEMP/app.html" -w '%{http_code}' https://ilovemybody.in/app/)
+          test "$code" = 200 -o "$code" = 302 -o "$code" = 401
+          code=$(curl -sS -o "$RUNNER_TEMP/api.json" -w '%{http_code}' 'https://ilovemybody.in/app/api.php?action=bootstrap')
+          test "$code" = 401
+
